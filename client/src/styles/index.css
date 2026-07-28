@@ -357,6 +357,133 @@ a {
   padding: 16px;
 }
 
+/* ===== Auth ===== */
+.page--narrow {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.auth-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-card);
+  margin-top: 24px;
+}
+
+.auth-card h1 {
+  font-size: 1.4rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.form-field small {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.form-error {
+  background: rgba(214, 69, 69, 0.08);
+  border: 1px solid rgba(214, 69, 69, 0.3);
+  color: var(--color-danger);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  font-size: 0.9rem;
+}
+
+.form-error ul {
+  margin-top: 4px;
+  padding-left: 18px;
+}
+
+.radio-group {
+  border: none;
+  display: flex;
+  gap: 16px;
+  font-size: 0.95rem;
+}
+
+.radio-group legend {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.auth-card__switch {
+  margin-top: 16px;
+  font-size: 0.9rem;
+}
+
+.auth-card__switch a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.auth-card__hint {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.app-header__user {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ===== Dashboard ===== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.dashboard-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.dashboard-card--muted {
+  opacity: 0.75;
+}
+
+.dashboard-card h2 {
+  font-size: 1.05rem;
+}
+
+.dashboard-card p {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  flex: 1;
+}
+
 /* ===== Pagination ===== */
 .pagination {
   display: flex;

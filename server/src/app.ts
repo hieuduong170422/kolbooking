@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
 import helmet from 'helmet';
@@ -22,6 +23,7 @@ export const createApp = (deps: AppDependencies): Express => {
   app.use(cors({ origin: env.CORS_ORIGIN.split(','), credentials: true }));
   app.use(express.json({ limit: JSON_BODY_LIMIT }));
   app.use(express.urlencoded({ extended: true, limit: JSON_BODY_LIMIT }));
+  app.use(cookieParser());
 
   if (env.NODE_ENV !== 'test') {
     app.use(pinoHttp({ logger }));

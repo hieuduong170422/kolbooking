@@ -85,15 +85,24 @@ Envelope chung: `{ success, data, error, meta? }` — lỗi có `error.code` ổ
 | Endpoint | Mô tả |
 |---|---|
 | `GET /api/v1/health` | Health check |
+| `POST /api/v1/auth/register` | Đăng ký (role `creator`/`brand`) → user + access token, set refresh cookie |
+| `POST /api/v1/auth/login` | Đăng nhập → user + access token, set refresh cookie |
+| `POST /api/v1/auth/refresh` | Cấp access token mới từ refresh cookie (xoay vòng, chống replay) |
+| `POST /api/v1/auth/logout` | Thu hồi refresh token + xóa cookie |
+| `GET /api/v1/auth/me` | User hiện tại (Bearer access token) |
 | `GET /api/v1/creators` | Danh sách creator công khai — filter `search, city, creatorType, platform, minPrice, maxPrice`, sort `rating\|price_asc\|price_desc\|newest`, phân trang `page, limit` |
 | `GET /api/v1/creators/:id` | Chi tiết creator (chỉ creator `verified`) |
+
+**Cơ chế auth**: access token JWT (HS256, mặc định 15 phút) gửi qua header `Authorization: Bearer`; refresh token opaque nằm trong httpOnly cookie (7 ngày), chỉ lưu hash phía server, xoay vòng mỗi lần refresh. Mật khẩu hash bằng scrypt. RBAC qua middleware `requireAuth` + `requireRole(...)` (AUTH-005). Client giữ access token trong bộ nhớ (không localStorage), tự refresh khi gặp 401.
+
+**Tài khoản demo (dev)**: `creator@demo.vn`, `brand@demo.vn`, `admin@demo.vn` — mật khẩu `Demo@1234` (`locked@demo.vn` để thử tài khoản bị khóa). Không seed khi `NODE_ENV=production`.
 
 Module `creators` là **module mẫu end-to-end** thể hiện đủ các layer; các module tiếp theo copy đúng cấu trúc này.
 
 ## Lộ trình module (theo SRS Epic)
 
 - [x] E0 — Base structure + discovery skeleton (creators)
-- [ ] E1 Identity & Profiles — auth, roles, creator/brand onboarding
+- [~] E1 Identity & Profiles — **đã có**: register/login/refresh/logout/me, RBAC, khóa tài khoản; **còn lại**: xác minh email/OTP (AUTH-002), quên mật khẩu (AUTH-004), 2FA admin (AUTH-008), onboarding hồ sơ creator/brand
 - [ ] E2 Catalog & Discovery — package, portfolio, search/filter đầy đủ
 - [ ] E3 Booking Core — brief, snapshot, state machine, chat, notification
 - [ ] E4 Fulfillment — submission, revision, approval
