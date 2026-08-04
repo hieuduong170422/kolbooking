@@ -1,11 +1,13 @@
 import { createApp } from './app.js';
-import { env } from './config/env.js';
+import { UPLOADS_DIR, env } from './config/env.js';
+import { InMemoryAuditRepository } from './modules/audit/audit.repository.memory.js';
 import { InMemorySessionRepository } from './modules/auth/session.repository.memory.js';
 import { InMemoryCreatorRepository } from './modules/creators/creator.repository.memory.js';
 import { CREATOR_SEED } from './modules/creators/creator.seed.js';
 import { InMemoryUserRepository } from './modules/users/user.repository.memory.js';
 import { buildUserSeed } from './modules/users/user.seed.js';
 import { logger } from './shared/logger/logger.js';
+import { LocalDiskFileStorage } from './shared/storage/file-storage.local.js';
 
 const userSeed = env.NODE_ENV === 'production' ? [] : await buildUserSeed();
 
@@ -13,6 +15,8 @@ const app = createApp({
   creatorRepository: new InMemoryCreatorRepository(CREATOR_SEED),
   userRepository: new InMemoryUserRepository(userSeed),
   sessionRepository: new InMemorySessionRepository(),
+  auditRepository: new InMemoryAuditRepository(),
+  fileStorage: new LocalDiskFileStorage(UPLOADS_DIR),
 });
 
 const server = app.listen(env.PORT, () => {

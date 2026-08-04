@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import { env } from '../config/env.js';
+import type { AuditRepository } from '../modules/audit/audit.repository.js';
 import { createAuthRouter } from '../modules/auth/auth.routes.js';
 import type { SessionRepository } from '../modules/auth/session.repository.js';
 import { createCreatorRouter } from '../modules/creators/creator.routes.js';
@@ -8,11 +9,14 @@ import type { CreatorRepository } from '../modules/creators/creator.repository.j
 import { createHealthRouter } from '../modules/health/health.routes.js';
 import type { UserRepository } from '../modules/users/user.repository.js';
 import { buildErrorBody } from '../shared/http/api-response.js';
+import type { FileStorage } from '../shared/storage/file-storage.js';
 
 export interface AppDependencies {
   readonly creatorRepository: CreatorRepository;
   readonly userRepository: UserRepository;
   readonly sessionRepository: SessionRepository;
+  readonly auditRepository: AuditRepository;
+  readonly fileStorage: FileStorage;
 }
 
 /** Rate limit chặt hơn cho auth: chống brute-force login/OTP (SEC-002). */
