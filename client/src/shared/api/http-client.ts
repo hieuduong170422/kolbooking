@@ -125,3 +125,38 @@ export const apiPost = async <T>(url: string, body?: unknown): Promise<ApiSucces
     throw toApiClientError(error);
   }
 };
+
+export const apiPatch = async <T>(url: string, body?: unknown): Promise<ApiSuccessBody<T>> => {
+  try {
+    const response = await httpClient.patch<ApiSuccessBody<T>>(url, body);
+    return response.data;
+  } catch (error) {
+    throw toApiClientError(error);
+  }
+};
+
+export const apiDelete = async <T>(url: string): Promise<ApiSuccessBody<T>> => {
+  try {
+    const response = await httpClient.delete<ApiSuccessBody<T>>(url);
+    return response.data;
+  } catch (error) {
+    throw toApiClientError(error);
+  }
+};
+
+/**
+ * Upload multipart (CRE-004). Phải override Content-Type theo request vì default
+ * `application/json` (dòng 16) sẽ làm axios transformRequest JSON-hóa FormData
+ * (`hasJSONContentType` → `JSON.stringify(formDataToJSON(data))`) — hỏng upload.
+ * Header `multipart/form-data`: browser tự thêm boundary khi body là FormData.
+ */
+export const apiUpload = async <T>(url: string, formData: FormData): Promise<ApiSuccessBody<T>> => {
+  try {
+    const response = await httpClient.post<ApiSuccessBody<T>>(url, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  } catch (error) {
+    throw toApiClientError(error);
+  }
+};
