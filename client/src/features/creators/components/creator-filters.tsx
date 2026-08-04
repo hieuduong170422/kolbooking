@@ -2,10 +2,13 @@ import {
   CREATOR_SORT_OPTIONS,
   CREATOR_TYPES,
   CREATOR_TYPE_LABELS,
+  SERVICE_MODES,
+  SERVICE_MODE_LABELS,
   SORT_LABELS,
   type CreatorListFilter,
   type CreatorSortOption,
   type CreatorType,
+  type ServiceMode,
 } from '../types/creator-types';
 
 interface CreatorFiltersProps {
@@ -41,6 +44,21 @@ export const CreatorFilters = ({ filter, onChange }: CreatorFiltersProps) => {
         {CREATOR_TYPES.map((type) => (
           <option key={type} value={type}>
             {CREATOR_TYPE_LABELS[type]}
+          </option>
+        ))}
+      </select>
+      <select
+        className="input"
+        aria-label="Hình thức nhận việc"
+        value={filter.serviceMode ?? ''}
+        onChange={(event) =>
+          patch({ serviceMode: (event.target.value || undefined) as ServiceMode | undefined })
+        }
+      >
+        <option value="">Tất cả hình thức</option>
+        {SERVICE_MODES.map((mode) => (
+          <option key={mode} value={mode}>
+            {SERVICE_MODE_LABELS[mode]}
           </option>
         ))}
       </select>

@@ -1,6 +1,38 @@
 import { Link } from 'react-router';
 import { useAuth } from '../features/auth/store/use-auth';
 import { ROLE_LABELS } from '../features/auth/types/auth-types';
+import { StatusBanner } from '../features/creators/components/status-banner';
+import { useCreatorProfile } from '../features/creators/hooks/use-creator-profile';
+import { CREATOR_STATUS_LABELS } from '../features/creators/types/creator-types';
+
+/** Card hồ sơ creator — render riêng để hook useCreatorProfile gọi vô điều kiện trong component này. */
+const CreatorProfileCard = () => {
+  const { data: profile, isPending, isError } = useCreatorProfile();
+
+  return (
+    <div className="dashboard-card">
+      <h2>Hồ sơ creator</h2>
+      {isPending ? (
+        <p>Đang tải trạng thái hồ sơ...</p>
+      ) : isError ? (
+        <>
+          <p>Bạn chưa có hồ sơ creator — tạo ngay để bắt đầu nhận booking.</p>
+          <Link to="/onboarding" className="button button--primary">
+            Tạo hồ sơ ngay
+          </Link>
+        </>
+      ) : profile ? (
+        <>
+          <span className="badge">{CREATOR_STATUS_LABELS[profile.status]}</span>
+          <StatusBanner status={profile.status} statusReason={profile.statusReason} />
+          <Link to="/onboarding" className="button button--secondary">
+            Quản lý hồ sơ
+          </Link>
+        </>
+      ) : null}
+    </div>
+  );
+};
 
 /** Trang sau đăng nhập — placeholder cho dashboard Brand/Creator (Epic E3+). */
 export const DashboardPage = () => {
@@ -19,6 +51,7 @@ export const DashboardPage = () => {
       </div>
 
       <div className="dashboard-grid">
+        {user.role === 'creator' ? <CreatorProfileCard /> : null}
         <div className="dashboard-card">
           <h2>Khám phá creator</h2>
           <p>Tìm creator theo lĩnh vực, khu vực và ngân sách.</p>

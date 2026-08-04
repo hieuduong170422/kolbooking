@@ -86,6 +86,7 @@ export interface CreatorListFilter {
   readonly city?: string;
   readonly creatorType?: CreatorType;
   readonly platform?: SocialPlatform;
+  readonly serviceMode?: ServiceMode;
   readonly sort?: CreatorSortOption;
   readonly page?: number;
   readonly limit?: number;
@@ -143,6 +144,11 @@ export const CREATOR_TYPE_LABELS: Record<CreatorType, string> = {
   influencer: 'Influencer',
   koc: 'KOC',
   ugc: 'UGC Creator',
+};
+
+export const CREATOR_LANGUAGE_LABELS: Record<CreatorLanguage, string> = {
+  vi: 'Tiếng Việt',
+  en: 'English',
 };
 
 export const SORT_LABELS: Record<CreatorSortOption, string> = {

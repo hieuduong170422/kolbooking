@@ -6,6 +6,7 @@ import type {
   CreatorListFilter,
   CreatorSortOption,
   CreatorType,
+  ServiceMode,
 } from '../features/creators/types/creator-types';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
@@ -15,6 +16,7 @@ import { Pagination } from '../shared/components/pagination/pagination';
 const filterFromSearchParams = (params: URLSearchParams): CreatorListFilter => ({
   search: params.get('search') ?? undefined,
   creatorType: (params.get('creatorType') as CreatorType | null) ?? undefined,
+  serviceMode: (params.get('serviceMode') as ServiceMode | null) ?? undefined,
   sort: (params.get('sort') as CreatorSortOption | null) ?? 'rating',
   page: Number(params.get('page') ?? '1') || 1,
   limit: 12,
@@ -24,6 +26,7 @@ const searchParamsFromFilter = (filter: CreatorListFilter): URLSearchParams => {
   const params = new URLSearchParams();
   if (filter.search) params.set('search', filter.search);
   if (filter.creatorType) params.set('creatorType', filter.creatorType);
+  if (filter.serviceMode) params.set('serviceMode', filter.serviceMode);
   if (filter.sort && filter.sort !== 'rating') params.set('sort', filter.sort);
   if (filter.page && filter.page > 1) params.set('page', String(filter.page));
   return params;

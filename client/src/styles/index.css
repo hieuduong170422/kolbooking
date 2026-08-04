@@ -761,3 +761,119 @@ a {
   padding: 10px 12px;
   font-size: 0.9rem;
 }
+
+/* ===== Status & Public Detail ===== */
+.status-banner {
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.status-banner--neutral {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.status-banner--info {
+  background: rgba(91, 72, 238, 0.08);
+  border: 1px solid rgba(91, 72, 238, 0.3);
+  color: var(--color-primary);
+}
+
+.status-banner--warning {
+  background: rgba(183, 121, 31, 0.1);
+  border: 1px solid rgba(183, 121, 31, 0.35);
+  color: #9a6213;
+}
+
+.status-banner--danger {
+  background: rgba(214, 69, 69, 0.08);
+  border: 1px solid rgba(214, 69, 69, 0.3);
+  color: var(--color-danger);
+}
+
+.status-banner--success {
+  background: rgba(45, 148, 84, 0.1);
+  border: 1px solid rgba(45, 148, 84, 0.3);
+  color: #1f7a4d;
+}
+
+.creator-detail__avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+}
+
+.creator-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+.creator-metrics__note {
+  flex-basis: 100%;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.creator-detail__empty {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.creator-portfolio {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.creator-portfolio__item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.creator-portfolio__media {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--color-bg);
+}
+
+.creator-portfolio__link {
+  display: block;
+  padding: 24px 16px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-primary);
+  word-break: break-all;
+}
+
+.creator-portfolio__body {
+  padding: 10px 12px;
+  font-size: 0.85rem;
+}
+
+.creator-portfolio__caption {
+  font-weight: 600;
+}
+
+.creator-portfolio__category {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}

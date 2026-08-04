@@ -19,6 +19,7 @@ export const fetchCreators = (
     city: filter.city,
     creatorType: filter.creatorType,
     platform: filter.platform,
+    serviceMode: filter.serviceMode,
     sort: filter.sort,
     page: filter.page,
     limit: filter.limit,
