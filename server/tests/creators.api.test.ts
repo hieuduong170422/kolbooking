@@ -1,8 +1,19 @@
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { buildTestApp } from './helpers/build-test-app.js';
+import { CREATOR_SEED } from '../src/modules/creators/creator.seed.js';
+import type { Creator } from '../src/modules/creators/creator.types.js';
 
 const app = buildTestApp();
+
+// Bộ dữ liệu có đủ 3 serviceMode để test filter (CRE-006) — bản sao từ seed verified,
+// chỉ đổi id/serviceMode. Default sort là rating → crt_sm_both (4.9) đứng đầu.
+const serviceModeSeed: readonly Creator[] = [
+  { ...structuredClone(CREATOR_SEED[0]!), id: 'crt_sm_online', serviceMode: 'online' },
+  { ...structuredClone(CREATOR_SEED[1]!), id: 'crt_sm_offline', serviceMode: 'offline' },
+  { ...structuredClone(CREATOR_SEED[2]!), id: 'crt_sm_both', serviceMode: 'both' },
+];
+const serviceModeApp = buildTestApp({ creators: serviceModeSeed });
 
 describe('GET /api/v1/creators', () => {
   it('chỉ trả về creator verified kèm pagination meta', async () => {
@@ -72,6 +83,40 @@ describe('GET /api/v1/creators', () => {
     const response = await request(app).get('/api/v1/creators?minPrice=500000&maxPrice=100000');
 
     expect(response.status).toBe(400);
+    expect(response.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('filter serviceMode=online chỉ trả creator online hoặc both (CRE-006)', async () => {
+    const response = await request(serviceModeApp).get('/api/v1/creators?serviceMode=online');
+
+    expect(response.status).toBe(200);
+    const ids = response.body.data.map((c: { id: string }) => c.id);
+    expect(ids).toHaveLength(2);
+    expect(ids).toEqual(expect.arrayContaining(['crt_sm_online', 'crt_sm_both']));
+  });
+
+  it('filter serviceMode=offline chỉ trả creator offline hoặc both (CRE-006)', async () => {
+    const response = await request(serviceModeApp).get('/api/v1/creators?serviceMode=offline');
+
+    expect(response.status).toBe(200);
+    const ids = response.body.data.map((c: { id: string }) => c.id);
+    expect(ids).toHaveLength(2);
+    expect(ids).toEqual(expect.arrayContaining(['crt_sm_offline', 'crt_sm_both']));
+  });
+
+  it('filter serviceMode=both chỉ trả creator both (CRE-006)', async () => {
+    const response = await request(serviceModeApp).get('/api/v1/creators?serviceMode=both');
+
+    expect(response.status).toBe(200);
+    const ids = response.body.data.map((c: { id: string }) => c.id);
+    expect(ids).toEqual(['crt_sm_both']);
+  });
+
+  it('trả 400 VALIDATION_ERROR khi serviceMode không hợp lệ (CRE-006)', async () => {
+    const response = await request(serviceModeApp).get('/api/v1/creators?serviceMode=abc');
+
+    expect(response.status).toBe(400);
+    expect(response.body.success).toBe(false);
     expect(response.body.error.code).toBe('VALIDATION_ERROR');
   });
 });

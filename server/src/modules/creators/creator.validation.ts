@@ -26,6 +26,7 @@ export const creatorListQuerySchema = z
     city: z.string().trim().min(1).max(100).optional(),
     creatorType: z.enum(CREATOR_TYPES).optional(),
     platform: z.enum(SOCIAL_PLATFORMS).optional(),
+    serviceMode: z.enum(SERVICE_MODES).optional(),
     minPrice: z.coerce.number().int().nonnegative().optional(),
     maxPrice: z.coerce.number().int().nonnegative().optional(),
     sort: z.enum(CREATOR_SORT_OPTIONS).default('rating'),

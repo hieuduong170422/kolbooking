@@ -156,6 +156,7 @@ export interface CreatorListFilter {
   readonly city?: string;
   readonly creatorType?: CreatorType;
   readonly platform?: SocialPlatform;
+  readonly serviceMode?: ServiceMode;
   readonly minPriceVnd?: number;
   readonly maxPriceVnd?: number;
   readonly sort: CreatorSortOption;

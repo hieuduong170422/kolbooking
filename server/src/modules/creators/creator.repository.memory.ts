@@ -29,6 +29,14 @@ const matchesFilter = (creator: Creator, filter: CreatorListFilter): boolean => 
   ) {
     return false;
   }
+  // serviceMode: 'online' khớp creator online hoặc both; 'offline' tương tự; 'both' khớp cả hai nơi (CRE-006).
+  if (
+    filter.serviceMode &&
+    creator.serviceMode !== filter.serviceMode &&
+    creator.serviceMode !== 'both'
+  ) {
+    return false;
+  }
   if (filter.minPriceVnd !== undefined && creator.priceFromVnd < filter.minPriceVnd) return false;
   if (filter.maxPriceVnd !== undefined && creator.priceFromVnd > filter.maxPriceVnd) return false;
   return true;

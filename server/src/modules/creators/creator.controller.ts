@@ -12,6 +12,7 @@ const toListFilter = (query: CreatorListQuery): CreatorListFilter => ({
   ...(query.city !== undefined ? { city: query.city } : {}),
   ...(query.creatorType !== undefined ? { creatorType: query.creatorType } : {}),
   ...(query.platform !== undefined ? { platform: query.platform } : {}),
+  ...(query.serviceMode !== undefined ? { serviceMode: query.serviceMode } : {}),
   ...(query.minPrice !== undefined ? { minPriceVnd: query.minPrice } : {}),
   ...(query.maxPrice !== undefined ? { maxPriceVnd: query.maxPrice } : {}),
   sort: query.sort,
