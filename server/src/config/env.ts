@@ -1,7 +1,14 @@
 import 'dotenv/config';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 
 const DEV_ONLY_JWT_SECRET = 'dev-only-secret-change-me-before-production!';
+
+const SERVER_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+
+/** Thư mục chứa file upload (SEC-005) — luôn trỏ tới server/uploads, không phụ thuộc cwd. */
+export const UPLOADS_DIR = path.join(SERVER_ROOT, 'uploads');
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),

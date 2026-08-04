@@ -15,6 +15,9 @@ coverage/
 *.log
 npm-debug.log*
 
+# Uploads
+server/uploads/
+
 # Editor / OS
 .DS_Store
 .idea/

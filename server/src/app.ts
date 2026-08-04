@@ -3,7 +3,7 @@ import cors from 'cors';
 import express, { type Express } from 'express';
 import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
-import { env } from './config/env.js';
+import { UPLOADS_DIR, env } from './config/env.js';
 import { createV1Router, type AppDependencies } from './routes/v1.js';
 import { logger } from './shared/logger/logger.js';
 import { errorHandler } from './shared/middlewares/error-handler.js';
@@ -24,6 +24,8 @@ export const createApp = (deps: AppDependencies): Express => {
   app.use(express.json({ limit: JSON_BODY_LIMIT }));
   app.use(express.urlencoded({ extended: true, limit: JSON_BODY_LIMIT }));
   app.use(cookieParser());
+
+  app.use('/uploads', express.static(UPLOADS_DIR));
 
   if (env.NODE_ENV !== 'test') {
     app.use(pinoHttp({ logger }));
