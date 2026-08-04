@@ -7,9 +7,11 @@ import { CreatorCard } from './creator-card';
 const sampleCreator: Creator = {
   id: 'crt_0001',
   displayName: 'Lan Chi Foodie',
+  avatarUrl: null,
   bio: 'Food reviewer Hà Nội.',
   city: 'Hà Nội',
   niches: ['f&b', 'cafe'],
+  language: 'vi',
   creatorType: 'koc',
   socialAccounts: [
     {
@@ -20,6 +22,9 @@ const sampleCreator: Creator = {
       isVerified: true,
     },
   ],
+  audienceMetrics: null,
+  serviceMode: 'both',
+  portfolioItems: [],
   priceFromVnd: 1_500_000,
   rating: 4.8,
   completedBookings: 32,
