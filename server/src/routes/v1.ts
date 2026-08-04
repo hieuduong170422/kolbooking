@@ -4,6 +4,7 @@ import { env } from '../config/env.js';
 import type { AuditRepository } from '../modules/audit/audit.repository.js';
 import { createAuthRouter } from '../modules/auth/auth.routes.js';
 import type { SessionRepository } from '../modules/auth/session.repository.js';
+import { createCreatorPortfolioRouter } from '../modules/creators/creator-portfolio.routes.js';
 import { createCreatorReviewRouter } from '../modules/creators/creator-review.routes.js';
 import { createCreatorRouter } from '../modules/creators/creator.routes.js';
 import type { CreatorRepository } from '../modules/creators/creator.repository.js';
@@ -46,6 +47,14 @@ export const createV1Router = (deps: AppDependencies): Router => {
       creatorRepository: deps.creatorRepository,
       userRepository: deps.userRepository,
       auditRepository: deps.auditRepository,
+    }),
+  );
+  // Mount portfolio TRƯỚC creators router: /me/portfolio không được rơi vào /:id.
+  router.use(
+    '/creators',
+    createCreatorPortfolioRouter({
+      creatorRepository: deps.creatorRepository,
+      fileStorage: deps.fileStorage,
     }),
   );
   router.use('/creators', createCreatorRouter(deps.creatorRepository));
