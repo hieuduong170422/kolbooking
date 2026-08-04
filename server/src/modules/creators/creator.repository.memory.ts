@@ -1,9 +1,12 @@
+import { randomUUID } from 'node:crypto';
 import type { CreatorRepository } from './creator.repository.js';
 import type {
   Creator,
   CreatorListFilter,
   CreatorListResult,
   CreatorSortOption,
+  CreatorStatus,
+  PortfolioItem,
 } from './creator.types.js';
 
 const matchesSearch = (creator: Creator, search: string): boolean => {
@@ -40,13 +43,14 @@ const sortComparators: Record<CreatorSortOption, (a: Creator, b: Creator) => num
 
 /**
  * In-memory implementation cho giai đoạn base/dev.
- * Mọi thao tác trả về bản sao mới — không mutate dữ liệu nguồn.
+ * Mọi thao tác trả về bản sao mới (structuredClone) — không mutate
+ * mảng nguồn; write method reassign this.creators bằng mảng mới (immutability).
  */
 export class InMemoryCreatorRepository implements CreatorRepository {
-  private readonly creators: readonly Creator[];
+  private creators: readonly Creator[];
 
   constructor(creators: readonly Creator[]) {
-    this.creators = creators;
+    this.creators = [...creators];
   }
 
   findAll(filter: CreatorListFilter): Promise<CreatorListResult> {
@@ -59,6 +63,66 @@ export class InMemoryCreatorRepository implements CreatorRepository {
 
   findById(id: string): Promise<Creator | null> {
     const found = this.creators.find((creator) => creator.id === id);
-    return Promise.resolve(found ?? null);
+    return Promise.resolve(found ? structuredClone(found) : null);
+  }
+
+  findByUserId(userId: string): Promise<Creator | null> {
+    const found = this.creators.find((creator) => creator.userId === userId);
+    return Promise.resolve(found ? structuredClone(found) : null);
+  }
+
+  create(input: Creator): Promise<Creator> {
+    const created: Creator = {
+      ...structuredClone(input),
+      id: `crt_${randomUUID()}`,
+    };
+    this.creators = [...this.creators, created];
+    return Promise.resolve(structuredClone(created));
+  }
+
+  update(id: string, input: Creator): Promise<Creator | null> {
+    const found = this.creators.find((creator) => creator.id === id);
+    if (!found) return Promise.resolve(null);
+    const updated: Creator = { ...structuredClone(input), id };
+    this.creators = this.creators.map((creator) => (creator.id === id ? updated : creator));
+    return Promise.resolve(structuredClone(updated));
+  }
+
+  findByStatusForReview(statuses: readonly CreatorStatus[]): Promise<readonly Creator[]> {
+    const matches = this.creators
+      .filter((creator) => statuses.includes(creator.status))
+      .map((creator) => structuredClone(creator));
+    return Promise.resolve(matches);
+  }
+
+  findForReviewById(id: string): Promise<Creator | null> {
+    const found = this.creators.find((creator) => creator.id === id);
+    return Promise.resolve(found ? structuredClone(found) : null);
+  }
+
+  addPortfolioItem(creatorId: string, item: PortfolioItem): Promise<Creator | null> {
+    const found = this.creators.find((creator) => creator.id === creatorId);
+    if (!found) return Promise.resolve(null);
+    const updated: Creator = {
+      ...found,
+      portfolioItems: [...found.portfolioItems, structuredClone(item)],
+    };
+    this.creators = this.creators.map((creator) => (creator.id === creatorId ? updated : creator));
+    return Promise.resolve(structuredClone(updated));
+  }
+
+  removePortfolioItem(creatorId: string, itemId: string): Promise<Creator | null> {
+    const found = this.creators.find((creator) => creator.id === creatorId);
+    if (!found) return Promise.resolve(null);
+    // Lựa chọn thiết kế: item không tồn tại → trả creator không đổi (idempotent), không throw.
+    if (!found.portfolioItems.some((item) => item.id === itemId)) {
+      return Promise.resolve(structuredClone(found));
+    }
+    const updated: Creator = {
+      ...found,
+      portfolioItems: found.portfolioItems.filter((item) => item.id !== itemId),
+    };
+    this.creators = this.creators.map((creator) => (creator.id === creatorId ? updated : creator));
+    return Promise.resolve(structuredClone(updated));
   }
 }
