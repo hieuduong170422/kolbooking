@@ -4,6 +4,7 @@ import { env } from '../config/env.js';
 import type { AuditRepository } from '../modules/audit/audit.repository.js';
 import { createAuthRouter } from '../modules/auth/auth.routes.js';
 import type { SessionRepository } from '../modules/auth/session.repository.js';
+import { createCreatorReviewRouter } from '../modules/creators/creator-review.routes.js';
 import { createCreatorRouter } from '../modules/creators/creator.routes.js';
 import type { CreatorRepository } from '../modules/creators/creator.repository.js';
 import { createHealthRouter } from '../modules/health/health.routes.js';
@@ -38,6 +39,15 @@ export const createV1Router = (deps: AppDependencies): Router => {
 
   router.use('/health', createHealthRouter());
   router.use('/auth', authRateLimiter, createAuthRouter(deps.userRepository, deps.sessionRepository));
+  // Mount admin review TRƯỚC creators router: /reviews không được rơi vào /:id (route ordering).
+  router.use(
+    '/creators',
+    createCreatorReviewRouter({
+      creatorRepository: deps.creatorRepository,
+      userRepository: deps.userRepository,
+      auditRepository: deps.auditRepository,
+    }),
+  );
   router.use('/creators', createCreatorRouter(deps.creatorRepository));
 
   return router;
