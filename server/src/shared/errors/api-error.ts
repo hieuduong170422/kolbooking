@@ -45,6 +45,23 @@ export class ApiError extends Error {
     return new ApiError(404, 'NOT_FOUND', message);
   }
 
+  /** Creator chưa có hồ sơ — client redirect sang onboarding (CRE-001). */
+  static profileNotFound(message = 'Bạn chưa có hồ sơ creator. Hãy tạo hồ sơ trước.'): ApiError {
+    return new ApiError(404, 'PROFILE_NOT_FOUND', message);
+  }
+
+  /** Hồ sơ đang bị khóa (pending_review/suspended) — không cho thao tác (CRE-007). */
+  static profileLocked(
+    message = 'Hồ sơ đang được xử lý hoặc đã bị khóa, không thể thao tác lúc này.',
+  ): ApiError {
+    return new ApiError(409, 'PROFILE_LOCKED', message);
+  }
+
+  /** Hồ sơ thiếu thông tin bắt buộc để gửi duyệt (CRE-001). */
+  static profileIncomplete(message = 'Hồ sơ chưa đủ thông tin bắt buộc để gửi duyệt.'): ApiError {
+    return new ApiError(400, 'PROFILE_INCOMPLETE', message);
+  }
+
   static conflict(message: string): ApiError {
     return new ApiError(409, 'CONFLICT', message);
   }
