@@ -159,4 +159,36 @@ export const CREATOR_SEED: readonly Creator[] = [
     completedBookings: 0,
     createdAt: '2026-07-01T08:00:00.000Z',
   },
+  {
+    // Hồ sơ demo của creator@demo.vn (usr_demo_creator) — trạng thái DRAFT để
+    // chủ tài khoản demo tự hoàn thiện hồ sơ qua onboarding (CRE-001, CRE-007).
+    id: 'crt_demo',
+    userId: 'usr_demo_creator',
+    displayName: 'Creator Demo',
+    avatarUrl: null,
+    bio: 'Creator demo chuyên review quán ăn và trải nghiệm dịch vụ địa phương. Nội dung chân thực, sẵn sàng nhận booking thử nghiệm.',
+    city: 'Hà Nội',
+    niches: ['f&b', 'lifestyle', 'travel'],
+    language: 'vi',
+    creatorType: 'koc',
+    status: 'draft',
+    statusReason: null,
+    socialAccounts: [
+      {
+        platform: 'tiktok',
+        handle: '@creatordemo',
+        url: 'https://www.tiktok.com/@creatordemo',
+        followerCount: 15_000,
+        isVerified: false,
+      },
+    ],
+    audienceMetrics: null,
+    serviceMode: 'both',
+    availability: { availableDays: ['mon', 'wed', 'fri', 'sun'], isPaused: false },
+    portfolioItems: [],
+    priceFromVnd: 1_000_000,
+    rating: 0,
+    completedBookings: 0,
+    createdAt: '2026-08-04T08:00:00.000Z',
+  },
 ];
