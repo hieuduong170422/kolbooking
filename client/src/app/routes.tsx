@@ -1,11 +1,14 @@
 import { Navigate, Route, Routes } from 'react-router';
 import { MainLayout } from '../shared/components/layout/main-layout';
 import { RequireAuth } from '../shared/components/routing/require-auth';
+import { RequireRole } from '../shared/components/routing/require-role';
+import { AdminCreatorsPage } from '../pages/admin-creators-page';
 import { CreatorDetailPage } from '../pages/creator-detail-page';
 import { CreatorsPage } from '../pages/creators-page';
 import { DashboardPage } from '../pages/dashboard-page';
 import { LoginPage } from '../pages/login-page';
 import { NotFoundPage } from '../pages/not-found-page';
+import { OnboardingPage } from '../pages/onboarding-page';
 import { RegisterPage } from '../pages/register-page';
 
 export const AppRoutes = () => (
@@ -21,6 +24,22 @@ export const AppRoutes = () => (
       {/* Cần đăng nhập */}
       <Route element={<RequireAuth />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route
+          path="/onboarding"
+          element={
+            <RequireRole role="creator">
+              <OnboardingPage />
+            </RequireRole>
+          }
+        />
+        <Route
+          path="/admin/creators"
+          element={
+            <RequireRole role="admin">
+              <AdminCreatorsPage />
+            </RequireRole>
+          }
+        />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

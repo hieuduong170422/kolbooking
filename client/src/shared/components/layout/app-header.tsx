@@ -28,6 +28,11 @@ export const AppHeader = () => {
               <NavLink to="/dashboard" className={navLinkClass}>
                 Dashboard
               </NavLink>
+              {user.role === 'admin' && (
+                <NavLink to="/admin/creators" className={navLinkClass}>
+                  Quản trị
+                </NavLink>
+              )}
               <span className="app-header__user" title={user.email}>
                 {user.displayName}
               </span>
