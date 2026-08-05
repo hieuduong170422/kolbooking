@@ -99,6 +99,13 @@ a {
   background: rgba(91, 72, 238, 0.08);
 }
 
+/* Các tab + nút user luôn nằm trên một hàng (không wrap khi viewport hẹp). */
+.app-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 /* ===== Page ===== */
 .page__header {
   margin-bottom: 20px;
@@ -464,6 +471,15 @@ a {
 }
 
 /* ===== Header User Menu ===== */
+/* Dấu phân cách giữa tab cuối và tên user (chỉ hiển thị khi đã đăng nhập). */
+.app-header__user-menu::before {
+  content: '|';
+  margin: 0 8px;
+  color: var(--color-text-muted);
+  font-weight: 400;
+  opacity: 0.7;
+}
+
 .app-header__user-menu {
   position: relative;
   margin-left: 4px;
