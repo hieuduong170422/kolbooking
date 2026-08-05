@@ -11,6 +11,9 @@ import {
   type ServiceMode,
 } from '../types/creator-types';
 
+/** Các thành phố phổ biến từ dữ liệu seed — lọc theo chuỗi tự do (SRCH-003). */
+const COMMON_CITIES = ['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Cần Thơ', 'Hải Phòng'] as const;
+
 interface CreatorFiltersProps {
   readonly filter: CreatorListFilter;
   readonly onChange: (next: CreatorListFilter) => void;
@@ -59,6 +62,19 @@ export const CreatorFilters = ({ filter, onChange }: CreatorFiltersProps) => {
         {SERVICE_MODES.map((mode) => (
           <option key={mode} value={mode}>
             {SERVICE_MODE_LABELS[mode]}
+          </option>
+        ))}
+      </select>
+      <select
+        className="input"
+        aria-label="Thành phố"
+        value={filter.city ?? ''}
+        onChange={(event) => patch({ city: event.target.value || undefined })}
+      >
+        <option value="">Tất cả thành phố</option>
+        {COMMON_CITIES.map((city) => (
+          <option key={city} value={city}>
+            {city}
           </option>
         ))}
       </select>

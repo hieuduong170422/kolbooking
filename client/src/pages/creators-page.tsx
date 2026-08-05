@@ -15,6 +15,7 @@ import { Pagination } from '../shared/components/pagination/pagination';
 /** Filter state nằm trên URL để chia sẻ được link kết quả tìm kiếm (SRCH-003). */
 const filterFromSearchParams = (params: URLSearchParams): CreatorListFilter => ({
   search: params.get('search') ?? undefined,
+  city: params.get('city') ?? undefined,
   creatorType: (params.get('creatorType') as CreatorType | null) ?? undefined,
   serviceMode: (params.get('serviceMode') as ServiceMode | null) ?? undefined,
   sort: (params.get('sort') as CreatorSortOption | null) ?? 'rating',
@@ -25,6 +26,7 @@ const filterFromSearchParams = (params: URLSearchParams): CreatorListFilter => (
 const searchParamsFromFilter = (filter: CreatorListFilter): URLSearchParams => {
   const params = new URLSearchParams();
   if (filter.search) params.set('search', filter.search);
+  if (filter.city) params.set('city', filter.city);
   if (filter.creatorType) params.set('creatorType', filter.creatorType);
   if (filter.serviceMode) params.set('serviceMode', filter.serviceMode);
   if (filter.sort && filter.sort !== 'rating') params.set('sort', filter.sort);

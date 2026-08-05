@@ -53,4 +53,33 @@ describe('CreatorFilters (SRCH-003)', () => {
 
     expect(onChange).toHaveBeenCalledWith({ ...baseFilter, creatorType: 'koc', page: 1 });
   });
+
+  it('thay đổi thành phố → onChange với city + reset về trang 1 (SRCH-003)', () => {
+    const onChange = vi.fn();
+    render(<CreatorFilters filter={baseFilter} onChange={onChange} />);
+
+    fireEvent.change(screen.getByLabelText('Thành phố'), { target: { value: 'Hồ Chí Minh' } });
+
+    expect(onChange).toHaveBeenCalledWith({ ...baseFilter, city: 'Hồ Chí Minh', page: 1 });
+  });
+
+  it('chọn "Tất cả thành phố" → city undefined (SRCH-003)', () => {
+    const onChange = vi.fn();
+    render(<CreatorFilters filter={{ ...baseFilter, city: 'Hà Nội' }} onChange={onChange} />);
+
+    fireEvent.change(screen.getByLabelText('Thành phố'), { target: { value: '' } });
+
+    expect(onChange).toHaveBeenCalledWith({ ...baseFilter, city: undefined, page: 1 });
+  });
+
+  it('dropdown thành phố hiển thị danh sách thành phố phổ biến (SRCH-003)', () => {
+    render(<CreatorFilters filter={baseFilter} onChange={vi.fn()} />);
+
+    expect(screen.getByRole('option', { name: 'Tất cả thành phố' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Hà Nội' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Hồ Chí Minh' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Đà Nẵng' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Cần Thơ' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Hải Phòng' })).toBeInTheDocument();
+  });
 });
