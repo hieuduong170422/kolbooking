@@ -90,8 +90,17 @@ Envelope chung: `{ success, data, error, meta? }` — lỗi có `error.code` ổ
 | `POST /api/v1/auth/refresh` | Cấp access token mới từ refresh cookie (xoay vòng, chống replay) |
 | `POST /api/v1/auth/logout` | Thu hồi refresh token + xóa cookie |
 | `GET /api/v1/auth/me` | User hiện tại (Bearer access token) |
-| `GET /api/v1/creators` | Danh sách creator công khai — filter `search, city, creatorType, platform, minPrice, maxPrice`, sort `rating\|price_asc\|price_desc\|newest`, phân trang `page, limit` |
+| `GET /api/v1/creators` | Danh sách creator công khai — filter `search, city, creatorType, platform, serviceMode, minPrice, maxPrice`, sort `rating\|price_asc\|price_desc\|newest`, phân trang `page, limit` |
 | `GET /api/v1/creators/:id` | Chi tiết creator (chỉ creator `verified`) |
+| `GET /api/v1/creators/me` | Hồ sơ creator đang đăng nhập (CRE-001, role creator) |
+| `PUT /api/v1/creators/me` | Tạo/cập nhật hồ sơ theo transition matrix (CRE-002, CRE-007) |
+| `PATCH /api/v1/creators/me/availability` | Cập nhật lịch nhận việc (CRE-010) |
+| `POST /api/v1/creators/me/submit-review` | Gửi hồ sơ chờ admin duyệt (CRE-001) |
+| `POST /api/v1/creators/me/portfolio` | Thêm mục portfolio — upload file hoặc link JSON (CRE-004) |
+| `DELETE /api/v1/creators/me/portfolio/:itemId` | Xóa mục portfolio (CRE-004) |
+| `POST /api/v1/creators/me/avatar` | Upload ảnh đại diện (CRE-004) |
+| `GET /api/v1/creators/reviews` | Hàng chờ duyệt theo trạng thái (CRE-008, role admin) |
+| `POST /api/v1/creators/:id/review` | Duyệt/từ chối/yêu cầu bổ sung/tạm khóa (CRE-008, role admin) |
 
 **Cơ chế auth**: access token JWT (HS256, mặc định 15 phút) gửi qua header `Authorization: Bearer`; refresh token opaque nằm trong httpOnly cookie (7 ngày), chỉ lưu hash phía server, xoay vòng mỗi lần refresh. Mật khẩu hash bằng scrypt. RBAC qua middleware `requireAuth` + `requireRole(...)` (AUTH-005). Client giữ access token trong bộ nhớ (không localStorage), tự refresh khi gặp 401.
 
@@ -102,7 +111,7 @@ Module `creators` là **module mẫu end-to-end** thể hiện đủ các layer;
 ## Lộ trình module (theo SRS Epic)
 
 - [x] E0 — Base structure + discovery skeleton (creators)
-- [~] E1 Identity & Profiles — **đã có**: register/login/refresh/logout/me, RBAC, khóa tài khoản; **còn lại**: xác minh email/OTP (AUTH-002), quên mật khẩu (AUTH-004), 2FA admin (AUTH-008), onboarding hồ sơ creator/brand
+- [~] E1 Identity & Profiles — **đã có**: register/login/refresh/logout/me, RBAC, khóa tài khoản, onboarding hồ sơ creator + admin review queue (CRE-001..010); **còn lại**: xác minh email/OTP (AUTH-002), quên mật khẩu (AUTH-004), 2FA admin (AUTH-008), onboarding hồ sơ brand
 - [ ] E2 Catalog & Discovery — package, portfolio, search/filter đầy đủ
 - [ ] E3 Booking Core — brief, snapshot, state machine, chat, notification
 - [ ] E4 Fulfillment — submission, revision, approval
