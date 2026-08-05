@@ -57,7 +57,13 @@ export const createV1Router = (deps: AppDependencies): Router => {
       fileStorage: deps.fileStorage,
     }),
   );
-  router.use('/creators', createCreatorRouter(deps.creatorRepository));
+  router.use(
+    '/creators',
+    createCreatorRouter({
+      creatorRepository: deps.creatorRepository,
+      auditRepository: deps.auditRepository,
+    }),
+  );
 
   return router;
 };

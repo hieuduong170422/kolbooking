@@ -31,6 +31,21 @@ describe('GET /api/v1/creators', () => {
     for (const creator of response.body.data) {
       expect(creator.status).toBeUndefined();
       expect(creator.createdAt).toBeUndefined();
+      expect(creator.availability).toBeUndefined();
+      expect(creator.statusReason).toBeUndefined();
+      expect(creator.userId).toBeUndefined();
+    }
+  });
+
+  it('public DTO chứa đủ avatarUrl/language/serviceMode/audienceMetrics/portfolioItems (CRE-009)', async () => {
+    const response = await request(app).get('/api/v1/creators');
+    expect(response.body.data.length).toBeGreaterThan(0);
+    for (const creator of response.body.data) {
+      expect(creator).toHaveProperty('avatarUrl');
+      expect(creator).toHaveProperty('language');
+      expect(creator).toHaveProperty('serviceMode');
+      expect(creator).toHaveProperty('audienceMetrics');
+      expect(creator).toHaveProperty('portfolioItems');
     }
   });
 
@@ -128,6 +143,27 @@ describe('GET /api/v1/creators/:id', () => {
     expect(response.status).toBe(200);
     expect(response.body.data.displayName).toBe('Lan Chi Foodie');
     expect(response.body.data.socialAccounts).toHaveLength(1);
+  });
+
+  it('chi tiết public chứa 5 trường mở rộng theo đúng shape (CRE-009)', async () => {
+    const response = await request(app).get('/api/v1/creators/crt_0001');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.avatarUrl).toBeNull();
+    expect(response.body.data.language).toBe('vi');
+    expect(response.body.data.serviceMode).toBe('both');
+    expect(response.body.data.audienceMetrics).toBeNull();
+    expect(response.body.data.portfolioItems).toEqual([]);
+  });
+
+  it('chi tiết public không lộ status/availability/statusReason/userId (CRE-009)', async () => {
+    const response = await request(app).get('/api/v1/creators/crt_0001');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).not.toHaveProperty('status');
+    expect(response.body.data).not.toHaveProperty('availability');
+    expect(response.body.data).not.toHaveProperty('statusReason');
+    expect(response.body.data).not.toHaveProperty('userId');
   });
 
   it('trả 404 với creator chưa verified', async () => {

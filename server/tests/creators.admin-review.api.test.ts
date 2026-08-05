@@ -319,3 +319,53 @@ describe('DTO boundary — admin vs public (CRE-009)', () => {
     }
   });
 });
+
+describe('POST /api/v1/creators/me/submit-review — audit log (CRE-008)', () => {
+  it('submit thành công ghi audit entry creator.submit với before/after status (CRE-008)', async () => {
+    const token = await login('creator@demo.vn');
+
+    // crt_demo (draft) thiếu avatarUrl → hoàn thiện hồ sơ trước khi submit.
+    const put = await request(app)
+      .put('/api/v1/creators/me')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        displayName: 'Creator Demo',
+        avatarUrl: 'https://cdn.example.com/avatar.jpg',
+        bio: 'Creator demo chuyên review quán ăn và trải nghiệm dịch vụ địa phương.',
+        city: 'Hà Nội',
+        niches: ['f&b', 'lifestyle', 'travel'],
+        language: 'vi',
+        creatorType: 'koc',
+        socialAccounts: [
+          {
+            platform: 'tiktok',
+            handle: '@creatordemo',
+            url: 'https://www.tiktok.com/@creatordemo',
+            followerCount: 15_000,
+            isVerified: false,
+          },
+        ],
+        audienceMetrics: null,
+        serviceMode: 'both',
+      });
+    expect(put.status).toBe(200);
+
+    const submit = await request(app)
+      .post('/api/v1/creators/me/submit-review')
+      .set('Authorization', `Bearer ${token}`);
+    expect(submit.status).toBe(200);
+    expect(submit.body.data.status).toBe('pending_review');
+
+    const entries = await auditRepository.listByTarget('creator', 'crt_demo');
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({
+      actorId: 'usr_demo_creator',
+      action: 'creator.submit',
+      targetType: 'creator',
+      targetId: 'crt_demo',
+      before: 'draft',
+      after: 'pending_review',
+      reason: null,
+    });
+  });
+});

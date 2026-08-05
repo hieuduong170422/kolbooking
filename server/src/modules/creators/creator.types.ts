@@ -134,15 +134,25 @@ export interface AvailabilityUpdate {
   readonly isPaused: boolean;
 }
 
-/** Public DTO — chỉ chứa dữ liệu công khai, không PII (CRE-009). */
+/**
+ * Public DTO — chỉ chứa dữ liệu công khai, không PII (CRE-009).
+ * KHÔNG có status/availability/statusReason/userId (danh sách loại trừ CRE-009).
+ * Các trường avatarUrl/language/serviceMode/audienceMetrics/portfolioItems là
+ * dữ liệu hiển thị công khai theo plan (SRS-CM-MVP-1.0 line 76).
+ */
 export interface CreatorPublicDto {
   readonly id: string;
   readonly displayName: string;
+  readonly avatarUrl: string | null;
   readonly bio: string;
   readonly city: string;
   readonly niches: readonly string[];
+  readonly language: CreatorLanguage;
   readonly creatorType: CreatorType;
   readonly socialAccounts: readonly SocialAccount[];
+  readonly audienceMetrics: AudienceMetrics | null;
+  readonly serviceMode: ServiceMode;
+  readonly portfolioItems: readonly PortfolioItem[];
   readonly priceFromVnd: number;
   readonly rating: number;
   readonly completedBookings: number;

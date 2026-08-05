@@ -1,4 +1,5 @@
 import { ApiError } from '../../shared/errors/api-error.js';
+import type { AuditRepository } from '../audit/audit.repository.js';
 import type { CreatorRepository } from './creator.repository.js';
 import { toCreatorOwnerDto, toCreatorPublicDto } from './creator.mapper.js';
 import type {
@@ -20,12 +21,15 @@ export interface CreatorListPage {
 /**
  * Service layer: business rules cho discovery công khai.
  * Chỉ creator "verified" được hiển thị (BR-001); output luôn là public DTO.
+ * Mọi action quan trọng (submit profile) đều ghi audit append-only (CRE-008).
  */
 export class CreatorService {
   private readonly repository: CreatorRepository;
+  private readonly auditRepository: AuditRepository;
 
-  constructor(repository: CreatorRepository) {
+  constructor(repository: CreatorRepository, auditRepository: AuditRepository) {
     this.repository = repository;
+    this.auditRepository = auditRepository;
   }
 
   async listPublicCreators(filter: CreatorListFilter): Promise<CreatorListPage> {
@@ -108,6 +112,18 @@ export class CreatorService {
     }
 
     const updated = await this.applyUpdate(creator.id, { ...creator, status: 'pending_review' });
+
+    // Audit append-only cho action gửi duyệt (CRE-008) — mirror creator-review.service.
+    await this.auditRepository.create({
+      actorId: userId,
+      action: 'creator.submit',
+      targetType: 'creator',
+      targetId: creator.id,
+      before: creator.status,
+      after: updated.status,
+      reason: null,
+    });
+
     return toCreatorOwnerDto(updated);
   }
 

@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { ApiError } from '../src/shared/errors/api-error.js';
+import { InMemoryAuditRepository } from '../src/modules/audit/audit.repository.memory.js';
 import { InMemoryCreatorRepository } from '../src/modules/creators/creator.repository.memory.js';
 import { CREATOR_SEED } from '../src/modules/creators/creator.seed.js';
 import { CreatorService } from '../src/modules/creators/creator.service.js';
 import type { CreatorListFilter } from '../src/modules/creators/creator.types.js';
 
-const service = new CreatorService(new InMemoryCreatorRepository(CREATOR_SEED));
+const service = new CreatorService(
+  new InMemoryCreatorRepository(CREATOR_SEED),
+  new InMemoryAuditRepository(),
+);
 
 const baseFilter: CreatorListFilter = { sort: 'rating', page: 1, limit: 12 };
 

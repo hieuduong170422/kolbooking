@@ -12,6 +12,7 @@ import type {
   CreatorAdminDto,
   CreatorOwnerDto,
   CreatorProfileInput,
+  CreatorPublicDto,
 } from '../src/modules/creators/creator.types.js';
 
 /**
@@ -218,6 +219,51 @@ describe('CreatorOwnerDto — DTO cho chính chủ (CRE-001..CRE-010)', () => {
     ]);
     expect(ownerDto).not.toHaveProperty('userId');
     expect(ownerDto).not.toHaveProperty('userEmail');
+  });
+});
+
+const publicDto = {
+  id: 'crt_0001',
+  displayName: 'Lan Chi Foodie',
+  avatarUrl: 'https://cdn.example.com/avatar.jpg',
+  bio: 'Food reviewer Hà Nội.',
+  city: 'Hà Nội',
+  niches: ['f&b', 'cafe'],
+  language: 'vi',
+  creatorType: 'koc',
+  socialAccounts: fullCreator.socialAccounts,
+  audienceMetrics: fullCreator.audienceMetrics,
+  serviceMode: 'both',
+  portfolioItems: fullCreator.portfolioItems,
+  priceFromVnd: 1_500_000,
+  rating: 4.8,
+  completedBookings: 32,
+} satisfies CreatorPublicDto;
+
+describe('CreatorPublicDto — DTO công khai (CRE-009)', () => {
+  it('chứa đúng 15 trường public, không có status/availability/statusReason/userId (CRE-009)', () => {
+    expect(Object.keys(publicDto).sort()).toEqual([
+      'audienceMetrics',
+      'avatarUrl',
+      'bio',
+      'city',
+      'completedBookings',
+      'creatorType',
+      'displayName',
+      'id',
+      'language',
+      'niches',
+      'portfolioItems',
+      'priceFromVnd',
+      'rating',
+      'serviceMode',
+      'socialAccounts',
+    ]);
+    expect(publicDto).not.toHaveProperty('status');
+    expect(publicDto).not.toHaveProperty('availability');
+    expect(publicDto).not.toHaveProperty('statusReason');
+    expect(publicDto).not.toHaveProperty('userId');
+    expect(publicDto).not.toHaveProperty('userEmail');
   });
 });
 
