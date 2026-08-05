@@ -43,6 +43,7 @@ kolbooking/
 - **Auth**: access token JWT in memory (client) — NEVER localStorage; opaque refresh token in httpOnly cookie, rotated per refresh; scrypt passwords; RBAC `requireAuth` + `requireRole(...)`.
 - Filter/search state on URL (`useSearchParams`) — shareable links (SRCH-003).
 - Lint = oxlint, **client only**. Server relies on `typecheck` (no lint config).
+- **Dev processes chạy background**: luôn chạy `npm run dev` / server / client dưới dạng **background process** (ví dụ `Start-Process cmd.exe -ArgumentList '/c','npm run dev'` với stdout/stderr redirect ra file log trong temp, hoặc `Start-Job`) — KHÔNG chạy foreground vì sẽ block luồng chat. Logs ghi ra file (ví dụ `C:\Users\Thanh\AppData\Local\Temp\opencode\kolbooking-dev\dev4-{out,err}.log`) để đọc sau.
 
 ## ANTI-PATTERNS (THIS PROJECT)
 - **NEVER leak `passwordHash`, internal `status`, or PII** in DTOs/mappers (CRE-009). Mappers exist precisely to strip these.
