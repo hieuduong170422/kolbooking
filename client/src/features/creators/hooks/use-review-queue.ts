@@ -36,8 +36,8 @@ export const useReviewCreator = () => {
     mutationFn: ({ creatorId, action, reason }: ReviewCreatorInput) =>
       reviewCreator(creatorId, { action, reason }),
     onSuccess: () => {
-void queryClient.invalidateQueries({ queryKey: ['creators', 'reviews'] });
-void queryClient.invalidateQueries({ queryKey: creatorProfileQueryKey });
+      void queryClient.invalidateQueries({ queryKey: ['creators', 'reviews'] });
+      void queryClient.invalidateQueries({ queryKey: creatorProfileQueryKey });
     },
   });
 };

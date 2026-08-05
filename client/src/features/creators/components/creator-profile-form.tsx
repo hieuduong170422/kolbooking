@@ -10,6 +10,7 @@ import {
 import {
   CREATOR_DAYS_OF_WEEK,
   CREATOR_DAY_OF_WEEK_LABELS,
+  CREATOR_LANGUAGE_LABELS,
   CREATOR_LANGUAGES,
   CREATOR_TYPE_LABELS,
   CREATOR_TYPES,
@@ -360,7 +361,7 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
             >
               {CREATOR_LANGUAGES.map((option) => (
                 <option key={option} value={option}>
-                  {option === 'vi' ? 'Tiếng Việt' : 'English'}
+                  {CREATOR_LANGUAGE_LABELS[option]}
                 </option>
               ))}
             </select>
