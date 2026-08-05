@@ -182,9 +182,11 @@ describe('OnboardingPage (CRE-001..006)', () => {
     renderPage();
     const saveButton = screen.getByRole('button', { name: 'Lưu hồ sơ' });
 
-    // Điền 3 field nhưng chưa có niche → vẫn disabled.
+    // Điền 3 field (bio hợp lệ ≥10 ký tự) nhưng chưa có niche → vẫn disabled.
     fireEvent.change(screen.getByLabelText('Tên hiển thị'), { target: { value: 'Creator Demo' } });
-    fireEvent.change(screen.getByLabelText('Giới thiệu'), { target: { value: 'abc' } });
+    fireEvent.change(screen.getByLabelText('Giới thiệu'), {
+      target: { value: 'Creator chuyên review ẩm thực.' },
+    });
     fireEvent.change(screen.getByLabelText('Thành phố'), { target: { value: 'Hà Nội' } });
     expect(saveButton).toBeDisabled();
 
@@ -192,6 +194,32 @@ describe('OnboardingPage (CRE-001..006)', () => {
     fireEvent.change(screen.getByLabelText('Lĩnh vực (niche)'), { target: { value: 'ẩm thực' } });
     fireEvent.click(screen.getByRole('button', { name: 'Thêm lĩnh vực' }));
     expect(saveButton).toBeEnabled();
+  });
+
+  it('bio ngắn (<10 ký tự) dù đủ các field khác → Lưu hồ sơ và Gửi duyệt vẫn disabled (CRE-002)', () => {
+    renderPage();
+
+    fireEvent.change(screen.getByLabelText('Tên hiển thị'), { target: { value: 'Creator Demo' } });
+    fireEvent.change(screen.getByLabelText('Thành phố'), { target: { value: 'Hà Nội' } });
+    fireEvent.change(screen.getByLabelText('Lĩnh vực (niche)'), { target: { value: 'ẩm thực' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm lĩnh vực' }));
+    fireEvent.change(screen.getByLabelText('Giới thiệu'), { target: { value: 'abc' } });
+
+    expect(screen.getByRole('button', { name: 'Lưu hồ sơ' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Gửi duyệt' })).toBeDisabled();
+  });
+
+  it('bio đủ 10 ký tự + đủ các field khác → Lưu hồ sơ và Gửi duyệt enabled (CRE-002)', () => {
+    renderPage();
+
+    fireEvent.change(screen.getByLabelText('Tên hiển thị'), { target: { value: 'Creator Demo' } });
+    fireEvent.change(screen.getByLabelText('Thành phố'), { target: { value: 'Hà Nội' } });
+    fireEvent.change(screen.getByLabelText('Lĩnh vực (niche)'), { target: { value: 'ẩm thực' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm lĩnh vực' }));
+    fireEvent.change(screen.getByLabelText('Giới thiệu'), { target: { value: 'abcdefghij' } });
+
+    expect(screen.getByRole('button', { name: 'Lưu hồ sơ' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Gửi duyệt' })).toBeEnabled();
   });
 
   it('status pending_review → form bị khóa (fields + submit disabled) + note (CRE-001..006)', () => {

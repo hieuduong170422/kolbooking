@@ -76,11 +76,32 @@ const socialAccountSchema = z
 
 /** Body cho PUT /creators/me — full replace hồ sơ (CRE-001..006). */
 export const creatorProfileBodySchema = z.object({
-  displayName: z.string().trim().min(2).max(80),
+  displayName: z
+    .string()
+    .trim()
+    .min(2, 'Tên hiển thị phải có ít nhất 2 ký tự.')
+    .max(80, 'Tên hiển thị không được vượt quá 80 ký tự.'),
   avatarUrl: z.url('URL không hợp lệ.').nullable().optional(),
-  bio: z.string().trim().min(10).max(500),
-  city: z.string().trim().min(2).max(60),
-  niches: z.array(z.string().trim().min(2).max(30)).min(1).max(5),
+  bio: z
+    .string()
+    .trim()
+    .min(10, 'Giới thiệu phải có ít nhất 10 ký tự.')
+    .max(500, 'Giới thiệu không được vượt quá 500 ký tự.'),
+  city: z
+    .string()
+    .trim()
+    .min(2, 'Thành phố phải có ít nhất 2 ký tự.')
+    .max(60, 'Thành phố không được vượt quá 60 ký tự.'),
+  niches: z
+    .array(
+      z
+        .string()
+        .trim()
+        .min(2, 'Lĩnh vực phải có ít nhất 2 ký tự.')
+        .max(30, 'Lĩnh vực không được vượt quá 30 ký tự.'),
+    )
+    .min(1, 'Cần có ít nhất 1 lĩnh vực.')
+    .max(5, 'Tối đa 5 lĩnh vực.'),
   language: z.enum(CREATOR_LANGUAGES),
   creatorType: z.enum(CREATOR_TYPES),
   socialAccounts: z.array(socialAccountSchema).max(4),

@@ -101,8 +101,14 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
 
   const portfolioItems = profile?.portfolioItems ?? [];
 
+  // So khớp min của server schema (CRE-002): displayName ≥2, bio ≥10, city ≥2,
+  // niches ≥1 và mỗi niche trim ≥2 — tránh lỗi VALIDATION_ERROR phía server.
   const isIncomplete =
-    displayName.trim() === '' || bio.trim() === '' || city.trim() === '' || niches.length === 0;
+    displayName.trim().length < 2 ||
+    bio.trim().length < 10 ||
+    city.trim().length < 2 ||
+    niches.length === 0 ||
+    niches.some((niche) => niche.trim().length < 2);
 
   const buildProfileInput = (): CreatorProfileInput => ({
     displayName: displayName.trim(),
@@ -264,7 +270,7 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
               value={displayName}
               onChange={(event) => setDisplayName(event.target.value)}
               minLength={2}
-              maxLength={50}
+              maxLength={80}
               required
               disabled={readOnly}
             />
@@ -276,7 +282,8 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
               className="input"
               value={city}
               onChange={(event) => setCity(event.target.value)}
-              maxLength={100}
+              minLength={2}
+              maxLength={60}
               required
               disabled={readOnly}
             />
@@ -305,6 +312,7 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
               className="textarea"
               value={bio}
               onChange={(event) => setBio(event.target.value)}
+              minLength={10}
               maxLength={500}
               required
               disabled={readOnly}
@@ -319,6 +327,7 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
                 value={nicheInput}
                 onChange={(event) => setNicheInput(event.target.value)}
                 onKeyDown={handleNicheKeyDown}
+                maxLength={30}
                 placeholder="VD: ẩm thực, thời trang"
                 aria-label="Lĩnh vực (niche)"
                 disabled={readOnly}
