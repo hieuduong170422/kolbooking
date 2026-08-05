@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useReviewCreator, useReviewQueue } from '../features/creators/hooks/use-review-queue';
-import type { CreatorAdmin, CreatorOwner } from '../features/creators/types/creator-types';
+import type { CreatorAdmin, CreatorOwner, CreatorStatus } from '../features/creators/types/creator-types';
 import type { ApiSuccessBody } from '../shared/api/api-types';
 import { ApiClientError } from '../shared/api/api-types';
 import { AdminCreatorsPage } from './admin-creators-page';
@@ -181,5 +181,77 @@ describe('AdminCreatorsPage (CRE-008, ADM-003)', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Đã duyệt' }));
 
     expect(mockUseReviewQueue).toHaveBeenCalledWith({ status: 'verified', page: 1, limit: 12 });
+  });
+
+  it('nút Xem chi tiết hiện trên row ở MỌI trạng thái (CRE-008)', () => {
+    const statuses: CreatorStatus[] = [
+      'pending_review',
+      'info_required',
+      'rejected',
+      'verified',
+      'suspended',
+    ];
+    statuses.forEach((item) => {
+      const fixture: CreatorAdmin = { ...adminFixture, displayName: `Creator ${item}`, status: item };
+      renderPage({ data: envelopeFixture([fixture]) });
+
+      const row = getRow(`Creator ${item}`);
+      expect(within(row).getByRole('button', { name: 'Xem chi tiết' })).toBeInTheDocument();
+    });
+  });
+
+  it('click Xem chi tiết → modal mở, hiển thị displayName, userEmail, bio, city, niches (CRE-008)', () => {
+    renderPage();
+    fireEvent.click(within(getRow('Creator Demo')).getByRole('button', { name: 'Xem chi tiết' }));
+
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    expect(within(dialog).getByText('Creator Demo')).toBeInTheDocument();
+    expect(within(dialog).getByText('creator@demo.vn')).toBeInTheDocument();
+    expect(within(dialog).getByText('Creator chuyên review ẩm thực.')).toBeInTheDocument();
+    expect(within(dialog).getByText('Hà Nội')).toBeInTheDocument();
+    expect(within(dialog).getByText('f&b')).toBeInTheDocument();
+  });
+
+  it('click Đóng → modal biến mất (CRE-008)', () => {
+    renderPage();
+    fireEvent.click(within(getRow('Creator Demo')).getByRole('button', { name: 'Xem chi tiết' }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    // Nút đóng = nút "Đóng" ở footer (nút × ở header cũng có accessible name "Đóng").
+    const dialog = screen.getByRole('dialog');
+    fireEvent.click(within(dialog).getAllByRole('button', { name: 'Đóng' })[1]);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('creator có portfolio + social + statusReason → modal hiển thị đủ các field (CRE-008)', () => {
+    const richFixture: CreatorAdmin = {
+      ...adminFixture,
+      status: 'rejected',
+      statusReason: 'Thiếu giấy tờ xác minh',
+      portfolioItems: [
+        {
+          id: 'item_0001',
+          type: 'link',
+          url: 'https://example.com/bai-viet',
+          caption: 'Link bài viết',
+          category: 'food',
+          thumbnailUrl: null,
+          createdAt: '2026-08-01T00:00:00.000Z',
+        },
+      ],
+    };
+    renderPage({ data: envelopeFixture([richFixture]) });
+    fireEvent.click(within(getRow('Creator Demo')).getByRole('button', { name: 'Xem chi tiết' }));
+
+    const dialog = screen.getByRole('dialog');
+    // statusReason nằm sau <strong>Lý do:</strong> → getNodeText tách thành 2 node, assert từng phần.
+    expect(within(dialog).getByText('Lý do:')).toBeInTheDocument();
+    expect(within(dialog).getByText('Thiếu giấy tờ xác minh')).toBeInTheDocument();
+    expect(within(dialog).getByRole('link', { name: 'example.com' })).toBeInTheDocument();
+    expect(within(dialog).getByText('Link bài viết')).toBeInTheDocument();
+    expect(within(dialog).getByRole('link', { name: 'tiktok: @demo' })).toBeInTheDocument();
+    expect(within(dialog).getByText('1.2K follower')).toBeInTheDocument();
   });
 });

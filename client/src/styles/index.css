@@ -1041,3 +1041,119 @@ a {
   justify-content: flex-end;
   gap: 10px;
 }
+
+/* ===== Admin Creator Detail Modal ===== */
+.creator-modal__card {
+  max-width: 560px;
+  max-height: 86vh;
+  overflow-y: auto;
+}
+
+.creator-modal__identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.creator-modal__heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.creator-modal__name {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.creator-modal__email {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.creator-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px 16px;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+
+.creator-modal__grid-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.creator-modal__grid-item dt {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.creator-modal__grid-item dd {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.creator-modal__section {
+  border-top: 1px solid var(--color-border);
+  padding-top: 14px;
+}
+
+.creator-modal__section h3 {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.creator-modal__empty {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.creator-modal__paused {
+  color: var(--color-danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.creator-modal__portfolio {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.creator-modal__portfolio-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+
+.creator-modal__portfolio-item a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.creator-modal__portfolio-caption {
+  font-weight: 600;
+}
+
+.creator-modal__portfolio-category {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}

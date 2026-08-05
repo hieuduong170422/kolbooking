@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { CreatorDetailModal } from '../features/creators/components/creator-detail-modal';
 import { ReviewActions } from '../features/creators/components/review-actions';
 import { useReviewCreator, useReviewQueue } from '../features/creators/hooks/use-review-queue';
-import type { CreatorStatus } from '../features/creators/types/creator-types';
+import type { CreatorAdmin, CreatorStatus } from '../features/creators/types/creator-types';
 import { CREATOR_STATUS_LABELS, CREATOR_TYPE_LABELS } from '../features/creators/types/creator-types';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
@@ -20,6 +21,8 @@ const QUEUE_STATUSES: readonly CreatorStatus[] = [
 export const AdminCreatorsPage = () => {
   const [status, setStatus] = useState<CreatorStatus>('pending_review');
   const [page, setPage] = useState(1);
+  // Creator đang xem chi tiết — mở modal render toàn bộ dữ liệu queue (CRE-008).
+  const [selectedCreator, setSelectedCreator] = useState<CreatorAdmin | null>(null);
   const { data, isLoading, isError, refetch } = useReviewQueue({ status, page, limit: 12 });
   const reviewCreator = useReviewCreator();
 
@@ -98,6 +101,13 @@ export const AdminCreatorsPage = () => {
                   </p>
                   <p className="review-row__email">{creator.userEmail}</p>
                 </div>
+                <button
+                  type="button"
+                  className="button button--secondary"
+                  onClick={() => setSelectedCreator(creator)}
+                >
+                  Xem chi tiết
+                </button>
                 <ReviewActions
                   creatorId={creator.id}
                   status={creator.status}
@@ -111,6 +121,10 @@ export const AdminCreatorsPage = () => {
           ) : null}
         </>
       )}
+
+      {selectedCreator !== null ? (
+        <CreatorDetailModal creator={selectedCreator} onClose={() => setSelectedCreator(null)} />
+      ) : null}
     </section>
   );
 };
