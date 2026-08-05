@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPatch, apiPost, apiUpload } from '../../../shared/api/http-client';
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut, apiUpload } from '../../../shared/api/http-client';
 import type { ApiSuccessBody } from '../../../shared/api/api-types';
 import type {
   AvailabilityUpdate,
@@ -38,7 +38,7 @@ export const fetchCreatorProfile = async (): Promise<CreatorOwner> => {
 
 /** Cập nhật hồ sơ — PUT full replace (CRE-001..006). */
 export const updateCreatorProfile = async (input: CreatorProfileInput): Promise<CreatorOwner> => {
-  const response = await apiPatch<CreatorOwner>('/creators/me', input);
+  const response = await apiPut<CreatorOwner>('/creators/me', input);
   return response.data;
 };
 

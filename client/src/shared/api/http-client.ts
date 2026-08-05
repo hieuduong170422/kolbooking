@@ -135,6 +135,15 @@ export const apiPatch = async <T>(url: string, body?: unknown): Promise<ApiSucce
   }
 };
 
+export const apiPut = async <T>(url: string, body?: unknown): Promise<ApiSuccessBody<T>> => {
+  try {
+    const response = await httpClient.put<ApiSuccessBody<T>>(url, body);
+    return response.data;
+  } catch (error) {
+    throw toApiClientError(error);
+  }
+};
+
 export const apiDelete = async <T>(url: string): Promise<ApiSuccessBody<T>> => {
   try {
     const response = await httpClient.delete<ApiSuccessBody<T>>(url);

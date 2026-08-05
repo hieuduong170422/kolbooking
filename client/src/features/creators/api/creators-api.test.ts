@@ -111,7 +111,7 @@ describe('fetchCreatorProfile (CRE-001)', () => {
 });
 
 describe('updateCreatorProfile (CRE-001..006)', () => {
-  it('PATCH /creators/me với input → trả về owner', async () => {
+  it('PUT /creators/me với input → trả về owner', async () => {
     const input: CreatorProfileInput = {
       displayName: 'Creator Demo',
       bio: 'Creator chuyên review ẩm thực.',
@@ -123,14 +123,14 @@ describe('updateCreatorProfile (CRE-001..006)', () => {
       audienceMetrics: null,
       serviceMode: 'both',
     };
-    const patchSpy = vi
-      .spyOn(httpClient, 'patch')
+    const putSpy = vi
+      .spyOn(httpClient, 'put')
       .mockResolvedValue(okResponse({ success: true, data: ownerFixture, error: null }));
 
     await expect(updateCreatorProfile(input)).resolves.toEqual(ownerFixture);
 
-    expect(patchSpy).toHaveBeenCalledWith('/creators/me', input);
-    patchSpy.mockRestore();
+    expect(putSpy).toHaveBeenCalledWith('/creators/me', input);
+    putSpy.mockRestore();
   });
 });
 
