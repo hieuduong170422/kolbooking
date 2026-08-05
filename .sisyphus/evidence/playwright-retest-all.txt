@@ -1,0 +1,43 @@
+FULL PLAYWRIGHT RE-TEST — ALL FUNCTIONS (user request: test lại + fix lỗi trước khi bàn giao)
+=============================================================================================
+Date: 2026-08-05 | Verifier: Atlas | Servers: dev4 background (server :4000 + client :5173)
+
+FIXES MADE DURING THIS ROUND
+1. df07335 — fix(creators): public DTO đủ 5 trường + audit submit profile (F1 REJECT xử lý)
+   - CreatorPublicDto + toCreatorPublicDto thêm avatarUrl/language/serviceMode/
+     audienceMetrics/portfolioItems (plan line 76); giữ keep-out CRE-009
+     (status/availability/statusReason/userId). Locked bằng tests:
+     creator.types.test.ts (15-field freeze), creators.api.test.ts (list+detail),
+     creators.admin-review.api.test.ts (audit creator.submit). Server 158/158 PASS.
+   - Kết quả: client creator-detail-page.tsx:130 (portfolioItems.length) hết crash.
+2. 46db871 — fix(client): wire city filter qua URL + selector (SRCH-003)
+   - filterFromSearchParams/searchParamsFromFilter thêm city; CreatorFilters thêm
+     <select aria-label="Thành phố"> (COMMON_CITIES const). Tests: creators-page.test.tsx
+     (new, 3 tests) + creator-filters.test.tsx (3 tests). Client 108/108 PASS, lint PASS,
+     tsc -b PASS.
+
+E2E VERIFIED (Playwright, real browser, live servers)
+- Public list: 5 cards (Creator Demo verified xuất hiện). Detail /creators/crt_demo:
+  serviceMode "Online & Offline", language "Tiếng Việt", bio mới, niches, socials,
+  Audience metrics, Portfolio link "www.behance.net" (thêm qua UI), avatar img, price.
+  0 pageerror. ← xác nhận fix F1 end-to-end
+- Filters: search=Lan → 1 card; sort=price_asc → 700K..5M; city=Hồ Chí Minh → chỉ Minh
+  Thu UGC; select "Hà Nội" → 3 cards + URL ?city=Hà+Nội shareable; serviceMode=offline
+  → 5 (mọi seed là 'both', đúng); empty search → EmptyState "Chưa tìm thấy creator phù hợp".
+- Auth: sai mật khẩu → "Email hoặc mật khẩu không đúng." giữ /login; login creator →
+  dashboard "Bản nháp"; creator vào /admin/creators → redirect /dashboard (RequireRole);
+  logout → /login; logged-out vào /dashboard|/onboarding|/admin → redirect /login.
+- Register mới (role Creator) → dashboard "chưa có hồ sơ — tạo ngay" → /onboarding form trống.
+- Onboarding: sửa bio → "Đã lưu hồ sơ." (PUT); Thêm liên kết disabled khi URL trống
+  (đúng thiết kế) → có URL thì thêm được; upload avatar (input file) → img hiện;
+  Gửi duyệt khi thiếu avatar → "Hồ sơ chưa đủ thông tin bắt buộc"; có avatar → submit
+  OK → status "Chờ duyệt" + form khóa (note danger + cả 2 nút disabled).
+- Admin: queue thấy Creator Demo (userEmail hiện, admin-only); Duyệt → chuyển Đã duyệt;
+  Từ chối → modal reason bắt buộc (Xác nhận disabled khi trống → enabled sau khi nhập)
+  → reject xong queue trống.
+- Console: chỉ favicon 404 + pre-login refresh 401 (bình thường), 0 pageerror.
+
+FINAL SUITE STATE (orchestrator chạy độc lập)
+- server: typecheck PASS, test 158/158 (13 files)
+- client: test 108/108 (15 files), lint PASS, tsc -b PASS
+- git HEAD: 46db871 (3 commits mới: df07335 fix server, 46db871 fix client, 104e259 docs T19)
