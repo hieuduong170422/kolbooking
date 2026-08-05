@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import { useAuth } from '../../../features/auth/store/use-auth';
 
@@ -7,8 +8,34 @@ const navLinkClass = ({ isActive }: { isActive: boolean }): string =>
 export const AppHeader = () => {
   const { status, user, logout } = useAuth();
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Đóng menu khi click ra ngoài vùng tên user hoặc bấm Escape (a11y).
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handleMouseDown = (event: MouseEvent): void => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [menuOpen]);
 
   const handleLogout = async (): Promise<void> => {
+    setMenuOpen(false);
     await logout();
     navigate('/creators');
   };
@@ -33,16 +60,30 @@ export const AppHeader = () => {
                   Quản trị
                 </NavLink>
               )}
-              <span className="app-header__user" title={user.email}>
-                {user.displayName}
-              </span>
-              <button
-                type="button"
-                className="button button--secondary"
-                onClick={() => void handleLogout()}
-              >
-                Đăng xuất
-              </button>
+              <div className="app-header__user-menu" ref={userMenuRef}>
+                <button
+                  type="button"
+                  className="app-header__user"
+                  title={user.email}
+                  aria-haspopup="menu"
+                  aria-expanded={menuOpen}
+                  onClick={() => setMenuOpen((open) => !open)}
+                >
+                  {user.displayName}
+                </button>
+                {menuOpen && (
+                  <div className="app-header__menu" role="menu">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="app-header__menu-item"
+                      onClick={() => void handleLogout()}
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <>
