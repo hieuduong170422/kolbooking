@@ -60,6 +60,13 @@ const envSchema = z.object({
    */
   COOKIE_SECURE: z.enum(['true', 'false']).optional(),
   /**
+   * Thư mục chứa bản build của client. Có giá trị thì chính API phục vụ luôn
+   * giao diện — một tiến trình là đủ để chạy, không cần nginx hay vite preview
+   * đứng trước. Đường dẫn tương đối tính từ thư mục server/.
+   * Bỏ trống (mặc định) thì API chỉ phục vụ /api và /uploads.
+   */
+  SERVE_CLIENT_DIR: z.string().min(1).optional(),
+  /**
    * Nạp dữ liệu demo (tài khoản demo, creator, package, brand) khi database
    * còn rỗng. Bật cho môi trường thử nghiệm; TẮT khi chạy thật vì mật khẩu
    * demo là công khai.
@@ -83,8 +90,15 @@ if (parsed.data.NODE_ENV === 'production' && parsed.data.JWT_SECRET === DEV_ONLY
   throw new Error('JWT_SECRET phải được cấu hình riêng khi chạy production.');
 }
 
+/** Thư mục client đã giải nghĩa thành đường dẫn tuyệt đối; null = không phục vụ. */
+const clientDir =
+  parsed.data.SERVE_CLIENT_DIR === undefined
+    ? null
+    : path.resolve(SERVER_ROOT, parsed.data.SERVE_CLIENT_DIR);
+
 export const env = Object.freeze({
   ...parsed.data,
+  CLIENT_DIR: clientDir,
   /** Giá trị đã giải nghĩa: undefined nghĩa là theo NODE_ENV. */
   COOKIE_SECURE:
     parsed.data.COOKIE_SECURE === undefined
