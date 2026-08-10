@@ -26,6 +26,8 @@ export const LoginPage = () => {
         <LoginForm onSubmit={handleLogin} />
         <p className="auth-card__switch">
           Chưa có tài khoản? <Link to="/register">Đăng ký</Link>
+          {' · '}
+          <Link to="/forgot-password">Quên mật khẩu?</Link>
         </p>
         <p className="auth-card__hint">
           Tài khoản demo: creator@demo.vn / brand@demo.vn — mật khẩu <code>Demo@1234</code>

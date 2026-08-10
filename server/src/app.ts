@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
 import { UPLOADS_DIR, env } from './config/env.js';
 import { createV1Router, type AppDependencies } from './routes/v1.js';
+import { mountClient } from './shared/http/serve-client.js';
 import { logger } from './shared/logger/logger.js';
 import { errorHandler } from './shared/middlewares/error-handler.js';
 import { notFoundHandler } from './shared/middlewares/not-found.js';
@@ -32,6 +33,10 @@ export const createApp = (deps: AppDependencies): Express => {
   }
 
   app.use('/api/v1', apiRateLimiter, createV1Router(deps));
+
+  if (env.CLIENT_DIR !== null) {
+    mountClient(app, env.CLIENT_DIR);
+  }
 
   app.use(notFoundHandler);
   app.use(errorHandler);

@@ -158,7 +158,13 @@ export interface CreatorPublicDto {
   readonly completedBookings: number;
 }
 
-export const CREATOR_SORT_OPTIONS = ['rating', 'price_asc', 'price_desc', 'newest'] as const;
+export const CREATOR_SORT_OPTIONS = [
+  'rating',
+  'price_asc',
+  'price_desc',
+  'newest',
+  'completed',
+] as const;
 export type CreatorSortOption = (typeof CREATOR_SORT_OPTIONS)[number];
 
 export interface CreatorListFilter {
@@ -169,6 +175,8 @@ export interface CreatorListFilter {
   readonly serviceMode?: ServiceMode;
   readonly minPriceVnd?: number;
   readonly maxPriceVnd?: number;
+  /** Điểm đánh giá tối thiểu, thang 0-5 (SRCH-003). */
+  readonly minRating?: number;
   readonly sort: CreatorSortOption;
   readonly page: number;
   readonly limit: number;

@@ -1,8 +1,9 @@
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { Express } from 'express';
-import { DEMO_PASSWORD } from '../src/modules/users/user.seed.js';
-import { buildTestAppWithUsers } from './helpers/build-test-app.js';
+import { DEMO_PASSWORD, buildUserSeed } from '../src/modules/users/user.seed.js';
+import { CapturingMailer } from './helpers/capturing-mailer.js';
+import { buildTestApp } from './helpers/build-test-app.js';
 
 /**
  * T8 — Endpoint creator-owned (CRE-001..003, 005, 006, 007, 010).
@@ -12,9 +13,11 @@ import { buildTestAppWithUsers } from './helpers/build-test-app.js';
  */
 
 let app: Express;
+let mailer: CapturingMailer;
 
 beforeAll(async () => {
-  app = await buildTestAppWithUsers();
+  mailer = new CapturingMailer();
+  app = buildTestApp({ users: await buildUserSeed(), mailer });
 });
 
 let ownerSeq = 0;
@@ -28,14 +31,24 @@ const loginAs = async (email: string): Promise<string> => {
 
 /** Đăng ký creator mới (chưa có hồ sơ) và trả về access token. */
 const registerCreator = async (): Promise<string> => {
+  const email = nextEmail();
   const register = await request(app).post('/api/v1/auth/register').send({
-    email: nextEmail(),
+    email,
     password: 'MatKhau123',
     displayName: 'Creator Mới',
     role: 'creator',
+    termsAccepted: true,
   });
   expect(register.status).toBe(201);
-  return register.body.data.accessToken as string;
+  const token = register.body.data.accessToken as string;
+
+  // AUTH-002: xác minh email ngay để các test transition không vướng gate.
+  const verify = await request(app)
+    .post('/api/v1/auth/verify-email/confirm')
+    .set('Authorization', `Bearer ${token}`)
+    .send({ code: mailer.lastOtpFor(email) });
+  expect(verify.status).toBe(200);
+  return token;
 };
 
 const putProfile = (token: string, body: Record<string, unknown>) =>

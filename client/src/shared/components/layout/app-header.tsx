@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import { useAuth } from '../../../features/auth/store/use-auth';
+import { NotificationBell } from '../../../features/notifications/notifications';
+import { UnreadMessagesDot } from '../../../features/messages/components/unread-messages-dot';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }): string =>
   isActive ? 'app-header__link app-header__link--active' : 'app-header__link';
@@ -44,6 +46,9 @@ export const AppHeader = () => {
     <header className="app-header">
       <div className="app-header__inner">
         <NavLink to="/" className="app-header__brand">
+          <span className="app-header__logo" aria-hidden="true">
+            K
+          </span>
           KOL<span>Booking</span>
         </NavLink>
         <nav className="app-header__nav" aria-label="Điều hướng chính">
@@ -55,11 +60,28 @@ export const AppHeader = () => {
               <NavLink to="/dashboard" className={navLinkClass}>
                 Dashboard
               </NavLink>
+              {user.role !== 'admin' && (
+                <>
+                  <NavLink to="/bookings" className={navLinkClass}>
+                    Booking
+                  </NavLink>
+                  <NavLink to="/messages" className={navLinkClass}>
+                    Tin nhắn
+                    <UnreadMessagesDot />
+                  </NavLink>
+                </>
+              )}
+              {user.role === 'brand' && (
+                <NavLink to="/saved" className={navLinkClass}>
+                  Đã lưu
+                </NavLink>
+              )}
               {user.role === 'admin' && (
-                <NavLink to="/admin/creators" className={navLinkClass}>
+                <NavLink to="/admin/users" className={navLinkClass}>
                   Quản trị
                 </NavLink>
               )}
+              <NotificationBell />
               <div className="app-header__user-menu" ref={userMenuRef}>
                 <button
                   type="button"
@@ -69,7 +91,13 @@ export const AppHeader = () => {
                   aria-expanded={menuOpen}
                   onClick={() => setMenuOpen((open) => !open)}
                 >
-                  {user.displayName}
+                  <span className="app-header__user-avatar" aria-hidden="true">
+                    {user.displayName.charAt(0).toUpperCase()}
+                  </span>
+                  <span>{user.displayName}</span>
+                  <span className="app-header__caret" aria-hidden="true">
+                    ▾
+                  </span>
                 </button>
                 {menuOpen && (
                   <div className="app-header__menu" role="menu">

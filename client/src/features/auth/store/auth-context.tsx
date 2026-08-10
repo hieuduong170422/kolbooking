@@ -9,6 +9,8 @@ export interface AuthContextValue {
   readonly login: (input: LoginInput) => Promise<void>;
   readonly register: (input: RegisterInput) => Promise<void>;
   readonly logout: () => Promise<void>;
+  /** Cập nhật user trong store sau khi server đổi trạng thái (vd xác minh email). */
+  readonly updateUser: (user: AuthUser) => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);

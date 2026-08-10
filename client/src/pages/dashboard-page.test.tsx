@@ -64,6 +64,7 @@ describe('DashboardPage (CRE-007)', () => {
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateUser: vi.fn(),
     });
   });
 
@@ -131,6 +132,7 @@ describe('DashboardPage (CRE-007)', () => {
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateUser: vi.fn(),
     });
     renderDashboard();
 

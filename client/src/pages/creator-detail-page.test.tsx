@@ -9,6 +9,14 @@ import { CreatorDetailPage } from './creator-detail-page';
 vi.mock('../features/creators/hooks/use-creator', () => ({
   useCreator: vi.fn(),
 }));
+// Mock hook package public — section "Gói dịch vụ" hiển thị empty state trong test.
+vi.mock('../features/packages/hooks/use-public-packages', () => ({
+  usePackagesByCreator: vi.fn().mockReturnValue({
+    data: { success: true, data: [], error: null },
+    isPending: false,
+    isError: false,
+  }),
+}));
 
 const mockUseCreator = vi.mocked(useCreator);
 
@@ -94,7 +102,8 @@ describe('CreatorDetailPage (SRCH-005)', () => {
     );
 
     // Service mode (CRE-006) + ngôn ngữ (CRE-001) — trong dòng meta nên match substring
-    expect(screen.getByText(/Online & Offline/)).toBeInTheDocument();
+    // Xuất hiện ở dòng meta VÀ panel booking → dùng getAllByText.
+    expect(screen.getAllByText(/Online & Offline/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/Tiếng Việt/)).toBeInTheDocument();
 
     // Portfolio — image có caption + link hiện tên miền với caption (CRE-004, SRCH-005)

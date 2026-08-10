@@ -15,6 +15,7 @@ const toListFilter = (query: CreatorListQuery): CreatorListFilter => ({
   ...(query.serviceMode !== undefined ? { serviceMode: query.serviceMode } : {}),
   ...(query.minPrice !== undefined ? { minPriceVnd: query.minPrice } : {}),
   ...(query.maxPrice !== undefined ? { maxPriceVnd: query.maxPrice } : {}),
+  ...(query.minRating !== undefined ? { minRating: query.minRating } : {}),
   sort: query.sort,
   page: query.page,
   limit: query.limit,

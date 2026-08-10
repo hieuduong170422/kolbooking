@@ -11,4 +11,19 @@ export interface AuditRepository {
   create(input: CreateAuditEntryInput): Promise<AuditEntry>;
   listByTarget(targetType: string, targetId: string): Promise<readonly AuditEntry[]>;
   listAll(): Promise<readonly AuditEntry[]>;
+  /** Truy vấn có lọc + phân trang cho màn xem audit (ADM-009). */
+  list(filter: AuditListFilter): Promise<AuditListResult>;
+}
+
+export interface AuditListFilter {
+  readonly targetType?: string | undefined;
+  /** Khớp một phần tên action, vd "user." lấy mọi thao tác trên tài khoản. */
+  readonly action?: string | undefined;
+  readonly page: number;
+  readonly limit: number;
+}
+
+export interface AuditListResult {
+  readonly items: readonly AuditEntry[];
+  readonly total: number;
 }

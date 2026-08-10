@@ -49,7 +49,8 @@ describe('CreatorFilters (SRCH-003)', () => {
     const onChange = vi.fn();
     render(<CreatorFilters filter={baseFilter} onChange={onChange} />);
 
-    fireEvent.change(screen.getByLabelText('Loại creator'), { target: { value: 'koc' } });
+    // Loại creator giờ là nhóm nút toggle (bấm lại để bỏ chọn), không phải <select>.
+    fireEvent.click(screen.getByRole('button', { name: 'KOC' }));
 
     expect(onChange).toHaveBeenCalledWith({ ...baseFilter, creatorType: 'koc', page: 1 });
   });

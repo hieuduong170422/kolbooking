@@ -1,23 +1,11 @@
 import { createApp } from './app.js';
-import { UPLOADS_DIR, env } from './config/env.js';
-import { InMemoryAuditRepository } from './modules/audit/audit.repository.memory.js';
-import { InMemorySessionRepository } from './modules/auth/session.repository.memory.js';
-import { InMemoryCreatorRepository } from './modules/creators/creator.repository.memory.js';
-import { CREATOR_SEED } from './modules/creators/creator.seed.js';
-import { InMemoryUserRepository } from './modules/users/user.repository.memory.js';
-import { buildUserSeed } from './modules/users/user.seed.js';
+import { createDependencies } from './bootstrap/dependencies.js';
+import { env } from './config/env.js';
 import { logger } from './shared/logger/logger.js';
-import { LocalDiskFileStorage } from './shared/storage/file-storage.local.js';
 
-const userSeed = env.NODE_ENV === 'production' ? [] : await buildUserSeed();
+const { dependencies, close } = await createDependencies();
 
-const app = createApp({
-  creatorRepository: new InMemoryCreatorRepository(CREATOR_SEED),
-  userRepository: new InMemoryUserRepository(userSeed),
-  sessionRepository: new InMemorySessionRepository(),
-  auditRepository: new InMemoryAuditRepository(),
-  fileStorage: new LocalDiskFileStorage(UPLOADS_DIR),
-});
+const app = createApp(dependencies);
 
 const server = app.listen(env.PORT, () => {
   logger.info(`API server đang chạy tại http://localhost:${env.PORT} (${env.NODE_ENV})`);
@@ -30,8 +18,17 @@ const shutdown = (signal: string): void => {
       logger.error({ err }, 'Lỗi khi tắt server');
       process.exit(1);
     }
-    logger.info('Server đã tắt an toàn.');
-    process.exit(0);
+    // Đóng connection pool sau khi HTTP server ngừng nhận request, để request
+    // đang dở vẫn còn database mà hoàn tất.
+    close()
+      .then(() => {
+        logger.info('Server đã tắt an toàn.');
+        process.exit(0);
+      })
+      .catch((closeError: unknown) => {
+        logger.error({ err: closeError }, 'Lỗi khi đóng connection pool');
+        process.exit(1);
+      });
   });
 };
 

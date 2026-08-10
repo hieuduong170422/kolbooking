@@ -19,6 +19,8 @@ export interface StoredFile {
 export interface FileStorage {
   put(input: FileStoragePutInput): Promise<StoredFile>;
   delete(key: string): Promise<void>;
+  /** Đọc nội dung file theo key — dùng cho file private serve qua endpoint có RBAC (BRD-003). */
+  read(key: string): Promise<Buffer | null>;
 }
 
 /** Whitelist MIME hợp lệ → extension chuẩn hóa (SEC-005). */

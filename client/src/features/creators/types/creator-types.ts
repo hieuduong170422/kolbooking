@@ -4,7 +4,13 @@ export type CreatorType = (typeof CREATOR_TYPES)[number];
 export const SOCIAL_PLATFORMS = ['tiktok', 'instagram', 'youtube', 'facebook'] as const;
 export type SocialPlatform = (typeof SOCIAL_PLATFORMS)[number];
 
-export const CREATOR_SORT_OPTIONS = ['rating', 'price_asc', 'price_desc', 'newest'] as const;
+export const CREATOR_SORT_OPTIONS = [
+  'rating',
+  'price_asc',
+  'price_desc',
+  'newest',
+  'completed',
+] as const;
 export type CreatorSortOption = (typeof CREATOR_SORT_OPTIONS)[number];
 
 export const CREATOR_STATUSES = [
@@ -87,6 +93,9 @@ export interface CreatorListFilter {
   readonly creatorType?: CreatorType;
   readonly platform?: SocialPlatform;
   readonly serviceMode?: ServiceMode;
+  readonly minPriceVnd?: number;
+  readonly maxPriceVnd?: number;
+  readonly minRating?: number;
   readonly sort?: CreatorSortOption;
   readonly page?: number;
   readonly limit?: number;
@@ -156,6 +165,7 @@ export const SORT_LABELS: Record<CreatorSortOption, string> = {
   price_asc: 'Giá thấp đến cao',
   price_desc: 'Giá cao đến thấp',
   newest: 'Mới tham gia',
+  completed: 'Nhiều booking nhất',
 };
 
 export const CREATOR_STATUS_LABELS: Record<CreatorStatus, string> = {

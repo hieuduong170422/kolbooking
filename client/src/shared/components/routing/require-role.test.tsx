@@ -47,6 +47,7 @@ describe('RequireRole', () => {
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateUser: vi.fn(),
     });
   });
 
@@ -63,6 +64,7 @@ describe('RequireRole', () => {
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateUser: vi.fn(),
     });
 
     renderAtRoot(<p>Nội dung riêng của creator</p>);
@@ -78,6 +80,7 @@ describe('RequireRole', () => {
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateUser: vi.fn(),
     });
 
     renderAtRoot(<p>Nội dung riêng của creator</p>);

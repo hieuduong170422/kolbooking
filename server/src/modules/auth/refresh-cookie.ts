@@ -7,7 +7,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const cookieOptions = {
   httpOnly: true,
   sameSite: 'lax' as const,
-  secure: env.NODE_ENV === 'production',
+  secure: env.COOKIE_SECURE,
   path: '/api/v1/auth',
 };
 

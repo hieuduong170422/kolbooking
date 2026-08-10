@@ -39,6 +39,7 @@ const matchesFilter = (creator: Creator, filter: CreatorListFilter): boolean => 
   }
   if (filter.minPriceVnd !== undefined && creator.priceFromVnd < filter.minPriceVnd) return false;
   if (filter.maxPriceVnd !== undefined && creator.priceFromVnd > filter.maxPriceVnd) return false;
+  if (filter.minRating !== undefined && creator.rating < filter.minRating) return false;
   return true;
 };
 
@@ -47,6 +48,7 @@ const sortComparators: Record<CreatorSortOption, (a: Creator, b: Creator) => num
   price_asc: (a, b) => a.priceFromVnd - b.priceFromVnd,
   price_desc: (a, b) => b.priceFromVnd - a.priceFromVnd,
   newest: (a, b) => b.createdAt.localeCompare(a.createdAt),
+  completed: (a, b) => b.completedBookings - a.completedBookings,
 };
 
 /**

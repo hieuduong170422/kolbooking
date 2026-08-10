@@ -30,4 +30,18 @@ export class LocalDiskFileStorage implements FileStorage {
       }
     }
   }
+
+  async read(key: string): Promise<Buffer | null> {
+    if (!SAFE_KEY_PATTERN.test(key)) {
+      return null;
+    }
+    try {
+      return await fs.readFile(path.join(this.uploadsDir, key));
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        return null;
+      }
+      throw error;
+    }
+  }
 }
