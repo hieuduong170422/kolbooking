@@ -60,9 +60,14 @@ export const AppHeader = () => {
                 Dashboard
               </NavLink>
               {user.role !== 'admin' && (
-                <NavLink to="/bookings" className={navLinkClass}>
-                  Booking
-                </NavLink>
+                <>
+                  <NavLink to="/bookings" className={navLinkClass}>
+                    Booking
+                  </NavLink>
+                  <NavLink to="/messages" className={navLinkClass}>
+                    Tin nhắn
+                  </NavLink>
+                </>
               )}
               {user.role === 'brand' && (
                 <NavLink to="/saved" className={navLinkClass}>

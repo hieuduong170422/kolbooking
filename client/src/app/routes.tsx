@@ -19,6 +19,7 @@ import { DashboardPage } from '../pages/dashboard-page';
 import { LandingPage } from '../pages/landing-page';
 import { ForgotPasswordPage } from '../pages/forgot-password-page';
 import { LoginPage } from '../pages/login-page';
+import { MessagesPage } from '../pages/messages-page';
 import { MyPackagesPage } from '../pages/my-packages-page';
 import { NotFoundPage } from '../pages/not-found-page';
 import { OnboardingPage } from '../pages/onboarding-page';
@@ -41,6 +42,7 @@ export const AppRoutes = () => (
       <Route element={<RequireAuth />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/messages" element={<MessagesPage />} />
         <Route path="/bookings" element={<BookingsPage />} />
         <Route path="/bookings/:id" element={<BookingDetailPage />} />
         <Route

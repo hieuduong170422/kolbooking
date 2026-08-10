@@ -37,6 +37,31 @@ const brand = await openAs('brand@demo.vn');
 const creator = await openAs('creator2@demo.vn');
 const admin = await openAs('admin@demo.vn');
 
+// --- Chat trước booking (OD-09): hỏi rồi mới đặt ---
+await brand.goto('http://localhost:5173/creators/crt_0001');
+await brand.waitForSelector('.booking-panel');
+await brand.getByRole('button', { name: 'Nhắn tin cho creator' }).click();
+await brand.waitForURL('**/messages**');
+check('brand mở được luồng chat từ hồ sơ creator', brand.url().includes('/messages'));
+
+await brand.waitForSelector('.chat__composer');
+await brand.getByLabel('Nội dung tin nhắn').fill('Chào bạn, tuần này bạn còn nhận lịch quay không?');
+await brand.getByRole('button', { name: 'Gửi', exact: true }).click();
+await brand.waitForTimeout(900);
+check('gửi được tin khi CHƯA có booking nào',
+  (await brand.locator('.chat__thread').innerText()).includes('còn nhận lịch quay'));
+
+await brand.getByLabel('Nội dung tin nhắn').fill('Hay bạn cho mình số 0912345678 nhé.');
+await brand.getByRole('button', { name: 'Gửi', exact: true }).click();
+await brand.waitForTimeout(900);
+check('chat trước booking: gửi SĐT bị cảnh báo (CHAT-004)',
+  (await brand.locator('.chat__thread').innerText()).includes('mất bảo đảm thanh toán'));
+
+await creator.goto('http://localhost:5173/messages');
+await creator.waitForSelector('.conversation-item');
+check('creator thấy hội thoại brand gửi tới',
+  (await creator.locator('.conversation-list').innerText()).includes('Brand Demo'));
+
 // --- P3: tạo booking và đi hết vòng tới CONFIRMED ---
 await brand.goto('http://localhost:5173/creators/crt_0001');
 await brand.getByRole('link', { name: 'Đặt gói này' }).first().click();
@@ -104,6 +129,10 @@ check(
   'brand gửi được tin nhắn trong booking',
   (await brand.locator('.chat__thread').innerText()).includes('quay cuối tuần này'),
 );
+check(
+  'chat trong booking hiện luôn lịch sử hỏi trước đó (cùng một luồng)',
+  (await brand.locator('.chat__thread').innerText()).includes('còn nhận lịch quay'),
+);
 
 await creator.goto(bookingUrl);
 await creator.waitForSelector('.chat__thread');
@@ -125,11 +154,12 @@ await brand.locator('.notif__bell').click();
 await brand.waitForSelector('.notif__panel');
 check(
   'panel thông báo có mục tin nhắn mới',
-  (await brand.locator('.notif__panel').innerText()).includes('Tin nhắn mới'),
+  (await brand.locator('.notif__panel').innerText()).includes('tin nhắn mới'),
 );
 await brand.locator('.notif__item').first().click();
-await brand.waitForTimeout(800);
-check('bấm thông báo nhảy đúng booking (deep link)', brand.url().includes('/bookings/bkg_'));
+await brand.waitForTimeout(900);
+// Thông báo tin nhắn dẫn về luồng chat (chat nay độc lập với booking).
+check('bấm thông báo nhảy đúng luồng chat (deep link)', brand.url().includes('/messages?c=cnv_'));
 
 // --- P5: nộp bài → yêu cầu sửa → nộp lại → nghiệm thu → hoàn tất ---
 await creator.goto(bookingUrl);

@@ -3855,3 +3855,147 @@ a {
   padding-top: 12px;
   margin-top: 4px;
 }
+
+/* ===== Trang tin nhắn: danh sách hội thoại + khung chat ===== */
+.messages-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 820px) {
+  .messages-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.conversation-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  max-height: 560px;
+  overflow-y: auto;
+}
+
+.conversation-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.conversation-item:hover {
+  background: var(--color-bg);
+}
+
+.conversation-item--active {
+  background: var(--color-primary-soft);
+}
+
+.conversation-item__avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(140deg, var(--violet-500), var(--color-primary-dark));
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.conversation-item__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.conversation-item__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.conversation-item__name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.conversation-item__when {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.conversation-item__preview {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conversation-item__badge {
+  flex-shrink: 0;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.messages-layout__thread {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+  min-width: 0;
+}
+
+.thread-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 12px;
+}
+
+.thread-head__name {
+  font-weight: 700;
+}
+
+.thread-head__link {
+  font-size: 0.82rem;
+  color: var(--color-primary);
+}
+
+.chat-section .chat__head {
+  margin-bottom: 12px;
+}

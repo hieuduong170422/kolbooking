@@ -8,6 +8,7 @@ import {
 } from '../features/creators/types/creator-types';
 import { PackagePublicCard } from '../features/packages/components/package-public-card';
 import { usePackagesByCreator } from '../features/packages/hooks/use-public-packages';
+import { MessageCreatorButton } from '../features/messages/components/message-creator-button';
 import { ReportButton } from '../features/reports/components/report-button';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
@@ -164,9 +165,13 @@ export const CreatorDetailPage = () => {
                 <strong>{SERVICE_MODE_LABELS[creator.serviceMode]}</strong>
               </li>
             </ul>
-            <button type="button" className="button button--primary booking-panel__cta" disabled>
-              Booking (sắp ra mắt)
-            </button>
+            <Link
+              to={`/creators/${creator.id}/book`}
+              className="button button--primary booking-panel__cta"
+            >
+              Đặt booking
+            </Link>
+            <MessageCreatorButton creatorId={creator.id} />
             <p className="booking-panel__note">
               Thanh toán được bảo đảm — tiền chỉ giải ngân sau khi bạn nghiệm thu nội dung.
             </p>
