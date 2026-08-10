@@ -17,6 +17,22 @@ export default defineConfig({
       },
     },
   },
+  // `vite preview` phục vụ bản build thật. Client gọi API bằng đường dẫn tương
+  // đối nên phải chuyển tiếp /api và /uploads y như dev server, nếu không bản
+  // build chỉ chạy được khi có nginx đứng trước.
+  preview: {
+    port: 8080,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:4100',
+        changeOrigin: true,
+      },
+      '/uploads': {
+        target: 'http://localhost:4100',
+        changeOrigin: true,
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
