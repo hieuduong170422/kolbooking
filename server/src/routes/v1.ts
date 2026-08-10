@@ -8,7 +8,11 @@ import { createCreatorPortfolioRouter } from '../modules/creators/creator-portfo
 import { createCreatorReviewRouter } from '../modules/creators/creator-review.routes.js';
 import { createCreatorRouter } from '../modules/creators/creator.routes.js';
 import type { CreatorRepository } from '../modules/creators/creator.repository.js';
+import { createBrandRouter } from '../modules/brands/brand.routes.js';
+import type { BrandRepository } from '../modules/brands/brand.repository.js';
 import { createHealthRouter } from '../modules/health/health.routes.js';
+import { createPackageRouter } from '../modules/packages/package.routes.js';
+import type { PackageRepository } from '../modules/packages/package.repository.js';
 import type { VerificationTokenRepository } from '../modules/auth/verification.repository.js';
 import type { UserRepository } from '../modules/users/user.repository.js';
 import { buildErrorBody } from '../shared/http/api-response.js';
@@ -17,11 +21,15 @@ import type { FileStorage } from '../shared/storage/file-storage.js';
 
 export interface AppDependencies {
   readonly creatorRepository: CreatorRepository;
+  readonly packageRepository: PackageRepository;
+  readonly brandRepository: BrandRepository;
   readonly userRepository: UserRepository;
   readonly sessionRepository: SessionRepository;
   readonly verificationTokenRepository: VerificationTokenRepository;
   readonly auditRepository: AuditRepository;
   readonly fileStorage: FileStorage;
+  /** Storage cho file private (giấy tờ brand) — TÁCH khỏi fileStorage public (BRD-003). */
+  readonly privateFileStorage: FileStorage;
   readonly mailer: Mailer;
 }
 
@@ -76,6 +84,24 @@ export const createV1Router = (deps: AppDependencies): Router => {
       creatorRepository: deps.creatorRepository,
       auditRepository: deps.auditRepository,
       userRepository: deps.userRepository,
+    }),
+  );
+  router.use(
+    '/packages',
+    createPackageRouter({
+      packageRepository: deps.packageRepository,
+      creatorRepository: deps.creatorRepository,
+      auditRepository: deps.auditRepository,
+      userRepository: deps.userRepository,
+    }),
+  );
+  router.use(
+    '/brands',
+    createBrandRouter({
+      brandRepository: deps.brandRepository,
+      userRepository: deps.userRepository,
+      auditRepository: deps.auditRepository,
+      privateFileStorage: deps.privateFileStorage,
     }),
   );
 

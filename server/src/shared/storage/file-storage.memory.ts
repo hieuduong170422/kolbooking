@@ -20,4 +20,8 @@ export class InMemoryFileStorage implements FileStorage {
   get(key: string): Buffer | undefined {
     return this.files.get(key);
   }
+
+  read(key: string): Promise<Buffer | null> {
+    return Promise.resolve(this.files.get(key) ?? null);
+  }
 }

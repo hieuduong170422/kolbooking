@@ -1,10 +1,14 @@
 import { createApp } from './app.js';
-import { UPLOADS_DIR, env } from './config/env.js';
+import { PRIVATE_UPLOADS_DIR, UPLOADS_DIR, env } from './config/env.js';
 import { InMemoryAuditRepository } from './modules/audit/audit.repository.memory.js';
+import { InMemoryBrandRepository } from './modules/brands/brand.repository.memory.js';
+import { BRAND_SEED } from './modules/brands/brand.seed.js';
 import { InMemorySessionRepository } from './modules/auth/session.repository.memory.js';
 import { InMemoryVerificationTokenRepository } from './modules/auth/verification.repository.memory.js';
 import { InMemoryCreatorRepository } from './modules/creators/creator.repository.memory.js';
 import { CREATOR_SEED } from './modules/creators/creator.seed.js';
+import { InMemoryPackageRepository } from './modules/packages/package.repository.memory.js';
+import { PACKAGE_SEED } from './modules/packages/package.seed.js';
 import { InMemoryUserRepository } from './modules/users/user.repository.memory.js';
 import { buildUserSeed } from './modules/users/user.seed.js';
 import { ConsoleMailer } from './shared/email/mailer.js';
@@ -15,11 +19,14 @@ const userSeed = env.NODE_ENV === 'production' ? [] : await buildUserSeed();
 
 const app = createApp({
   creatorRepository: new InMemoryCreatorRepository(CREATOR_SEED),
+  packageRepository: new InMemoryPackageRepository(PACKAGE_SEED),
+  brandRepository: new InMemoryBrandRepository(BRAND_SEED),
   userRepository: new InMemoryUserRepository(userSeed),
   sessionRepository: new InMemorySessionRepository(),
   verificationTokenRepository: new InMemoryVerificationTokenRepository(),
   auditRepository: new InMemoryAuditRepository(),
   fileStorage: new LocalDiskFileStorage(UPLOADS_DIR),
+  privateFileStorage: new LocalDiskFileStorage(PRIVATE_UPLOADS_DIR),
   // Dev: OTP in ra console. Thay adapter thật trước khi mở pilot (NTF-002).
   mailer: new ConsoleMailer(),
 });

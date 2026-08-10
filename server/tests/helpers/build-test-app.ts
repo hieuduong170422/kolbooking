@@ -4,11 +4,17 @@ import { InMemoryAuditRepository } from '../../src/modules/audit/audit.repositor
 import type { AuditRepository } from '../../src/modules/audit/audit.repository.js';
 import { InMemorySessionRepository } from '../../src/modules/auth/session.repository.memory.js';
 import type { SessionRepository } from '../../src/modules/auth/session.repository.js';
+import { InMemoryBrandRepository } from '../../src/modules/brands/brand.repository.memory.js';
+import { BRAND_SEED } from '../../src/modules/brands/brand.seed.js';
+import type { Brand } from '../../src/modules/brands/brand.types.js';
 import { InMemoryVerificationTokenRepository } from '../../src/modules/auth/verification.repository.memory.js';
 import type { VerificationTokenRepository } from '../../src/modules/auth/verification.repository.js';
 import { InMemoryCreatorRepository } from '../../src/modules/creators/creator.repository.memory.js';
 import { CREATOR_SEED } from '../../src/modules/creators/creator.seed.js';
 import type { Creator } from '../../src/modules/creators/creator.types.js';
+import { InMemoryPackageRepository } from '../../src/modules/packages/package.repository.memory.js';
+import { PACKAGE_SEED } from '../../src/modules/packages/package.seed.js';
+import type { ServicePackage } from '../../src/modules/packages/package.types.js';
 import { InMemoryUserRepository } from '../../src/modules/users/user.repository.memory.js';
 import type { UserRepository } from '../../src/modules/users/user.repository.js';
 import { buildUserSeed } from '../../src/modules/users/user.seed.js';
@@ -20,9 +26,12 @@ import { CapturingMailer } from './capturing-mailer.js';
 
 export interface TestAppOptions {
   readonly creators?: readonly Creator[];
+  readonly packages?: readonly ServicePackage[];
+  readonly brands?: readonly Brand[];
   readonly users?: readonly User[];
   readonly audit?: AuditRepository;
   readonly fileStorage?: FileStorage;
+  readonly privateFileStorage?: FileStorage;
   /** Truyền instance khi test cần thao tác trực tiếp repository. */
   readonly userRepository?: UserRepository;
   readonly sessionRepository?: SessionRepository;
@@ -33,12 +42,15 @@ export interface TestAppOptions {
 export const buildTestApp = (options: TestAppOptions = {}): Express =>
   createApp({
     creatorRepository: new InMemoryCreatorRepository(options.creators ?? CREATOR_SEED),
+    packageRepository: new InMemoryPackageRepository(options.packages ?? PACKAGE_SEED),
+    brandRepository: new InMemoryBrandRepository(options.brands ?? BRAND_SEED),
     userRepository: options.userRepository ?? new InMemoryUserRepository(options.users ?? []),
     sessionRepository: options.sessionRepository ?? new InMemorySessionRepository(),
     verificationTokenRepository:
       options.verificationTokenRepository ?? new InMemoryVerificationTokenRepository(),
     auditRepository: options.audit ?? new InMemoryAuditRepository(),
     fileStorage: options.fileStorage ?? new InMemoryFileStorage(),
+    privateFileStorage: options.privateFileStorage ?? new InMemoryFileStorage(),
     mailer: options.mailer ?? new CapturingMailer(),
   });
 
