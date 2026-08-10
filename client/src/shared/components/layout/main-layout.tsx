@@ -8,7 +8,13 @@ export const MainLayout = () => (
       <Outlet />
     </main>
     <footer className="app-footer">
-      <p>KOL Booking — Creator Marketplace MVP</p>
+      <p className="app-footer__brand">
+        <span className="app-footer__logo" aria-hidden="true">
+          K
+        </span>
+        KOL Booking
+      </p>
+      <p>Booking trực tiếp giữa local brand và nano/micro creator — rõ giá, rõ deadline, rõ quyền sử dụng.</p>
     </footer>
   </div>
 );

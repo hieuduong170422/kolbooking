@@ -44,6 +44,9 @@ export const AppHeader = () => {
     <header className="app-header">
       <div className="app-header__inner">
         <NavLink to="/" className="app-header__brand">
+          <span className="app-header__logo" aria-hidden="true">
+            K
+          </span>
           KOL<span>Booking</span>
         </NavLink>
         <nav className="app-header__nav" aria-label="Điều hướng chính">
@@ -69,7 +72,13 @@ export const AppHeader = () => {
                   aria-expanded={menuOpen}
                   onClick={() => setMenuOpen((open) => !open)}
                 >
-                  {user.displayName}
+                  <span className="app-header__user-avatar" aria-hidden="true">
+                    {user.displayName.charAt(0).toUpperCase()}
+                  </span>
+                  <span>{user.displayName}</span>
+                  <span className="app-header__caret" aria-hidden="true">
+                    ▾
+                  </span>
                 </button>
                 {menuOpen && (
                   <div className="app-header__menu" role="menu">

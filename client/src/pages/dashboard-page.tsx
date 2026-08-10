@@ -4,6 +4,14 @@ import { ROLE_LABELS } from '../features/auth/types/auth-types';
 import { StatusBanner } from '../features/creators/components/status-banner';
 import { useCreatorProfile } from '../features/creators/hooks/use-creator-profile';
 import { CREATOR_STATUS_LABELS } from '../features/creators/types/creator-types';
+import {
+  IconBriefcase,
+  IconClock,
+  IconPackage,
+  IconSearch,
+  IconShield,
+  IconUser,
+} from '../shared/components/icons';
 
 /** Card hồ sơ creator — render riêng để hook useCreatorProfile gọi vô điều kiện trong component này. */
 const CreatorProfileCard = () => {
@@ -11,6 +19,9 @@ const CreatorProfileCard = () => {
 
   return (
     <div className="dashboard-card">
+      <span className="dashboard-card__icon" aria-hidden="true">
+        <IconUser />
+      </span>
       <h2>Hồ sơ creator</h2>
       {isPending ? (
         <p>Đang tải trạng thái hồ sơ...</p>
@@ -64,6 +75,9 @@ export const DashboardPage = () => {
       <div className="dashboard-grid">
         {user.role === 'creator' ? <CreatorProfileCard /> : null}
         <div className="dashboard-card">
+          <span className="dashboard-card__icon" aria-hidden="true">
+            <IconSearch />
+          </span>
           <h2>Khám phá creator</h2>
           <p>Tìm creator theo lĩnh vực, khu vực và ngân sách.</p>
           <Link to="/creators" className="button button--primary">
@@ -71,6 +85,9 @@ export const DashboardPage = () => {
           </Link>
         </div>
         <div className="dashboard-card dashboard-card--muted">
+          <span className="dashboard-card__icon" aria-hidden="true">
+            <IconClock />
+          </span>
           <h2>Booking của tôi</h2>
           <p>Quản lý booking, brief và deliverable — sẽ có ở Epic E3.</p>
           <button type="button" className="button button--secondary" disabled>
@@ -79,6 +96,9 @@ export const DashboardPage = () => {
         </div>
         {user.role === 'creator' ? (
           <div className="dashboard-card">
+            <span className="dashboard-card__icon" aria-hidden="true">
+              <IconPackage />
+            </span>
             <h2>Gói dịch vụ của tôi</h2>
             <p>Tạo package chuẩn hóa: đầu ra, giá, deadline, quyền sử dụng.</p>
             <Link to="/my-packages" className="button button--primary">
@@ -88,6 +108,9 @@ export const DashboardPage = () => {
         ) : null}
         {user.role === 'brand' ? (
           <div className="dashboard-card">
+            <span className="dashboard-card__icon" aria-hidden="true">
+              <IconBriefcase />
+            </span>
             <h2>Hồ sơ brand</h2>
             <p>Hoàn thiện hồ sơ và xác minh để bắt đầu booking creator.</p>
             <Link to="/brand-onboarding" className="button button--primary">
@@ -97,6 +120,9 @@ export const DashboardPage = () => {
         ) : null}
         {user.role === 'admin' ? (
           <div className="dashboard-card">
+            <span className="dashboard-card__icon" aria-hidden="true">
+              <IconShield />
+            </span>
             <h2>Duyệt hồ sơ</h2>
             <p>Hàng chờ duyệt creator và brand cho đội vận hành.</p>
             <div className="form-actions">

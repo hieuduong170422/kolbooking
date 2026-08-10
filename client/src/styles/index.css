@@ -134,10 +134,36 @@ a {
 
 .app-footer {
   border-top: 1px solid var(--color-border);
-  padding: 16px;
+  background: var(--color-surface);
+  padding: 28px 16px 32px;
   text-align: center;
   color: var(--color-text-muted);
   font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.app-footer__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.app-footer__logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ===== Header ===== */
@@ -160,13 +186,30 @@ a {
 }
 
 .app-header__brand {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 800;
   color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  letter-spacing: -0.01em;
 }
 
-.app-header__brand span {
+.app-header__brand span:last-child {
   color: var(--color-text);
+}
+
+.app-header__logo {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: linear-gradient(140deg, var(--violet-500), var(--color-primary-dark));
+  color: #fff;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(111, 45, 189, 0.35);
 }
 
 .app-header__link {
@@ -258,12 +301,30 @@ a {
   color: var(--color-text);
 }
 
-/* ===== Creator filters ===== */
+/* ===== Creator filters — toolbar nổi trên nền ===== */
 .creator-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  box-shadow: var(--shadow-card);
+}
+
+.creator-filters .input {
+  background: var(--color-bg);
+  border-color: transparent;
+}
+
+.creator-filters .input:hover {
+  border-color: var(--color-border);
+}
+
+.creator-filters .input:focus {
+  background: var(--color-surface);
 }
 
 .creator-filters__search {
@@ -279,31 +340,62 @@ a {
 
 .creator-card {
   display: flex;
-  gap: 14px;
+  flex-direction: column;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 16px;
+  overflow: hidden;
   box-shadow: var(--shadow-card);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 
 .creator-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(34, 26, 51, 0.12);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(34, 26, 51, 0.14);
+  border-color: var(--color-primary-border);
 }
 
-.creator-card__avatar {
-  flex-shrink: 0;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary), var(--violet-500));
-  color: #fff;
-  font-weight: 700;
+/* Cover là hero: khối màu theo tên hoặc ảnh avatar (nguyên tắc "Nội dung là hero"). */
+.creator-card__cover {
+  position: relative;
+  height: 120px;
+  background: linear-gradient(150deg, var(--violet-500), var(--color-primary-dark));
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.creator-card__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.creator-card__initials {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.creator-card__type {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--color-text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.creator-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 14px 16px 16px;
 }
 
 .creator-card__heading {
@@ -335,18 +427,38 @@ a {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 6px 12px;
   font-size: 0.8rem;
   color: var(--color-text-muted);
+  margin-bottom: 10px;
 }
 
 .creator-card__price {
-  margin-top: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px dashed var(--color-border);
   font-size: 0.95rem;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
 }
 
 .creator-card__price strong {
   color: var(--color-primary);
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.creator-card__arrow {
+  margin-left: auto;
+  color: var(--color-primary);
+  font-weight: 700;
+  transition: transform 0.15s ease;
+}
+
+.creator-card:hover .creator-card__arrow {
+  transform: translateX(3px);
 }
 
 /* ===== Badge & tags ===== */
@@ -406,7 +518,21 @@ a {
   color: var(--color-primary);
 }
 
+/* Layout 2 cột: nội dung chính + panel booking sticky (design concept). */
 .creator-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .creator-detail {
+    grid-template-columns: 1fr;
+  }
+}
+
+.creator-detail__main {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -414,37 +540,132 @@ a {
   box-shadow: var(--shadow-card);
 }
 
+.creator-detail__aside {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 76px;
+}
+
+@media (max-width: 860px) {
+  .creator-detail__aside {
+    position: static;
+  }
+}
+
+.booking-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.booking-panel__price {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+.booking-panel__price strong {
+  display: block;
+  font-size: 1.5rem;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.booking-panel__facts {
+  list-style: none;
+  margin: 14px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-panel__facts li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--color-border);
+  font-size: 0.9rem;
+}
+
+.booking-panel__facts li:last-child {
+  border-bottom: none;
+}
+
+.booking-panel__facts span {
+  color: var(--color-text-muted);
+}
+
+.booking-panel__cta {
+  width: 100%;
+}
+
+.booking-panel__note {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.booking-panel__heading {
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.booking-panel__heading:not(:first-child) {
+  margin-top: 16px;
+}
+
+.creator-detail__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .creator-detail__header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
   flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.creator-detail__avatar--fallback {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, var(--violet-500), var(--color-primary-dark));
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .creator-detail__meta {
   color: var(--color-text-muted);
-  margin: 4px 0 12px;
+  margin: 4px 0 0;
+  font-size: 0.92rem;
 }
 
 .creator-detail__bio {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 
 .creator-detail h2 {
   font-size: 1.05rem;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
-.creator-detail__price-box {
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  background: var(--color-bg);
-  border-radius: var(--radius-md);
-  padding: 16px;
+.creator-detail__section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
 }
 
 /* ===== Auth ===== */
@@ -621,8 +842,37 @@ a {
   align-items: flex-start;
 }
 
+/* CTA luôn ghim đáy card → các card cao bằng nhau, nút thẳng hàng. */
+.dashboard-card > .button,
+.dashboard-card > .form-actions {
+  margin-top: auto;
+}
+
+.dashboard-card__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-card__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
 .dashboard-card--muted {
-  opacity: 0.75;
+  border-style: dashed;
+  background: transparent;
+  box-shadow: none;
+}
+
+.dashboard-card--muted .dashboard-card__icon {
+  background: var(--color-border);
+  color: var(--color-text-muted);
 }
 
 .dashboard-card h2 {
@@ -652,12 +902,15 @@ a {
 /* ===== Feedback states ===== */
 .feedback {
   text-align: center;
-  padding: 48px 16px;
+  padding: 56px 24px;
   color: var(--color-text-muted);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
 }
 
 .feedback--error {
@@ -1544,4 +1797,146 @@ a {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ===== UI polish: user chip, page title, pkg card public ===== */
+.page__header h1 {
+  font-size: 1.7rem;
+  letter-spacing: -0.02em;
+}
+
+.app-header__user {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.app-header__user:hover {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-soft);
+}
+
+.app-header__user-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, var(--violet-500), var(--color-primary-dark));
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-header__caret {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+/* Card package trên trang public creator detail */
+.pkg-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pkg-card {
+  display: flex;
+  gap: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  background: var(--color-bg);
+  transition: border-color 0.15s ease;
+}
+
+.pkg-card:hover {
+  border-color: var(--color-primary-border);
+}
+
+.pkg-card__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.pkg-card__name {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.pkg-card__desc {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pkg-card__deliverables {
+  list-style: none;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 8px;
+}
+
+.pkg-card__deliverables li::before {
+  content: '✓ ';
+  color: var(--color-success);
+  font-weight: 700;
+}
+
+.pkg-card__usage {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.pkg-card__side {
+  flex-shrink: 0;
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  text-align: right;
+}
+
+.pkg-card__price {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.pkg-card__terms,
+.pkg-card__addons {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.pkg-card__side .button {
+  margin-top: auto;
+  font-size: 0.85rem;
+}
+
+@media (max-width: 640px) {
+  .pkg-card {
+    flex-direction: column;
+  }
+  .pkg-card__side {
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+  .pkg-card__side .button {
+    width: 100%;
+  }
 }
