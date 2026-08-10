@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { useAuth } from '../../auth/store/use-auth';
 import { ApiClientError } from '../../../shared/api/api-types';
 import { useMessageActions, useMessages } from '../hooks/use-messages';
@@ -27,6 +27,9 @@ export const ChatThread = ({ conversationId, bookingId }: ChatThreadProps) => {
   const { send, markRead } = useMessageActions(conversationId);
   const [draft, setDraft] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
+  // Cùng một luồng có thể hiện ở hai nơi (trang booking + hộp chat nổi),
+  // nên id phải theo instance chứ không theo conversationId.
+  const inputId = useId();
 
   const messages = data?.data ?? [];
 
@@ -94,11 +97,11 @@ export const ChatThread = ({ conversationId, bookingId }: ChatThreadProps) => {
       ) : null}
 
       <form className="chat__composer" onSubmit={handleSubmit}>
-        <label className="visually-hidden" htmlFor={`chat-input-${conversationId}`}>
+        <label className="visually-hidden" htmlFor={inputId}>
           Nội dung tin nhắn
         </label>
         <input
-          id={`chat-input-${conversationId}`}
+          id={inputId}
           type="text"
           className="input"
           value={draft}

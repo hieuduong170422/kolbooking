@@ -2,6 +2,10 @@ import { Link, useSearchParams } from 'react-router';
 import { useAuth } from '../features/auth/store/use-auth';
 import { ChatThread } from '../features/messages/components/chat-thread';
 import { useConversations } from '../features/messages/hooks/use-messages';
+import {
+  conversationPeerName,
+  conversationPreview,
+} from '../features/messages/utils/conversation-peer';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 
@@ -56,9 +60,7 @@ export const MessagesPage = () => {
         <div className="messages-layout">
           <aside className="conversation-list">
             {data.map((conversation) => {
-              const name = isCreator
-                ? conversation.brandDisplayName
-                : conversation.creatorDisplayName;
+              const name = conversationPeerName(conversation, user.role);
               return (
                 <button
                   key={conversation.id}
@@ -77,7 +79,7 @@ export const MessagesPage = () => {
                       </span>
                     </span>
                     <span className="conversation-item__preview">
-                      {conversation.lastMessagePreview ?? 'Chưa có tin nhắn'}
+                      {conversationPreview(conversation)}
                     </span>
                   </span>
                   {conversation.unreadCount > 0 ? (
@@ -93,9 +95,7 @@ export const MessagesPage = () => {
               <>
                 <div className="thread-head">
                   <div>
-                    <p className="thread-head__name">
-                      {isCreator ? active.brandDisplayName : active.creatorDisplayName}
-                    </p>
+                    <p className="thread-head__name">{conversationPeerName(active, user.role)}</p>
                     {!isCreator ? (
                       <Link to={`/creators/${active.creatorId}`} className="thread-head__link">
                         Xem hồ sơ và gói dịch vụ

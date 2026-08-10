@@ -146,8 +146,17 @@ await creator.getByLabel('Nội dung tin nhắn').fill('Mình nhận nhé, thứ
 await creator.getByRole('button', { name: 'Gửi', exact: true }).click();
 await creator.waitForTimeout(800);
 
+// Tin chưa đọc phải nổi lên cả ở nav lẫn bong bóng chat, không chỉ ở chuông.
+// Phải đứng ở trang KHÔNG có khung chat — mở đúng thread là tin tự đánh dấu đã đọc.
+await brand.goto('http://localhost:5173/bookings');
+await brand.waitForTimeout(1500);
+check('nav "Tin nhắn" có chấm đỏ khi có tin chưa đọc',
+  (await brand.locator('.app-header__nav .nav-dot').count()) > 0);
+check('bong bóng chat có badge số tin chưa đọc',
+  (await brand.locator('.chat-widget__badge').count()) > 0);
+
 // Thông báo: brand phải nhận được tin nhắn mới từ creator
-await brand.reload();
+await brand.goto(bookingUrl);
 await brand.waitForTimeout(1500);
 check('brand thấy badge chuông thông báo', (await brand.locator('.notif__badge').count()) > 0);
 await brand.locator('.notif__bell').click();
@@ -160,6 +169,36 @@ await brand.locator('.notif__item').first().click();
 await brand.waitForTimeout(900);
 // Thông báo tin nhắn dẫn về luồng chat (chat nay độc lập với booking).
 check('bấm thông báo nhảy đúng luồng chat (deep link)', brand.url().includes('/messages?c=cnv_'));
+
+// --- Bong bóng chat nổi: thu/phóng, chat ngay tại trang đang xem ---
+check('bong bóng chat ẩn trên chính trang /messages',
+  (await brand.locator('.chat-widget__bubble').count()) === 0);
+
+await brand.goto(bookingUrl);
+await brand.waitForSelector('.chat-widget__bubble');
+await brand.locator('.chat-widget__bubble').click();
+await brand.waitForSelector('.chat-widget__panel');
+check('bấm bong bóng mở được hộp chat', true);
+await brand.locator('.chat-widget__item').first().click();
+await brand.waitForSelector('.chat-widget__panel .chat__thread');
+await brand.waitForTimeout(600);
+check('chat trong hộp nổi đúng luồng đã trao đổi',
+  (await brand.locator('.chat-widget__panel .chat__thread').innerText()).includes('thứ 7 quay được không'));
+
+// Trang booking cũng có khung chat riêng — phải nhắm đúng composer trong hộp nổi.
+const widget = brand.locator('.chat-widget__panel');
+await widget.getByLabel('Nội dung tin nhắn').fill('Ok thứ 7 nhé bạn.');
+await widget.getByRole('button', { name: 'Gửi', exact: true }).click();
+await brand.waitForTimeout(900);
+check('gửi được tin ngay từ hộp nổi mà không rời trang',
+  (await brand.locator('.chat-widget__panel .chat__thread').innerText()).includes('Ok thứ 7 nhé bạn')
+    && brand.url() === bookingUrl);
+
+await brand.locator('.chat-widget__collapse').click();
+await brand.waitForTimeout(200);
+check('thu nhỏ được hộp chat về lại bong bóng',
+  (await brand.locator('.chat-widget__panel').count()) === 0
+    && (await brand.locator('.chat-widget__bubble').count()) === 1);
 
 // --- P5: nộp bài → yêu cầu sửa → nộp lại → nghiệm thu → hoàn tất ---
 await creator.goto(bookingUrl);

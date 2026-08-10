@@ -11,7 +11,7 @@ const StartButton = ({ creatorId }: { creatorId: string }) => {
   return (
     <button
       type="button"
-      className="button button--secondary booking-panel__cta"
+      className="button button--secondary booking-panel__cta chatbox"
       disabled={start.isPending}
       onClick={() =>
         start.mutate(creatorId, {

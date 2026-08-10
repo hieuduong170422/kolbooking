@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import { useAuth } from '../../../features/auth/store/use-auth';
 import { NotificationBell } from '../../../features/notifications/notifications';
+import { UnreadMessagesDot } from '../../../features/messages/components/unread-messages-dot';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }): string =>
   isActive ? 'app-header__link app-header__link--active' : 'app-header__link';
@@ -66,6 +67,7 @@ export const AppHeader = () => {
                   </NavLink>
                   <NavLink to="/messages" className={navLinkClass}>
                     Tin nhắn
+                    <UnreadMessagesDot />
                   </NavLink>
                 </>
               )}

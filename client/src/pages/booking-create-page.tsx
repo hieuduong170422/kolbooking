@@ -146,7 +146,6 @@ export const BookingCreatePage = () => {
               </div>
             </section>
           ) : null}
-
           <section className="onb-section">
             <h2 className="onb-section__title">Brief</h2>
             <div className="field-grid">

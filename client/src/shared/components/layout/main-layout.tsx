@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router';
 import { AppHeader } from './app-header';
+import { ChatWidget } from '../../../features/messages/components/chat-widget';
 
 export const MainLayout = () => (
   <div className="app-shell">
@@ -16,5 +17,6 @@ export const MainLayout = () => (
       </p>
       <p>Booking trực tiếp giữa local brand và nano/micro creator — rõ giá, rõ deadline, rõ quyền sử dụng.</p>
     </footer>
+    <ChatWidget />
   </div>
 );

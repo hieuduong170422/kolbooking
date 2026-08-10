@@ -167,7 +167,7 @@ export const CreatorDetailPage = () => {
             </ul>
             <Link
               to={`/creators/${creator.id}/book`}
-              className="button button--primary booking-panel__cta"
+              className="button button--primary booking-panel__cta ff"
             >
               Đặt booking
             </Link>
