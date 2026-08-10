@@ -1,7 +1,16 @@
-import 'dotenv/config';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { config as loadDotenv } from 'dotenv';
 import { z } from 'zod';
+
+/**
+ * Test KHÔNG đọc .env. Cấu hình riêng trên máy dev (mã OTP cố định, database
+ * cục bộ, cổng khác) sẽ đổi hành vi test và làm suite đỏ tùy máy — test phải
+ * chạy trên đúng giá trị mặc định, giống hệt nhau ở mọi nơi.
+ */
+if (process.env.NODE_ENV !== 'test') {
+  loadDotenv();
+}
 
 const DEV_ONLY_JWT_SECRET = 'dev-only-secret-change-me-before-production!';
 
@@ -40,6 +49,17 @@ const envSchema = z.object({
   ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(900),
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
   OTP_TTL_MINUTES: z.coerce.number().int().positive().default(10),
+  /**
+   * Mã OTP cố định cho môi trường chưa có SMTP: mọi mã cấp ra đều là giá trị
+   * này nên nhập tay được, khỏi phải mò trong log. Chỉ thay khâu SINH mã —
+   * hạn dùng, giới hạn nhập sai và luật dùng-một-lần vẫn nguyên vẹn.
+   * BỊ CHẶN Ở PRODUCTION (xem kiểm tra bên dưới): ai đoán được mã là chiếm
+   * được tài khoản qua luồng quên mật khẩu.
+   */
+  DEV_OTP_CODE: z
+    .string()
+    .regex(/^\d{6}$/, 'DEV_OTP_CODE phải gồm đúng 6 chữ số.')
+    .optional(),
   OTP_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
   /** Phiên bản điều khoản sử dụng hiện hành — ghi vào consent lúc đăng ký (AUTH-007). */
   TERMS_VERSION: z.string().min(1).default('2026-08-mvp'),
@@ -88,6 +108,13 @@ if (!parsed.success) {
 
 if (parsed.data.NODE_ENV === 'production' && parsed.data.JWT_SECRET === DEV_ONLY_JWT_SECRET) {
   throw new Error('JWT_SECRET phải được cấu hình riêng khi chạy production.');
+}
+
+if (parsed.data.NODE_ENV === 'production' && parsed.data.DEV_OTP_CODE !== undefined) {
+  throw new Error(
+    'DEV_OTP_CODE không được bật ở production: mã OTP đoán được đồng nghĩa với việc ' +
+      'bất kỳ ai cũng chiếm được tài khoản qua luồng quên mật khẩu.',
+  );
 }
 
 /** Thư mục client đã giải nghĩa thành đường dẫn tuyệt đối; null = không phục vụ. */
