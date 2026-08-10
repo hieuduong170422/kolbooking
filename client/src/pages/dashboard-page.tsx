@@ -84,16 +84,18 @@ export const DashboardPage = () => {
             Bắt đầu tìm
           </Link>
         </div>
-        <div className="dashboard-card dashboard-card--muted">
-          <span className="dashboard-card__icon" aria-hidden="true">
-            <IconClock />
-          </span>
-          <h2>Booking của tôi</h2>
-          <p>Quản lý booking, brief và deliverable — sẽ có ở Epic E3.</p>
-          <button type="button" className="button button--secondary" disabled>
-            Sắp ra mắt
-          </button>
-        </div>
+        {user.role !== 'admin' ? (
+          <div className="dashboard-card">
+            <span className="dashboard-card__icon" aria-hidden="true">
+              <IconClock />
+            </span>
+            <h2>Booking của tôi</h2>
+            <p>Theo dõi yêu cầu, brief đã chốt và việc cần làm tiếp.</p>
+            <Link to="/bookings" className="button button--primary">
+              Xem booking
+            </Link>
+          </div>
+        ) : null}
         {user.role === 'creator' ? (
           <div className="dashboard-card">
             <span className="dashboard-card__icon" aria-hidden="true">

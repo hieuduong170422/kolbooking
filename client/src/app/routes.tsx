@@ -9,6 +9,9 @@ import { AdminCreatorsPage } from '../pages/admin-creators-page';
 import { AdminPackagesPage } from '../pages/admin-packages-page';
 import { AdminReportsPage } from '../pages/admin-reports-page';
 import { AdminUsersPage } from '../pages/admin-users-page';
+import { BookingCreatePage } from '../pages/booking-create-page';
+import { BookingDetailPage } from '../pages/booking-detail-page';
+import { BookingsPage } from '../pages/bookings-page';
 import { BrandOnboardingPage } from '../pages/brand-onboarding-page';
 import { CreatorDetailPage } from '../pages/creator-detail-page';
 import { CreatorsPage } from '../pages/creators-page';
@@ -38,6 +41,16 @@ export const AppRoutes = () => (
       <Route element={<RequireAuth />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/bookings" element={<BookingsPage />} />
+        <Route path="/bookings/:id" element={<BookingDetailPage />} />
+        <Route
+          path="/creators/:id/book"
+          element={
+            <RequireRole role="brand">
+              <BookingCreatePage />
+            </RequireRole>
+          }
+        />
         <Route
           path="/saved"
           element={

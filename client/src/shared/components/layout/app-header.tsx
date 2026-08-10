@@ -58,6 +58,11 @@ export const AppHeader = () => {
               <NavLink to="/dashboard" className={navLinkClass}>
                 Dashboard
               </NavLink>
+              {user.role !== 'admin' && (
+                <NavLink to="/bookings" className={navLinkClass}>
+                  Booking
+                </NavLink>
+              )}
               {user.role === 'brand' && (
                 <NavLink to="/saved" className={navLinkClass}>
                   Đã lưu

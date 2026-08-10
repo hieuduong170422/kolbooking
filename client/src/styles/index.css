@@ -3272,3 +3272,265 @@ a {
   color: var(--color-text-muted);
   background: var(--color-border);
 }
+
+/* ============================================================
+   Booking: danh sách, chi tiết, timeline, thanh việc cần làm
+   ============================================================ */
+.booking-create {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+  align-items: start;
+}
+
+.booking-create__main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.booking-create__aside {
+  position: sticky;
+  top: 76px;
+}
+
+@media (max-width: 900px) {
+  .booking-create {
+    grid-template-columns: 1fr;
+  }
+  .booking-create__aside {
+    position: static;
+  }
+}
+
+.booking-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.booking-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-card);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.booking-row:hover {
+  border-color: var(--color-primary-border);
+  transform: translateY(-2px);
+}
+
+.booking-row__heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.booking-row__code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.booking-row__objective {
+  font-size: 0.92rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.booking-row__hint {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.booking-row__side {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.booking-row__amount {
+  display: block;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary);
+}
+
+.booking-row__meta {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+/* Thanh việc cần làm — nguyên tắc "trạng thái dẫn lối" */
+.next-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.next-action__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.next-action__hint {
+  font-size: 0.98rem;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.next-action__deadline {
+  font-size: 0.82rem;
+  color: var(--color-warning);
+  margin-top: 3px;
+}
+
+.next-action__buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.brief-list {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 8px 16px;
+  font-size: 0.92rem;
+}
+
+.brief-list dt {
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.brief-list dd ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+@media (max-width: 620px) {
+  .brief-list {
+    grid-template-columns: 1fr;
+    gap: 2px 0;
+  }
+  .brief-list dd {
+    margin-bottom: 8px;
+  }
+}
+
+.timeline {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.timeline__item {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 16px;
+  position: relative;
+}
+
+.timeline__item::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 14px;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-border);
+}
+
+.timeline__item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline__item:last-child::before {
+  display: none;
+}
+
+.timeline__dot {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  position: relative;
+  z-index: 1;
+}
+
+.timeline__action {
+  font-weight: 600;
+  font-size: 0.92rem;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.timeline__time {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.timeline__note {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.pill--wait {
+  color: var(--color-warning);
+  background: var(--color-warning-soft);
+}
+
+.pill--info {
+  color: #1d5fc2;
+  background: #e7effb;
+}
+
+.pill--run {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.pill--good {
+  color: var(--color-success);
+  background: var(--color-success-soft);
+}
+
+.pill--bad {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+}
+
+.pill--mute {
+  color: var(--color-text-muted);
+  background: var(--color-border);
+}

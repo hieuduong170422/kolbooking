@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router';
 import { formatVnd } from '../../../shared/utils/format';
 import {
   DELIVERABLE_TYPE_LABELS,
@@ -50,9 +51,12 @@ export const PackagePublicCard = ({
       {pkg.addOns.length > 0 ? (
         <p className="pkg-card__addons">+{pkg.addOns.length} add-on</p>
       ) : null}
-      <button type="button" className="button button--primary" disabled>
-        Booking (sắp ra mắt)
-      </button>
+      <Link
+        to={`/creators/${pkg.creatorId}/book?package=${pkg.id}`}
+        className="button button--primary"
+      >
+        Đặt gói này
+      </Link>
       {action}
     </div>
   </article>
