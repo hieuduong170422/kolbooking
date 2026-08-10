@@ -13,7 +13,8 @@
     "dev:server": "npm run dev -w server",
     "build": "npm run build -w server && npm run build -w client",
     "test": "npm run test -w server && npm run test -w client",
-    "lint": "npm run lint -w client"
+    "lint": "npm run lint -w client",
+    "e2e:booking": "node e2e/booking-flow.mjs"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

@@ -4,7 +4,7 @@ import type { Creator } from './creator.types.js';
 export const CREATOR_SEED: readonly Creator[] = [
   {
     id: 'crt_0001',
-    userId: null,
+    userId: 'usr_demo_creator_verified',
     displayName: 'Lan Chi Foodie',
     avatarUrl: null,
     bio: 'Food reviewer Hà Nội, chuyên quán café và street food. Video review chân thực, lên xu hướng đều.',
