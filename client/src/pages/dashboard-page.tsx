@@ -77,17 +77,38 @@ export const DashboardPage = () => {
             Sắp ra mắt
           </button>
         </div>
-        <div className="dashboard-card dashboard-card--muted">
-          <h2>{user.role === 'creator' ? 'Gói dịch vụ của tôi' : 'Creator đã lưu'}</h2>
-          <p>
-            {user.role === 'creator'
-              ? 'Tạo và quản lý service package — sẽ có ở Epic E2.'
-              : 'Danh sách creator yêu thích — sẽ có ở Epic E2.'}
-          </p>
-          <button type="button" className="button button--secondary" disabled>
-            Sắp ra mắt
-          </button>
-        </div>
+        {user.role === 'creator' ? (
+          <div className="dashboard-card">
+            <h2>Gói dịch vụ của tôi</h2>
+            <p>Tạo package chuẩn hóa: đầu ra, giá, deadline, quyền sử dụng.</p>
+            <Link to="/my-packages" className="button button--primary">
+              Quản lý package
+            </Link>
+          </div>
+        ) : null}
+        {user.role === 'brand' ? (
+          <div className="dashboard-card">
+            <h2>Hồ sơ brand</h2>
+            <p>Hoàn thiện hồ sơ và xác minh để bắt đầu booking creator.</p>
+            <Link to="/brand-onboarding" className="button button--primary">
+              Quản lý hồ sơ
+            </Link>
+          </div>
+        ) : null}
+        {user.role === 'admin' ? (
+          <div className="dashboard-card">
+            <h2>Duyệt hồ sơ</h2>
+            <p>Hàng chờ duyệt creator và brand cho đội vận hành.</p>
+            <div className="form-actions">
+              <Link to="/admin/creators" className="button button--primary">
+                Creator
+              </Link>
+              <Link to="/admin/brands" className="button button--secondary">
+                Brand
+              </Link>
+            </div>
+          </div>
+        ) : null}
       </div>
     </section>
   );
