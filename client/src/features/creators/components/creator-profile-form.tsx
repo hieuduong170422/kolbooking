@@ -1,5 +1,6 @@
 import { useState, type ChangeEvent, type FormEvent, type KeyboardEvent } from 'react';
 import { ApiClientError } from '../../../shared/api/api-types';
+import { IconLink, IconPlus, IconTrash, IconUpload } from '../../../shared/components/icons';
 import {
   usePortfolioActions,
   useSubmitProfileForReview,
@@ -16,24 +17,18 @@ import {
   CREATOR_TYPES,
   SERVICE_MODES,
   SERVICE_MODE_LABELS,
-  SOCIAL_PLATFORMS,
   type CreatorDayOfWeek,
   type CreatorLanguage,
   type CreatorOwner,
   type CreatorProfileInput,
   type CreatorType,
   type ServiceMode,
-  type SocialPlatform,
 } from '../types/creator-types';
+import { ProfileChecklist, type ChecklistItem } from './profile-checklist';
+import { SocialAccountFields, type SocialDraft } from './social-account-fields';
 
 const MAX_SOCIAL_ACCOUNTS = 4;
-
-interface SocialDraft {
-  readonly platform: SocialPlatform;
-  readonly handle: string;
-  readonly url: string;
-  readonly followerCount: number;
-}
+const BIO_MAX_LENGTH = 500;
 
 interface CreatorProfileFormProps {
   /** Hồ sơ hiện có → prefill; null → chế độ tạo mới (CRE-001). */
@@ -60,6 +55,31 @@ const FormError = ({ error }: { error: unknown }) => {
     </div>
   );
 };
+
+/** Tiêu đề section có số thứ tự — hồ sơ đi theo 5 bước rõ ràng. */
+const SectionHead = ({
+  step,
+  id,
+  title,
+  description,
+}: {
+  step: number;
+  id: string;
+  title: string;
+  description: string;
+}) => (
+  <header className="onb-section__head">
+    <span className="onb-section__num" aria-hidden="true">
+      {step}
+    </span>
+    <div>
+      <h2 className="onb-section__title" id={id}>
+        {title}
+      </h2>
+      <p className="onb-section__desc">{description}</p>
+    </div>
+  </header>
+);
 
 export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProps) => {
   const updateProfile = useUpdateCreatorProfile();
@@ -110,6 +130,23 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
     niches.length === 0 ||
     niches.some((niche) => niche.trim().length < 2);
 
+  /** Checklist bám đúng điều kiện submitForReview phía server (CRE-001). */
+  const checklist: readonly ChecklistItem[] = [
+    {
+      label: 'Tên hiển thị',
+      done: displayName.trim().length >= 2,
+      hint: 'tối thiểu 2 ký tự',
+    },
+    { label: 'Thành phố', done: city.trim().length >= 2, hint: 'tối thiểu 2 ký tự' },
+    { label: 'Giới thiệu', done: bio.trim().length >= 10, hint: 'tối thiểu 10 ký tự' },
+    {
+      label: 'Lĩnh vực',
+      done: niches.length > 0 && niches.every((niche) => niche.trim().length >= 2),
+      hint: 'thêm ít nhất 1 lĩnh vực',
+    },
+    { label: 'Ảnh đại diện', done: avatarUrl !== null, hint: 'bắt buộc khi gửi duyệt' },
+  ];
+
   const buildProfileInput = (): CreatorProfileInput => ({
     displayName: displayName.trim(),
     avatarUrl: avatarUrl ?? null,
@@ -118,11 +155,11 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
     niches,
     language,
     creatorType,
-    socialAccounts: socialAccounts.map(({ platform, handle, url, followerCount }) => ({
+    socialAccounts: socialAccounts.map(({ platform, handle, url, followerCount: followers }) => ({
       platform,
       handle: handle.trim(),
       url: url.trim(),
-      followerCount,
+      followerCount: followers,
       // Creator KHÔNG tự đặt isVerified — server ép literal(false) (CRE-002).
       isVerified: false,
     })),
@@ -248,339 +285,355 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
 
   const metricsUpdatedAt = profile?.audienceMetrics?.updatedAt ?? new Date().toISOString();
 
-  return (
-    <form className="auth-form onboarding-form" onSubmit={handleSave}>
-      <FormError error={error} />
-      {saved ? (
-        <p className="form-success" role="status">
-          Đã lưu hồ sơ.
-        </p>
-      ) : null}
+  const panelNote = readOnly
+    ? 'Hồ sơ đang được xử lý — mở khóa sau khi đội vận hành phản hồi.'
+    : avatarUrl === null
+      ? 'Cần ảnh đại diện trước khi gửi duyệt.'
+      : 'Đội vận hành thường phản hồi trong 24–48 giờ.';
 
-      <section className="form-section" aria-labelledby="section-profile">
-        <h2 className="form-section__title" id="section-profile">
-          Hồ sơ
-        </h2>
-        <div className="form-grid">
-          <label className="form-field">
-            <span>Tên hiển thị</span>
-            <input
-              type="text"
-              className="input"
-              value={displayName}
-              onChange={(event) => setDisplayName(event.target.value)}
-              minLength={2}
-              maxLength={80}
-              required
-              disabled={readOnly}
-            />
-          </label>
-          <label className="form-field">
-            <span>Thành phố</span>
-            <input
-              type="text"
-              className="input"
-              value={city}
-              onChange={(event) => setCity(event.target.value)}
-              minLength={2}
-              maxLength={60}
-              required
-              disabled={readOnly}
-            />
-          </label>
-          <div className="form-field form-grid--full">
-            <span>Ảnh đại diện</span>
+  return (
+    <form className="onb-layout" onSubmit={handleSave}>
+      <div className="onb-main">
+        <FormError error={error} />
+        {saved ? (
+          <p className="form-success" role="status">
+            Đã lưu hồ sơ.
+          </p>
+        ) : null}
+
+        {/* 1. Thông tin cơ bản */}
+        <section className="onb-section" aria-labelledby="section-profile">
+          <SectionHead
+            step={1}
+            id="section-profile"
+            title="Thông tin cơ bản"
+            description="Đây là những gì brand nhìn thấy đầu tiên khi tìm creator."
+          />
+
+          <div className="avatar-row">
             {avatarUrl ? (
               <img src={avatarUrl} alt="Ảnh đại diện" className="avatar-preview" />
             ) : (
-              <div className="avatar-preview avatar-preview--empty">Chưa có ảnh</div>
+              <div className="avatar-preview avatar-preview--empty" aria-hidden="true">
+                {displayName.trim().charAt(0).toUpperCase() || '?'}
+              </div>
             )}
-            <label className="button button--secondary avatar-upload">
-              {uploadAvatar.isPending ? 'Đang tải ảnh...' : 'Tải ảnh đại diện'}
-              <input
-                type="file"
-                accept="image/*"
-                className="file-input"
-                onChange={handleAvatarUpload}
-                disabled={readOnly}
-              />
-            </label>
+            <div className="avatar-row__body">
+              <span className="form-field__label">Ảnh đại diện</span>
+              <p className="onb-hint">JPG/PNG, tối đa 5MB. Ảnh rõ mặt giúp brand tin tưởng hơn.</p>
+              <label className="button button--secondary avatar-upload">
+                <IconUpload />
+                {uploadAvatar.isPending ? 'Đang tải ảnh...' : 'Tải ảnh lên'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="file-input"
+                  onChange={handleAvatarUpload}
+                  disabled={readOnly}
+                />
+              </label>
+            </div>
           </div>
-          <label className="form-field form-grid--full">
-            <span>Giới thiệu</span>
-            <textarea
-              className="textarea"
-              value={bio}
-              onChange={(event) => setBio(event.target.value)}
-              minLength={10}
-              maxLength={500}
-              required
-              disabled={readOnly}
-            />
-          </label>
-          <div className="form-field form-grid--full">
-            <span>Lĩnh vực (niche)</span>
-            <div className="niches">
+
+          <div className="field-grid">
+            <label className="form-field field--half">
+              <span>Tên hiển thị</span>
               <input
                 type="text"
                 className="input"
-                value={nicheInput}
-                onChange={(event) => setNicheInput(event.target.value)}
-                onKeyDown={handleNicheKeyDown}
-                maxLength={30}
-                placeholder="VD: ẩm thực, thời trang"
-                aria-label="Lĩnh vực (niche)"
+                value={displayName}
+                onChange={(event) => setDisplayName(event.target.value)}
+                minLength={2}
+                maxLength={80}
+                required
                 disabled={readOnly}
               />
-              <button
-                type="button"
-                className="button button--secondary"
-                onClick={addNiche}
-                disabled={readOnly || nicheInput.trim() === ''}
-              >
-                Thêm lĩnh vực
-              </button>
-            </div>
-            {niches.length > 0 ? (
-              <ul className="niche-tags">
-                {niches.map((niche) => (
-                  <li key={niche} className="tag">
-                    <span>{niche}</span>
-                    <button
-                      type="button"
-                      className="tag__remove"
-                      aria-label={`Xóa lĩnh vực ${niche}`}
-                      onClick={() => removeNiche(niche)}
-                      disabled={readOnly}
-                    >
-                      ×
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </div>
-          <label className="form-field">
-            <span>Ngôn ngữ</span>
-            <select
-              className="select"
-              value={language}
-              onChange={(event) => setLanguage(event.target.value as CreatorLanguage)}
-              disabled={readOnly}
-            >
-              {CREATOR_LANGUAGES.map((option) => (
-                <option key={option} value={option}>
-                  {CREATOR_LANGUAGE_LABELS[option]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <fieldset className="radio-group">
-            <legend>Loại hình</legend>
-            {CREATOR_TYPES.map((option) => (
-              <label key={option} className="radio-option">
-                <input
-                  type="radio"
-                  name="creatorType"
-                  value={option}
-                  checked={creatorType === option}
-                  onChange={() => setCreatorType(option)}
+            </label>
+            <label className="form-field field--half">
+              <span>Thành phố</span>
+              <input
+                type="text"
+                className="input"
+                value={city}
+                onChange={(event) => setCity(event.target.value)}
+                minLength={2}
+                maxLength={60}
+                placeholder="VD: Hà Nội"
+                required
+                disabled={readOnly}
+              />
+            </label>
+
+            {/* Bộ đếm nằm NGOÀI <label> — nếu để trong, tên nhãn thành "Giới thiệu 0/500". */}
+            <div className="form-field field--full">
+              <label className="form-field">
+                <span>Giới thiệu</span>
+                <textarea
+                  className="textarea"
+                  value={bio}
+                  onChange={(event) => setBio(event.target.value)}
+                  minLength={10}
+                  maxLength={BIO_MAX_LENGTH}
+                  placeholder="Bạn làm nội dung gì, cho tệp khán giả nào, thế mạnh của bạn là gì?"
+                  required
                   disabled={readOnly}
                 />
-                <span>{CREATOR_TYPE_LABELS[option]}</span>
               </label>
-            ))}
-          </fieldset>
-          <label className="form-field">
-            <span>Hình thức</span>
-            <select
-              className="select"
-              value={serviceMode}
-              onChange={(event) => setServiceMode(event.target.value as ServiceMode)}
-              disabled={readOnly}
-            >
-              {SERVICE_MODES.map((option) => (
-                <option key={option} value={option}>
-                  {SERVICE_MODE_LABELS[option]}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      </section>
+              <span className="onb-counter">
+                {bio.trim().length}/{BIO_MAX_LENGTH}
+              </span>
+            </div>
 
-      <section className="form-section" aria-labelledby="section-social">
-        <h2 className="form-section__title" id="section-social">
-          Mạng xã hội
-        </h2>
-        <p className="page__subtitle">Tối đa {MAX_SOCIAL_ACCOUNTS} tài khoản.</p>
-        {socialAccounts.length === 0 ? (
-          <p className="page__subtitle">Chưa có tài khoản nào.</p>
-        ) : (
-          socialAccounts.map((account, index) => (
-            <div key={`${account.platform}-${index}`} className="social-row">
-              <label className="form-field">
-                <span>Nền tảng</span>
-                <select
-                  className="select"
-                  value={account.platform}
-                  onChange={(event) =>
-                    updateSocial(index, { platform: event.target.value as SocialPlatform })
-                  }
-                  disabled={readOnly}
-                >
-                  {SOCIAL_PLATFORMS.map((platform) => (
-                    <option key={platform} value={platform}>
-                      {platform}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="form-field">
-                <span>Handle</span>
+            <div className="form-field field--full">
+              <span className="form-field__label">Lĩnh vực (niche)</span>
+              <div className="niches">
                 <input
                   type="text"
                   className="input"
-                  value={account.handle}
-                  onChange={(event) => updateSocial(index, { handle: event.target.value })}
-                  placeholder="@username"
+                  value={nicheInput}
+                  onChange={(event) => setNicheInput(event.target.value)}
+                  onKeyDown={handleNicheKeyDown}
+                  maxLength={30}
+                  placeholder="VD: ẩm thực, thời trang"
+                  aria-label="Lĩnh vực (niche)"
                   disabled={readOnly}
                 />
-              </label>
-              <label className="form-field">
-                <span>URL</span>
-                <input
-                  type="url"
-                  className="input"
-                  value={account.url}
-                  onChange={(event) => updateSocial(index, { url: event.target.value })}
-                  placeholder="https://..."
-                  disabled={readOnly}
-                />
-              </label>
-              <label className="form-field">
-                <span>Followers</span>
-                <input
-                  type="number"
-                  className="input"
-                  value={account.followerCount}
-                  onChange={(event) =>
-                    updateSocial(index, { followerCount: Number(event.target.value) })
-                  }
-                  min={0}
-                  disabled={readOnly}
-                />
-              </label>
-              <div className="social-row__actions">
                 <button
                   type="button"
                   className="button button--secondary"
-                  onClick={() => removeSocial(index)}
-                  disabled={readOnly}
+                  onClick={addNiche}
+                  disabled={readOnly || nicheInput.trim() === ''}
                 >
-                  Xóa tài khoản
+                  Thêm lĩnh vực
                 </button>
               </div>
+              {niches.length > 0 ? (
+                <ul className="niche-tags">
+                  {niches.map((niche) => (
+                    <li key={niche} className="tag">
+                      <span>{niche}</span>
+                      <button
+                        type="button"
+                        className="tag__remove"
+                        aria-label={`Xóa lĩnh vực ${niche}`}
+                        onClick={() => removeNiche(niche)}
+                        disabled={readOnly}
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="onb-hint">Gõ tên lĩnh vực rồi nhấn Enter để thêm.</p>
+              )}
             </div>
-          ))
-        )}
-        <button
-          type="button"
-          className="button button--secondary"
-          onClick={addSocial}
-          disabled={readOnly || socialAccounts.length >= MAX_SOCIAL_ACCOUNTS}
-        >
-          Thêm tài khoản
-        </button>
-      </section>
 
-      <section className="form-section" aria-labelledby="section-metrics">
-        <h2 className="form-section__title" id="section-metrics">
-          Chỉ số khán giả
-        </h2>
-        <div className="form-grid">
-          <label className="form-field">
-            <span>Followers</span>
-            <input
-              type="number"
-              className="input"
-              value={followerCount}
-              onChange={(event) => setFollowerCount(Number(event.target.value))}
-              min={0}
-              disabled={readOnly}
-            />
-          </label>
-          <label className="form-field">
-            <span>Lượt xem trung bình</span>
-            <input
-              type="number"
-              className="input"
-              value={viewCount}
-              onChange={(event) => setViewCount(Number(event.target.value))}
-              min={0}
-              disabled={readOnly}
-            />
-          </label>
-          <p className="page__subtitle">
-            Cập nhật lần cuối: {new Date(metricsUpdatedAt).toLocaleString('vi-VN')}
-          </p>
-        </div>
-      </section>
+            <fieldset className="form-field field--full segmented">
+              <legend className="form-field__label">Loại hình</legend>
+              <div className="segmented__options">
+                {CREATOR_TYPES.map((option) => (
+                  <label key={option} className="segmented__option">
+                    <input
+                      type="radio"
+                      name="creatorType"
+                      value={option}
+                      checked={creatorType === option}
+                      onChange={() => setCreatorType(option)}
+                      disabled={readOnly}
+                    />
+                    <span>{CREATOR_TYPE_LABELS[option]}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
 
-      <section className="form-section" aria-labelledby="section-availability">
-        <h2 className="form-section__title" id="section-availability">
-          Lịch nhận việc
-        </h2>
-        <fieldset className="checkbox-group">
-          <legend>Ngày trong tuần</legend>
-          {CREATOR_DAYS_OF_WEEK.map((day) => (
-            <label key={day} className="checkbox-option">
+            <label className="form-field field--half">
+              <span>Hình thức nhận việc</span>
+              <select
+                className="select"
+                value={serviceMode}
+                onChange={(event) => setServiceMode(event.target.value as ServiceMode)}
+                disabled={readOnly}
+              >
+                {SERVICE_MODES.map((option) => (
+                  <option key={option} value={option}>
+                    {SERVICE_MODE_LABELS[option]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="form-field field--half">
+              <span>Ngôn ngữ</span>
+              <select
+                className="select"
+                value={language}
+                onChange={(event) => setLanguage(event.target.value as CreatorLanguage)}
+                disabled={readOnly}
+              >
+                {CREATOR_LANGUAGES.map((option) => (
+                  <option key={option} value={option}>
+                    {CREATOR_LANGUAGE_LABELS[option]}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </section>
+
+        {/* 2. Kênh mạng xã hội */}
+        <section className="onb-section" aria-labelledby="section-social">
+          <SectionHead
+            step={2}
+            id="section-social"
+            title="Kênh mạng xã hội"
+            description={`Khai báo tối đa ${MAX_SOCIAL_ACCOUNTS} kênh — đội duyệt đối chiếu để xác minh.`}
+          />
+          {socialAccounts.length === 0 ? (
+            <p className="onb-empty">Chưa khai báo kênh nào.</p>
+          ) : (
+            <div className="social-list-edit">
+              {socialAccounts.map((account, index) => (
+                <SocialAccountFields
+                  key={`${account.platform}-${index}`}
+                  account={account}
+                  index={index}
+                  readOnly={readOnly}
+                  onChange={(patch) => updateSocial(index, patch)}
+                  onRemove={() => removeSocial(index)}
+                />
+              ))}
+            </div>
+          )}
+          <button
+            type="button"
+            className="button button--secondary onb-add"
+            onClick={addSocial}
+            disabled={readOnly || socialAccounts.length >= MAX_SOCIAL_ACCOUNTS}
+          >
+            <IconPlus />
+            Thêm tài khoản
+          </button>
+        </section>
+
+        {/* 3. Chỉ số khán giả */}
+        <section className="onb-section" aria-labelledby="section-metrics">
+          <SectionHead
+            step={3}
+            id="section-metrics"
+            title="Chỉ số khán giả"
+            description="Số liệu tự khai báo — hiển thị công khai kèm nhãn để brand biết nguồn."
+          />
+          <div className="field-grid">
+            <label className="form-field field--half">
+              <span>Followers</span>
               <input
-                type="checkbox"
-                checked={availableDays.includes(day)}
-                onChange={() => toggleDay(day)}
+                type="number"
+                className="input"
+                value={followerCount}
+                onChange={(event) => setFollowerCount(Number(event.target.value))}
+                min={0}
                 disabled={readOnly}
               />
-              <span>{CREATOR_DAY_OF_WEEK_LABELS[day]}</span>
             </label>
-          ))}
-        </fieldset>
-        <label className="checkbox-option">
-          <input
-            type="checkbox"
-            checked={isPaused}
-            onChange={(event) => setIsPaused(event.target.checked)}
-            disabled={readOnly}
-          />
-          <span>Tạm dừng nhận booking mới</span>
-        </label>
-      </section>
+            <label className="form-field field--half">
+              <span>Lượt xem trung bình</span>
+              <input
+                type="number"
+                className="input"
+                value={viewCount}
+                onChange={(event) => setViewCount(Number(event.target.value))}
+                min={0}
+                disabled={readOnly}
+              />
+            </label>
+          </div>
+          <p className="onb-hint">
+            Cập nhật lần cuối: {new Date(metricsUpdatedAt).toLocaleString('vi-VN')}
+          </p>
+        </section>
 
-      <section className="form-section" aria-labelledby="section-portfolio">
-        <h2 className="form-section__title" id="section-portfolio">
-          Portfolio
-        </h2>
-        <div className="portfolio-controls">
-          <input
-            type="text"
-            className="input"
-            value={captionInput}
-            onChange={(event) => setCaptionInput(event.target.value)}
-            placeholder="Chú thích (tùy chọn)"
-            aria-label="Chú thích mục portfolio"
-            disabled={readOnly}
+        {/* 4. Lịch nhận việc */}
+        <section className="onb-section" aria-labelledby="section-availability">
+          <SectionHead
+            step={4}
+            id="section-availability"
+            title="Lịch nhận việc"
+            description="Ngày bạn rảnh quay/dựng — brand dựa vào đây để chọn deadline."
           />
-          <input
-            type="text"
-            className="input"
-            value={categoryInput}
-            onChange={(event) => setCategoryInput(event.target.value)}
-            placeholder="Danh mục (tùy chọn)"
-            aria-label="Danh mục mục portfolio"
-            disabled={readOnly}
+          <fieldset className="chip-group">
+            <legend className="form-field__label">Ngày trong tuần</legend>
+            <div className="chip-group__options">
+              {CREATOR_DAYS_OF_WEEK.map((day) => (
+                <label key={day} className="chip-toggle">
+                  <input
+                    type="checkbox"
+                    checked={availableDays.includes(day)}
+                    onChange={() => toggleDay(day)}
+                    disabled={readOnly}
+                  />
+                  <span>{CREATOR_DAY_OF_WEEK_LABELS[day]}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <label className="onb-pause">
+            <input
+              type="checkbox"
+              checked={isPaused}
+              onChange={(event) => setIsPaused(event.target.checked)}
+              disabled={readOnly}
+            />
+            <span>
+              <strong>Tạm dừng nhận booking mới</strong>
+              <em>Hồ sơ vẫn hiển thị nhưng brand không gửi được yêu cầu mới.</em>
+            </span>
+          </label>
+        </section>
+
+        {/* 5. Portfolio */}
+        <section className="onb-section" aria-labelledby="section-portfolio">
+          <SectionHead
+            step={5}
+            id="section-portfolio"
+            title="Portfolio"
+            description="Vài sản phẩm tiêu biểu — thứ thuyết phục brand nhanh nhất."
           />
-          <label className="button button--secondary avatar-upload">
-            {upload.isPending ? 'Đang tải lên...' : 'Tải ảnh/video lên'}
+
+          <div className="field-grid">
+            <label className="form-field field--half">
+              <span>Chú thích (tùy chọn)</span>
+              <input
+                type="text"
+                className="input"
+                value={captionInput}
+                onChange={(event) => setCaptionInput(event.target.value)}
+                placeholder="VD: Review quán cà phê Hoàn Kiếm"
+                aria-label="Chú thích mục portfolio"
+                disabled={readOnly}
+              />
+            </label>
+            <label className="form-field field--half">
+              <span>Danh mục (tùy chọn)</span>
+              <input
+                type="text"
+                className="input"
+                value={categoryInput}
+                onChange={(event) => setCategoryInput(event.target.value)}
+                placeholder="VD: f&b"
+                aria-label="Danh mục mục portfolio"
+                disabled={readOnly}
+              />
+            </label>
+          </div>
+          <p className="onb-hint">Hai ô trên áp dụng cho mục bạn thêm ngay sau đây.</p>
+
+          <label className="dropzone">
+            <IconUpload />
+            <span className="dropzone__title">
+              {upload.isPending ? 'Đang tải lên...' : 'Tải ảnh hoặc video lên'}
+            </span>
+            <span className="dropzone__hint">Ảnh tối đa 5MB · Video tối đa 50MB</span>
             <input
               type="file"
               accept="image/*,video/*"
@@ -589,64 +642,92 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
               disabled={readOnly}
             />
           </label>
-        </div>
-        <div className="portfolio-controls">
-          <input
-            type="url"
-            className="input"
-            value={linkInput}
-            onChange={(event) => setLinkInput(event.target.value)}
-            placeholder="https://... (thêm liên kết)"
-            aria-label="URL liên kết portfolio"
-            disabled={readOnly}
-          />
-          <button
-            type="button"
-            className="button button--secondary"
-            onClick={handleAddLink}
-            disabled={readOnly || linkInput.trim() === ''}
-          >
-            Thêm liên kết
-          </button>
-        </div>
-        {portfolioItems.length > 0 ? (
-          <ul className="portfolio-list">
-            {portfolioItems.map((item) => (
-              <li key={item.id} className="portfolio-item">
-                <span>{item.type === 'link' ? item.url : (item.caption ?? item.url)}</span>
-                <button
-                  type="button"
-                  className="button button--secondary"
-                  onClick={() => handleRemoveItem(item.id)}
-                  disabled={readOnly || remove.isPending}
-                >
-                  Xóa
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="page__subtitle">Chưa có mục portfolio.</p>
-        )}
-      </section>
 
-      <div className="form-actions">
-        <button
-          type="submit"
-          className="button button--primary"
-          disabled={readOnly || isIncomplete || updateProfile.isPending}
-        >
-          {updateProfile.isPending ? 'Đang lưu...' : 'Lưu hồ sơ'}
-        </button>
-        <button
-          type="button"
-          className="button button--secondary"
-          onClick={handleSubmitReview}
-          disabled={readOnly || isIncomplete || submitReview.isPending}
-        >
-          {submitReview.isPending ? 'Đang gửi...' : 'Gửi duyệt'}
-        </button>
+          <div className="link-row">
+            <input
+              type="url"
+              className="input"
+              value={linkInput}
+              onChange={(event) => setLinkInput(event.target.value)}
+              placeholder="https://... (thêm liên kết bài đăng)"
+              aria-label="URL liên kết portfolio"
+              disabled={readOnly}
+            />
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={handleAddLink}
+              disabled={readOnly || linkInput.trim() === ''}
+            >
+              <IconLink />
+              Thêm liên kết
+            </button>
+          </div>
+
+          {portfolioItems.length > 0 ? (
+            <ul className="portfolio-list">
+              {portfolioItems.map((item) => (
+                <li key={item.id} className="portfolio-item">
+                  {item.type === 'image' ? (
+                    <img
+                      className="portfolio-item__thumb"
+                      src={item.thumbnailUrl ?? item.url}
+                      alt=""
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span className="portfolio-item__thumb portfolio-item__thumb--icon">
+                      {item.type === 'video' ? '▶' : '↗'}
+                    </span>
+                  )}
+                  <span className="portfolio-item__text">
+                    {item.caption ?? (item.type === 'link' ? item.url : 'Không có chú thích')}
+                    {item.category ? <em>{item.category}</em> : null}
+                  </span>
+                  <button
+                    type="button"
+                    className="icon-button icon-button--danger"
+                    onClick={() => handleRemoveItem(item.id)}
+                    disabled={readOnly || remove.isPending}
+                    aria-label="Xóa mục portfolio"
+                    title="Xóa"
+                  >
+                    <IconTrash />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="onb-empty">Chưa có mục portfolio.</p>
+          )}
+        </section>
       </div>
+
+      {/* Panel tiến độ + hành động — luôn nhìn thấy khi cuộn (desktop) */}
+      <aside className="onb-aside">
+        <div className="onb-panel">
+          <h2 className="onb-panel__title">Tiến độ hồ sơ</h2>
+          <ProfileChecklist items={checklist} />
+          <div className="onb-panel__actions">
+            <button
+              type="submit"
+              className="button button--primary"
+              disabled={readOnly || isIncomplete || updateProfile.isPending}
+            >
+              {updateProfile.isPending ? 'Đang lưu...' : 'Lưu hồ sơ'}
+            </button>
+            <button
+              type="button"
+              className="button button--secondary"
+              onClick={handleSubmitReview}
+              disabled={readOnly || isIncomplete || submitReview.isPending}
+            >
+              {submitReview.isPending ? 'Đang gửi...' : 'Gửi duyệt'}
+            </button>
+          </div>
+          <p className="onb-panel__note">{panelNote}</p>
+        </div>
+      </aside>
     </form>
   );
 };

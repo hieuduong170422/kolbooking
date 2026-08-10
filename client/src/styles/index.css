@@ -952,16 +952,6 @@ a {
   margin-bottom: 16px;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-}
-
-.form-grid--full {
-  grid-column: 1 / -1;
-}
-
 .textarea {
   padding: 10px 12px;
   border: 1px solid var(--color-border);
@@ -1050,20 +1040,6 @@ a {
   opacity: 0.5;
 }
 
-.social-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.social-row__actions {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: flex-end;
-}
-
 .avatar-preview {
   width: 72px;
   height: 72px;
@@ -1119,19 +1095,6 @@ a {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.portfolio-controls {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.portfolio-controls .input {
-  flex: 1;
-  min-width: 160px;
 }
 
 .form-actions {
@@ -1938,5 +1901,656 @@ a {
   }
   .pkg-card__side .button {
     width: 100%;
+  }
+}
+
+/* ============================================================
+   Onboarding creator — layout 2 cột, grid 12 cột cho field
+   ============================================================ */
+.onb-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 20px;
+  align-items: start;
+}
+
+.onb-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.onb-aside {
+  position: sticky;
+  top: 76px;
+}
+
+@media (max-width: 900px) {
+  .onb-layout {
+    grid-template-columns: 1fr;
+  }
+  .onb-aside {
+    position: static;
+    order: -1;
+  }
+}
+
+/* ---------- Section ---------- */
+.onb-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px 24px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.onb-section__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.onb-section__num {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.onb-section__title {
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.onb-section__desc {
+  font-size: 0.86rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.onb-hint {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.onb-empty {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  text-align: center;
+}
+
+/* ---------- Grid field 12 cột: chiều rộng do field tự khai, không auto-fit ---------- */
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 14px 16px;
+}
+
+.field--half {
+  grid-column: span 6;
+}
+
+.field--full {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 620px) {
+  .field--half {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Nhãn dùng cho fieldset/div không phải <label> — đồng bộ với .form-field span */
+.form-field__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.onb-counter {
+  align-self: flex-end;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Avatar ---------- */
+.avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+}
+
+.avatar-row__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.avatar-row__body .avatar-upload {
+  margin-top: 6px;
+}
+
+.avatar-preview {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+}
+
+.avatar-preview--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(140deg, var(--violet-500), var(--color-primary-dark));
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 800;
+  border: none;
+}
+
+.avatar-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.avatar-upload svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------- Segmented control (Loại hình) ---------- */
+/* display:block để khối pill co theo nội dung — .form-field là flex nên
+   mặc định sẽ kéo giãn con ra hết chiều ngang. */
+.segmented {
+  display: block;
+  border: none;
+  padding: 0;
+}
+
+.segmented__options {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 11px;
+  padding: 4px;
+}
+
+.segmented__option input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.segmented__option span {
+  display: block;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.segmented__option input:checked + span {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-card);
+}
+
+.segmented__option input:focus-visible + span {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.segmented__option input:disabled + span {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ---------- Chip toggle (ngày trong tuần) ---------- */
+.chip-group {
+  border: none;
+  padding: 0;
+}
+
+.chip-group__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.chip-toggle span {
+  display: block;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.chip-toggle input:checked + span {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary-border);
+  color: var(--color-primary);
+}
+
+.chip-toggle input:focus-visible + span {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.chip-toggle input:disabled + span {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.onb-pause {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.onb-pause input {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.onb-pause strong {
+  display: block;
+  font-size: 0.9rem;
+}
+
+.onb-pause em {
+  display: block;
+  font-style: normal;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+/* ---------- Mạng xã hội ---------- */
+.social-list-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.social-item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.social-item__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.social-item__platform .select {
+  min-width: 150px;
+  text-transform: capitalize;
+}
+
+.onb-add {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.onb-add svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------- Nút icon ---------- */
+.icon-button {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.icon-button svg {
+  width: 17px;
+  height: 17px;
+}
+
+.icon-button--danger:hover:not(:disabled) {
+  color: var(--color-danger);
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-soft);
+}
+
+.icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ---------- Portfolio ---------- */
+.dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 26px 16px;
+  border: 1.5px dashed var(--color-primary-border);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.dropzone:hover {
+  background: var(--violet-100);
+  border-color: var(--color-primary);
+}
+
+.dropzone svg {
+  width: 22px;
+  height: 22px;
+}
+
+.dropzone__title {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.dropzone__hint {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.link-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.link-row .input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.link-row .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.link-row .button svg {
+  width: 15px;
+  height: 15px;
+}
+
+.portfolio-item__thumb {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+}
+
+.portfolio-item__thumb--icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.portfolio-item__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  white-space: normal;
+}
+
+.portfolio-item__text em {
+  font-style: normal;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Panel tiến độ ---------- */
+.onb-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.onb-panel__title {
+  font-size: 1rem;
+  margin-bottom: 14px;
+}
+
+.onb-panel__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.onb-panel__actions .button {
+  width: 100%;
+}
+
+.onb-panel__note {
+  margin-top: 10px;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+/* ---------- Checklist ---------- */
+.checklist__head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.checklist__count {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.checklist__label {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.checklist__bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+  margin: 10px 0 14px;
+}
+
+.checklist__bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--violet-500), var(--color-primary));
+  transition: width 0.25s ease;
+}
+
+.checklist__items {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.checklist__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 0.87rem;
+  color: var(--color-text-muted);
+}
+
+.checklist__mark {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checklist__mark svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 3;
+}
+
+.checklist__item--done {
+  color: var(--color-text);
+}
+
+.checklist__item--done .checklist__mark {
+  background: var(--color-success-soft);
+  border-color: var(--color-success-border);
+  color: var(--color-success);
+}
+
+.checklist__text {
+  display: flex;
+  flex-direction: column;
+}
+
+.checklist__hint {
+  font-style: normal;
+  font-size: 0.76rem;
+  color: var(--color-warning);
+}
+
+/* ===== Header trên màn hẹp: không xuống dòng, cuộn ngang khi tràn ===== */
+.app-header__link {
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .app-header__inner {
+    gap: 10px;
+    padding: 10px 14px;
+  }
+
+  .app-header__brand {
+    font-size: 1.05rem;
+    flex-shrink: 0;
+  }
+
+  /* Ẩn chữ "Booking" — logo mark + "KOL" đủ nhận diện ở màn hẹp. */
+  .app-header__brand span:last-child {
+    display: none;
+  }
+
+  .app-header__nav {
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .app-header__nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .app-header__link {
+    padding: 6px 9px;
+    font-size: 0.88rem;
+  }
+
+  .app-header__user span:nth-child(2) {
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

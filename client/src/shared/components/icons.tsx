@@ -83,6 +83,42 @@ export const IconRefresh = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+export const IconCheck = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...base(props)}>
+    <path d="m5 12.5 4.5 4.5L19 7" />
+  </svg>
+);
+
+export const IconTrash = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...base(props)}>
+    <path d="M4 7h16" />
+    <path d="M10 11v6M14 11v6" />
+    <path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12" />
+    <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
+  </svg>
+);
+
+export const IconUpload = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...base(props)}>
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <path d="m7 9 5-5 5 5" />
+    <path d="M12 4v12" />
+  </svg>
+);
+
+export const IconPlus = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...base(props)}>
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+);
+
+export const IconLink = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...base(props)}>
+    <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.5 1.5" />
+    <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.5-1.5" />
+  </svg>
+);
+
 export const IconInbox = (props: SVGProps<SVGSVGElement>) => (
   <svg {...base(props)}>
     <path d="M22 12h-6l-2 3h-4l-2-3H2" />
