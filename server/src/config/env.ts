@@ -25,6 +25,16 @@ const envSchema = z.object({
    * Một người mở vài tab, hoặc một văn phòng chung IP NAT, rất dễ vượt 100.
    */
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(300),
+  /**
+   * Công tắc cho giới hạn chung. MẶC ĐỊNH BẬT: quên cấu hình thì vẫn được
+   * bảo vệ. Chỉ tắt có chủ đích ở máy local (script `dev` đã đặt sẵn) vì
+   * e2e mở 3 phiên song song cộng polling là vượt ngưỡng ngay.
+   * KHÔNG dùng z.coerce.boolean(): chuỗi "false" vẫn ra true.
+   */
+  RATE_LIMIT_ENABLED: z
+    .enum(['true', 'false'])
+    .default('true')
+    .transform((value) => value === 'true'),
   AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
   JWT_SECRET: z.string().min(32).default(DEV_ONLY_JWT_SECRET),
   ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(900),
@@ -36,6 +46,28 @@ const envSchema = z.object({
   /** Phí nền tảng brand trả thêm (SRS §2.4: 10-15%) — KHÔNG hardcode (§12.4). */
   PLATFORM_FEE_PERCENT: z.coerce.number().min(0).max(50).default(12),
   PLATFORM_FEE_MIN_VND: z.coerce.number().int().nonnegative().default(50_000),
+  /**
+   * Chuỗi kết nối PostgreSQL. Bỏ trống → chạy in-memory (dev/test nhanh,
+   * mất dữ liệu khi restart). Có giá trị → mọi repository dùng PostgreSQL.
+   */
+  DATABASE_URL: z.string().min(1).optional(),
+  /** Số kết nối tối đa trong pool — đủ cho một tiến trình API cỡ MVP. */
+  DATABASE_POOL_MAX: z.coerce.number().int().positive().default(10),
+  /**
+   * Cờ Secure của cookie refresh. Bỏ trống → theo NODE_ENV (production bật).
+   * Phải đặt 'false' khi chạy HTTP trần trên IP: trình duyệt loại bỏ cookie
+   * Secure trên http://, phiên đăng nhập sẽ chết ngay khi access token hết hạn.
+   */
+  COOKIE_SECURE: z.enum(['true', 'false']).optional(),
+  /**
+   * Nạp dữ liệu demo (tài khoản demo, creator, package, brand) khi database
+   * còn rỗng. Bật cho môi trường thử nghiệm; TẮT khi chạy thật vì mật khẩu
+   * demo là công khai.
+   */
+  SEED_DEMO_DATA: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((value) => value === 'true'),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -51,6 +83,13 @@ if (parsed.data.NODE_ENV === 'production' && parsed.data.JWT_SECRET === DEV_ONLY
   throw new Error('JWT_SECRET phải được cấu hình riêng khi chạy production.');
 }
 
-export const env = Object.freeze(parsed.data);
+export const env = Object.freeze({
+  ...parsed.data,
+  /** Giá trị đã giải nghĩa: undefined nghĩa là theo NODE_ENV. */
+  COOKIE_SECURE:
+    parsed.data.COOKIE_SECURE === undefined
+      ? parsed.data.NODE_ENV === 'production'
+      : parsed.data.COOKIE_SECURE === 'true',
+});
 
 export type Env = typeof env;
