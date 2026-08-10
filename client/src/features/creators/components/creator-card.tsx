@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { formatCompactNumber, formatVnd } from '../../../shared/utils/format';
 import { CREATOR_TYPE_LABELS, type Creator } from '../types/creator-types';
@@ -34,7 +35,13 @@ const coverGradient = (displayName: string): string => {
  * Card creator kiểu "cover-first" — ảnh/khối màu là hero, thông tin xếp dưới
  * (nguyên tắc design "Nội dung là hero"). Toàn card là link sang detail.
  */
-export const CreatorCard = ({ creator }: { creator: Creator }) => {
+interface CreatorCardProps {
+  readonly creator: Creator;
+  /** Slot góc cover — vd nút lưu creator. Card không tự phụ thuộc auth/query. */
+  readonly action?: ReactNode;
+}
+
+export const CreatorCard = ({ creator, action }: CreatorCardProps) => {
   return (
     <Link to={`/creators/${creator.id}`} className="creator-card">
       <div
@@ -49,6 +56,7 @@ export const CreatorCard = ({ creator }: { creator: Creator }) => {
         )}
         <span className="creator-card__type">{CREATOR_TYPE_LABELS[creator.creatorType]}</span>
       </div>
+      {action}
       <div className="creator-card__body">
         <div className="creator-card__heading">
           <h3 className="creator-card__name">{creator.displayName}</h3>

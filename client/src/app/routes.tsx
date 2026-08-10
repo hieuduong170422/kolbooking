@@ -11,19 +11,21 @@ import { BrandOnboardingPage } from '../pages/brand-onboarding-page';
 import { CreatorDetailPage } from '../pages/creator-detail-page';
 import { CreatorsPage } from '../pages/creators-page';
 import { DashboardPage } from '../pages/dashboard-page';
+import { LandingPage } from '../pages/landing-page';
 import { ForgotPasswordPage } from '../pages/forgot-password-page';
 import { LoginPage } from '../pages/login-page';
 import { MyPackagesPage } from '../pages/my-packages-page';
 import { NotFoundPage } from '../pages/not-found-page';
 import { OnboardingPage } from '../pages/onboarding-page';
 import { RegisterPage } from '../pages/register-page';
+import { SavedCreatorsPage } from '../pages/saved-creators-page';
 import { VerifyEmailPage } from '../pages/verify-email-page';
 
 export const AppRoutes = () => (
   <Routes>
     <Route element={<MainLayout />}>
       {/* Public */}
-      <Route index element={<Navigate to="/creators" replace />} />
+      <Route index element={<LandingPage />} />
       <Route path="/creators" element={<CreatorsPage />} />
       <Route path="/creators/:id" element={<CreatorDetailPage />} />
       <Route path="/login" element={<LoginPage />} />
@@ -34,6 +36,14 @@ export const AppRoutes = () => (
       <Route element={<RequireAuth />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route
+          path="/saved"
+          element={
+            <RequireRole role="brand">
+              <SavedCreatorsPage />
+            </RequireRole>
+          }
+        />
         <Route
           path="/onboarding"
           element={

@@ -1,7 +1,9 @@
 import { EmptyState } from '../../../shared/components/feedback/empty-state';
+import { FavoriteButton } from '../../favorites/components/favorite-button';
 import type { Creator } from '../types/creator-types';
 import { CreatorCard } from './creator-card';
 
+/** Lưới creator có nút lưu (BRD-006) — nút gắn ở đây để CreatorCard giữ nguyên tính thuần. */
 export const CreatorList = ({ creators }: { creators: readonly Creator[] }) => {
   if (creators.length === 0) {
     return (
@@ -15,7 +17,11 @@ export const CreatorList = ({ creators }: { creators: readonly Creator[] }) => {
   return (
     <div className="creator-grid">
       {creators.map((creator) => (
-        <CreatorCard key={creator.id} creator={creator} />
+        <CreatorCard
+          key={creator.id}
+          creator={creator}
+          action={<FavoriteButton creatorId={creator.id} />}
+        />
       ))}
     </div>
   );
