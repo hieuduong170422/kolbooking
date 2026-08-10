@@ -22,6 +22,9 @@ export default defineConfig({
   // build chỉ chạy được khi có nginx đứng trước.
   preview: {
     port: 8080,
+    // Vite chặn Host lạ để chống DNS rebinding. Mở cho tunnel Cloudflare vì
+    // đó là cách chia sẻ bản chạy thử khi chưa có server công khai.
+    allowedHosts: ['.trycloudflare.com'],
     proxy: {
       '/api': {
         target: 'http://localhost:4100',
