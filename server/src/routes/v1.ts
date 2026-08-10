@@ -1,6 +1,4 @@
 import { Router } from 'express';
-import { rateLimit } from 'express-rate-limit';
-import { env } from '../config/env.js';
 import type { AuditRepository } from '../modules/audit/audit.repository.js';
 import { createAuthRouter } from '../modules/auth/auth.routes.js';
 import type { SessionRepository } from '../modules/auth/session.repository.js';
@@ -28,7 +26,6 @@ import { createPackageRouter } from '../modules/packages/package.routes.js';
 import type { PackageRepository } from '../modules/packages/package.repository.js';
 import type { VerificationTokenRepository } from '../modules/auth/verification.repository.js';
 import type { UserRepository } from '../modules/users/user.repository.js';
-import { buildErrorBody } from '../shared/http/api-response.js';
 import type { Mailer } from '../shared/email/mailer.js';
 import type { FileStorage } from '../shared/storage/file-storage.js';
 
@@ -51,16 +48,6 @@ export interface AppDependencies {
   readonly mailer: Mailer;
 }
 
-/** Rate limit chặt hơn cho auth: chống brute-force login/OTP (SEC-002). */
-const authRateLimiter = rateLimit({
-  windowMs: env.RATE_LIMIT_WINDOW_MS,
-  limit: env.AUTH_RATE_LIMIT_MAX,
-  standardHeaders: 'draft-8',
-  legacyHeaders: false,
-  skip: () => env.NODE_ENV === 'test',
-  message: buildErrorBody('TOO_MANY_REQUESTS', 'Quá nhiều lần thử. Vui lòng đợi một phút.'),
-});
-
 /**
  * API v1 — mount route của từng module tại đây.
  * Module mới (bookings, packages, brands...) thêm một dòng mount tương ứng.
@@ -78,7 +65,6 @@ export const createV1Router = (deps: AppDependencies): Router => {
   router.use('/health', createHealthRouter());
   router.use(
     '/auth',
-    authRateLimiter,
     createAuthRouter({
       users: deps.userRepository,
       sessions: deps.sessionRepository,

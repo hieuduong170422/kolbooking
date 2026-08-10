@@ -17,7 +17,8 @@
     "e2e:booking": "node e2e/booking-flow.mjs"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "playwright": "^1.62.1"
   },
   "engines": {
     "node": ">=20"

@@ -12,6 +12,10 @@ vi.mock('../features/bookings/hooks/use-bookings', () => ({
   useBooking: vi.fn(),
   useBookingActions: vi.fn(),
 }));
+// Chat là component dữ liệu riêng (cần QueryClient) — test trang này không bao nó.
+vi.mock('../features/messages/components/booking-chat', () => ({
+  BookingChat: () => <div data-testid="booking-chat" />,
+}));
 
 const mockUseAuth = vi.mocked(useAuth);
 const mockUseBooking = vi.mocked(useBooking);

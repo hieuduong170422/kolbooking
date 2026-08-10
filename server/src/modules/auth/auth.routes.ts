@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { authRateLimiter } from '../../shared/middlewares/rate-limit.js';
 import { validate } from '../../shared/middlewares/validate.js';
 import type { Mailer } from '../../shared/email/mailer.js';
 import type { UserRepository } from '../users/user.repository.js';
@@ -36,16 +37,22 @@ export const createAuthRouter = (deps: AuthRouterDeps): Router => {
   );
   const router = Router();
 
-  router.post('/register', validate({ body: registerBodySchema }), controller.register);
-  router.post('/login', validate({ body: loginBodySchema }), controller.login);
+  router.post('/register', authRateLimiter, validate({ body: registerBodySchema }), controller.register);
+  router.post('/login', authRateLimiter, validate({ body: loginBodySchema }), controller.login);
   router.post('/refresh', controller.refresh);
   router.post('/logout', controller.logout);
   router.get('/me', requireAuth, controller.me);
 
   // AUTH-002: xác minh email bằng OTP.
-  router.post('/verify-email/request', requireAuth, controller.requestEmailVerification);
+  router.post(
+    '/verify-email/request',
+    authRateLimiter,
+    requireAuth,
+    controller.requestEmailVerification,
+  );
   router.post(
     '/verify-email/confirm',
+    authRateLimiter,
     requireAuth,
     validate({ body: verifyEmailBodySchema }),
     controller.confirmEmailVerification,
@@ -54,11 +61,13 @@ export const createAuthRouter = (deps: AuthRouterDeps): Router => {
   // AUTH-004: quên mật khẩu / đặt lại bằng OTP — không cần đăng nhập.
   router.post(
     '/password/forgot',
+    authRateLimiter,
     validate({ body: forgotPasswordBodySchema }),
     controller.forgotPassword,
   );
   router.post(
     '/password/reset',
+    authRateLimiter,
     validate({ body: resetPasswordBodySchema }),
     controller.resetPassword,
   );

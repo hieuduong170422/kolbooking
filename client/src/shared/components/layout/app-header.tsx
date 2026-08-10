@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import { useAuth } from '../../../features/auth/store/use-auth';
+import { NotificationBell } from '../../../features/notifications/notifications';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }): string =>
   isActive ? 'app-header__link app-header__link--active' : 'app-header__link';
@@ -73,6 +74,7 @@ export const AppHeader = () => {
                   Quản trị
                 </NavLink>
               )}
+              <NotificationBell />
               <div className="app-header__user-menu" ref={userMenuRef}>
                 <button
                   type="button"

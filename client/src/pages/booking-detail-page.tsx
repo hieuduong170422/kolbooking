@@ -10,6 +10,7 @@ import {
   BOOKING_STATUS_TONE,
   type BookingAction,
 } from '../features/bookings/types/booking-types';
+import { BookingChat } from '../features/messages/components/booking-chat';
 import { ApiClientError } from '../shared/api/api-types';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
@@ -186,6 +187,10 @@ export const BookingDetailPage = () => {
               </ul>
             </section>
           ) : null}
+
+          <section className="creator-detail__section">
+            <BookingChat bookingId={booking.id} />
+          </section>
 
           <section className="creator-detail__section">
             <h2>Dòng thời gian</h2>
