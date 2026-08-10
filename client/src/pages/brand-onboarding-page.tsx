@@ -135,6 +135,13 @@ export const BrandOnboardingPage = () => {
           >
             {actions.submit.isPending ? 'Đang gửi...' : 'Gửi hồ sơ duyệt'}
           </button>
+          {/* Nút mờ mà không nói lý do khiến người dùng tưởng hỏng: hồ sơ nằm
+              mãi ở Bản nháp và đội duyệt không bao giờ thấy nó trong hàng chờ. */}
+          {brand.verificationDocs.length === 0 ? (
+            <p className="feedback">
+              Cần tải lên ít nhất một giấy tờ xác minh ở mục trên rồi mới gửi duyệt được.
+            </p>
+          ) : null}
         </div>
       ) : null}
     </section>

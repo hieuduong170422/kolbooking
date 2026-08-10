@@ -76,6 +76,9 @@ describe('BrandOnboardingPage (BRD-001..BRD-004)', () => {
     expect(screen.getByText(/Bản nháp/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Gửi hồ sơ duyệt' })).toBeDisabled();
     expect(screen.getByText(/cần ít nhất một file/i)).toBeInTheDocument();
+    // Ngay cạnh nút bị khóa phải nói rõ vì sao, nếu không người dùng tưởng
+    // hỏng và hồ sơ nằm mãi ở Bản nháp, đội duyệt không bao giờ thấy.
+    expect(screen.getByText(/rồi mới gửi duyệt được/i)).toBeInTheDocument();
   });
 
   it('có giấy tờ → nút gửi duyệt enable, danh sách file hiển thị', () => {
