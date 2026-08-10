@@ -62,11 +62,13 @@ describe('InMemoryCreatorRepository.findByUserId', () => {
 });
 
 describe('InMemoryCreatorRepository.create', () => {
-  it('gán id dạng crt_ + uuid và lưu vào store (CRE-001)', async () => {
+  it('gán id dạng crt_ + uuid không dấu gạch và lưu vào store (CRE-001)', async () => {
     const repo = new InMemoryCreatorRepository(CREATOR_SEED);
     const created = await repo.create(baseCreator({ userId: 'usr_creator_a' }));
 
-    expect(created.id).toMatch(/^crt_[0-9a-f-]{36}$/);
+    // Không dấu gạch: route validate id creator theo /^crt_[a-zA-Z0-9]+$/, id
+    // chứa '-' sẽ bị chặn ở duyệt hồ sơ, mở chat và tạo booking.
+    expect(created.id).toMatch(/^crt_[0-9a-f]{32}$/);
     const found = await repo.findById(created.id);
     expect(found?.displayName).toBe('Creator Test');
     expect(found?.userId).toBe('usr_creator_a');

@@ -140,7 +140,9 @@ export class PostgresCreatorRepository implements CreatorRepository {
   }
 
   async create(input: Creator): Promise<Creator> {
-    const created: Creator = { ...input, id: `crt_${randomUUID()}` };
+    // Bỏ dấu gạch của UUID: route validate id creator theo /^crt_[a-zA-Z0-9]+$/,
+    // id có dấu gạch sẽ bị chặn ở duyệt hồ sơ, mở chat và tạo booking.
+    const created: Creator = { ...input, id: `crt_${randomUUID().replaceAll('-', '')}` };
     await this.db.query(
       `INSERT INTO creators (${COLUMN_NAMES})
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,

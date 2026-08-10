@@ -84,7 +84,9 @@ export class InMemoryCreatorRepository implements CreatorRepository {
   create(input: Creator): Promise<Creator> {
     const created: Creator = {
       ...structuredClone(input),
-      id: `crt_${randomUUID()}`,
+      // Bỏ dấu gạch của UUID: route validate id creator theo /^crt_[a-zA-Z0-9]+$/,
+      // id có dấu gạch sẽ bị chặn ở duyệt hồ sơ, mở chat và tạo booking.
+      id: `crt_${randomUUID().replaceAll('-', '')}`,
     };
     this.creators = [...this.creators, created];
     return Promise.resolve(structuredClone(created));

@@ -39,7 +39,9 @@ for (const driver of REPOSITORY_DRIVERS) {
       it('sinh id mới khi tạo và giữ nguyên toàn bộ hồ sơ lồng nhau', async () => {
         const created = await repos.creators.create(makeCreator({ id: 'bi-bo-qua' }));
 
-        expect(created.id).toMatch(/^crt_/);
+        // Đúng dạng route chấp nhận (/^crt_[a-zA-Z0-9]+$/): id chứa dấu gạch sẽ
+        // bị chặn ở duyệt hồ sơ, mở chat và tạo booking.
+        expect(created.id).toMatch(/^crt_[a-zA-Z0-9]+$/);
         expect(created.id).not.toBe('bi-bo-qua');
 
         const found = await repos.creators.findById(created.id);
