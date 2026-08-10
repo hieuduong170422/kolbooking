@@ -28,6 +28,9 @@ const envSchema = z.object({
   OTP_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
   /** Phiên bản điều khoản sử dụng hiện hành — ghi vào consent lúc đăng ký (AUTH-007). */
   TERMS_VERSION: z.string().min(1).default('2026-08-mvp'),
+  /** Phí nền tảng brand trả thêm (SRS §2.4: 10-15%) — KHÔNG hardcode (§12.4). */
+  PLATFORM_FEE_PERCENT: z.coerce.number().min(0).max(50).default(12),
+  PLATFORM_FEE_MIN_VND: z.coerce.number().int().nonnegative().default(50_000),
 });
 
 const parsed = envSchema.safeParse(process.env);

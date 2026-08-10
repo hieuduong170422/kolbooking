@@ -9,6 +9,8 @@ import { createCreatorReviewRouter } from '../modules/creators/creator-review.ro
 import { createCreatorRouter } from '../modules/creators/creator.routes.js';
 import type { CreatorRepository } from '../modules/creators/creator.repository.js';
 import { createAuditRouter } from '../modules/audit/audit.routes.js';
+import { createBookingRouter } from '../modules/bookings/booking.routes.js';
+import type { BookingRepository } from '../modules/bookings/booking.repository.js';
 import { createBrandRouter } from '../modules/brands/brand.routes.js';
 import type { BrandRepository } from '../modules/brands/brand.repository.js';
 import { createFavoriteRouter } from '../modules/favorites/favorite.routes.js';
@@ -29,6 +31,7 @@ export interface AppDependencies {
   readonly creatorRepository: CreatorRepository;
   readonly packageRepository: PackageRepository;
   readonly brandRepository: BrandRepository;
+  readonly bookingRepository: BookingRepository;
   readonly favoriteRepository: FavoriteRepository;
   readonly reportRepository: ReportRepository;
   readonly userRepository: UserRepository;
@@ -110,6 +113,16 @@ export const createV1Router = (deps: AppDependencies): Router => {
       userRepository: deps.userRepository,
       auditRepository: deps.auditRepository,
       privateFileStorage: deps.privateFileStorage,
+    }),
+  );
+  router.use(
+    '/bookings',
+    createBookingRouter({
+      bookingRepository: deps.bookingRepository,
+      packageRepository: deps.packageRepository,
+      creatorRepository: deps.creatorRepository,
+      auditRepository: deps.auditRepository,
+      userRepository: deps.userRepository,
     }),
   );
   router.use(
