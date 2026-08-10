@@ -14,6 +14,7 @@ export class InMemoryMessageRepository implements MessageRepository {
   create(input: CreateMessageInput): Promise<Message> {
     const message: Message = {
       id: `msg_${randomUUID().replaceAll('-', '')}`,
+      conversationId: input.conversationId,
       bookingId: input.bookingId,
       senderUserId: input.senderUserId,
       senderRole: input.senderRole,
@@ -35,8 +36,8 @@ export class InMemoryMessageRepository implements MessageRepository {
     return Promise.resolve(this.messagesById.get(id) ?? null);
   }
 
-  listByBooking(filter: MessageListFilter): Promise<MessageListResult> {
-    const matched = this.ofBooking(filter.bookingId).sort((a, b) =>
+  listByConversation(filter: MessageListFilter): Promise<MessageListResult> {
+    const matched = this.ofConversation(filter.conversationId).sort((a, b) =>
       a.createdAt.localeCompare(b.createdAt),
     );
     const start = (filter.page - 1) * filter.limit;
@@ -46,9 +47,9 @@ export class InMemoryMessageRepository implements MessageRepository {
     });
   }
 
-  markRead(bookingId: string, userId: string): Promise<number> {
+  markRead(conversationId: string, userId: string): Promise<number> {
     let updated = 0;
-    for (const message of this.ofBooking(bookingId)) {
+    for (const message of this.ofConversation(conversationId)) {
       if (!message.readByUserIds.includes(userId)) {
         this.messagesById.set(message.id, {
           ...message,
@@ -70,14 +71,16 @@ export class InMemoryMessageRepository implements MessageRepository {
     return Promise.resolve(deleted);
   }
 
-  countUnread(bookingId: string, userId: string): Promise<number> {
-    const count = this.ofBooking(bookingId).filter(
+  countUnread(conversationId: string, userId: string): Promise<number> {
+    const count = this.ofConversation(conversationId).filter(
       (message) => !message.readByUserIds.includes(userId),
     ).length;
     return Promise.resolve(count);
   }
 
-  private ofBooking(bookingId: string): Message[] {
-    return [...this.messagesById.values()].filter((message) => message.bookingId === bookingId);
+  private ofConversation(conversationId: string): Message[] {
+    return [...this.messagesById.values()].filter(
+      (message) => message.conversationId === conversationId,
+    );
   }
 }

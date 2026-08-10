@@ -1,30 +1,31 @@
 import { ApiError } from '../../shared/errors/api-error.js';
 import { logger } from '../../shared/logger/logger.js';
 import type { AuditRepository } from '../audit/audit.repository.js';
-import { assertBookingAccess, type BookingParticipant } from '../bookings/booking.access.js';
 import type { BookingRepository } from '../bookings/booking.repository.js';
-import type { Booking } from '../bookings/booking.types.js';
+import type { ChatActor, ConversationService } from '../conversations/conversation.service.js';
+import type { Conversation } from '../conversations/conversation.types.js';
 import type { NotificationService } from '../notifications/notification.service.js';
 import type { MessageRepository } from './message.repository.js';
 import type { Message, MessageDto, MessageSenderRole } from './message.types.js';
 
-/** Cửa sổ cho phép xóa tin sau khi gửi (CHAT-006). */
+/** Cửa sổ cho phép thu hồi tin sau khi gửi (CHAT-006). */
 const DELETE_WINDOW_MS = 15 * 60 * 1000;
 
 /** Email và số điện thoại Việt Nam — dấu hiệu rủ nhau ra ngoài nền tảng. */
 const EMAIL_PATTERN = /[\w.+-]+@[\w-]+\.[\w.]{2,}/;
 const PHONE_PATTERN = /(?:\+?84|0)(?:[\s.-]?\d){8,10}/;
 
-/** Trạng thái mà PII chưa được phép trao đổi (C-02, CHAT-004). */
+/** Trạng thái booking mà PII chưa được phép trao đổi (C-02, CHAT-004). */
 const PRE_CONFIRM_STATUSES = new Set(['draft', 'pending_creator', 'awaiting_payment']);
 
 const toDto = (message: Message): MessageDto => ({
   id: message.id,
+  conversationId: message.conversationId,
   bookingId: message.bookingId,
   senderUserId: message.senderUserId,
   senderRole: message.senderRole,
   type: message.type,
-  // Tin đã xóa: giữ bản ghi nhưng không trả nội dung cũ (CHAT-006).
+  // Tin đã thu hồi: giữ bản ghi nhưng không trả nội dung cũ (CHAT-006).
   body: message.deletedAt === null ? message.body : 'Tin nhắn đã được thu hồi',
   fileUrl: message.deletedAt === null ? message.fileUrl : null,
   fileName: message.deletedAt === null ? message.fileName : null,
@@ -38,6 +39,8 @@ export interface SendMessageInput {
   readonly body: string;
   readonly fileUrl?: string | null | undefined;
   readonly fileName?: string | null | undefined;
+  /** Gắn nhãn booking khi gửi từ màn booking. */
+  readonly bookingId?: string | null | undefined;
 }
 
 export interface MessagePage {
@@ -48,74 +51,80 @@ export interface MessagePage {
 }
 
 /**
- * Chat trong booking (CHAT-001..CHAT-006).
- * Mỗi booking một thread; chỉ hai bên tham gia và admin đọc được; admin
- * đọc thì bị audit. Nội dung nghi trao đổi ngoài nền tảng bị đánh dấu
- * chứ không chặn — chặn nhầm làm hỏng hội thoại hợp lệ.
+ * Tin nhắn trong một luồng brand ↔ creator (CHAT-001..CHAT-006).
+ *
+ * Luồng tồn tại độc lập với booking nên brand hỏi được trước khi đặt
+ * (OD-09). Đổi lại, rủi ro rủ nhau ra ngoài nền tảng cao nhất chính ở
+ * giai đoạn này — nên cảnh báo bật mặc định khi chưa có booking xác nhận.
  */
 export class MessageService {
   private readonly messages: MessageRepository;
+  private readonly conversations: ConversationService;
   private readonly bookings: BookingRepository;
   private readonly notifications: NotificationService;
   private readonly audit: AuditRepository;
 
   constructor(
     messages: MessageRepository,
+    conversations: ConversationService,
     bookings: BookingRepository,
     notifications: NotificationService,
     audit: AuditRepository,
   ) {
     this.messages = messages;
+    this.conversations = conversations;
     this.bookings = bookings;
     this.notifications = notifications;
     this.audit = audit;
   }
 
   async list(
-    actor: BookingParticipant,
-    bookingId: string,
+    actor: ChatActor,
+    conversationId: string,
     page: number,
     limit: number,
   ): Promise<MessagePage> {
-    const booking = await this.requireBooking(bookingId, actor);
+    const conversation = await this.conversations.requireAccess(actor, conversationId);
 
     // CHAT-005: admin xem thread của người khác thì phải để lại dấu vết.
     if (actor.role === 'admin') {
       await this.audit.create({
         actorId: actor.userId,
         action: 'chat.admin_access',
-        targetType: 'booking',
-        targetId: booking.id,
+        targetType: 'conversation',
+        targetId: conversation.id,
         before: null,
         after: null,
         reason: null,
       });
     }
 
-    const { items, total } = await this.messages.listByBooking({ bookingId, page, limit });
+    const { items, total } = await this.messages.listByConversation({
+      conversationId,
+      page,
+      limit,
+    });
     return { items: items.map(toDto), total, page, limit };
   }
 
   async send(
-    actor: BookingParticipant,
-    bookingId: string,
+    actor: ChatActor,
+    conversationId: string,
     input: SendMessageInput,
   ): Promise<MessageDto> {
-    const booking = await this.requireBooking(bookingId, actor);
-    if (actor.role === 'system') {
-      throw ApiError.forbidden('Không gửi tin nhắn thay hệ thống.');
-    }
+    const conversation = await this.conversations.requireAccess(actor, conversationId);
 
-    const offPlatformFlagged = this.detectOffPlatform(booking, input.body);
+    const offPlatformFlagged = await this.detectOffPlatform(input);
     if (offPlatformFlagged) {
       logger.warn(
-        { bookingId, senderUserId: actor.userId },
-        'Nghi trao đổi liên hệ ngoài nền tảng trước khi booking xác nhận (CHAT-004)',
+        { conversationId, senderUserId: actor.userId },
+        'Nghi trao đổi liên hệ ngoài nền tảng khi chưa có booking xác nhận (CHAT-004)',
       );
     }
 
     const created = await this.messages.create({
-      bookingId,
+      conversationId,
+      bookingId: input.bookingId ?? null,
       senderUserId: actor.userId,
       senderRole: actor.role as MessageSenderRole,
       type: input.fileUrl ? 'file' : 'text',
@@ -125,27 +134,23 @@ export class MessageService {
       offPlatformFlagged,
     });
 
-    await this.notifyCounterparts(booking, actor.userId);
+    await this.conversations.touch(conversationId, created.createdAt);
+    await this.notifyCounterpart(conversation, actor.userId);
     return toDto(created);
   }
 
-  async markRead(actor: BookingParticipant, bookingId: string): Promise<number> {
-    await this.requireBooking(bookingId, actor);
-    return this.messages.markRead(bookingId, actor.userId);
-  }
-
-  async unreadCount(actor: BookingParticipant, bookingId: string): Promise<number> {
-    await this.requireBooking(bookingId, actor);
-    return this.messages.countUnread(bookingId, actor.userId);
+  async markRead(actor: ChatActor, conversationId: string): Promise<number> {
+    await this.conversations.requireAccess(actor, conversationId);
+    return this.messages.markRead(conversationId, actor.userId);
   }
 
   /** Thu hồi tin của chính mình trong cửa sổ cho phép (CHAT-006). */
-  async remove(actor: BookingParticipant, messageId: string): Promise<MessageDto> {
+  async remove(actor: ChatActor, messageId: string): Promise<MessageDto> {
     const message = await this.messages.findById(messageId);
     if (!message) {
       throw ApiError.notFound('Không tìm thấy tin nhắn này.');
     }
-    await this.requireBooking(message.bookingId, actor);
+    await this.conversations.requireAccess(actor, message.conversationId);
 
     if (message.senderUserId !== actor.userId) {
       throw ApiError.forbidden('Chỉ người gửi mới thu hồi được tin nhắn.');
@@ -164,34 +169,34 @@ export class MessageService {
     return toDto(deleted);
   }
 
-  private async requireBooking(
-    bookingId: string,
-    actor: BookingParticipant,
-  ): Promise<Booking> {
-    const booking = await this.bookings.findById(bookingId);
-    if (!booking) {
-      throw ApiError.notFound('Không tìm thấy booking này.');
-    }
-    assertBookingAccess(booking, actor);
-    return booking;
-  }
+  /**
+   * Cảnh báo khi chưa có ràng buộc thanh toán: chat trước booking luôn cảnh
+   * báo; trong booking thì chỉ cảnh báo tới khi booking được xác nhận.
+   */
+  private async detectOffPlatform(input: SendMessageInput): Promise<boolean> {
+    const looksLikeContact =
+      EMAIL_PATTERN.test(input.body) || PHONE_PATTERN.test(input.body);
+    if (!looksLikeContact) return false;
 
-  /** Chỉ cảnh báo TRƯỚC khi booking xác nhận — sau đó trao đổi liên hệ là hợp lệ. */
-  private detectOffPlatform(booking: Booking, body: string): boolean {
-    if (!PRE_CONFIRM_STATUSES.has(booking.status)) return false;
-    return EMAIL_PATTERN.test(body) || PHONE_PATTERN.test(body);
+    if (input.bookingId === undefined || input.bookingId === null) return true;
+
+    const booking = await this.bookings.findById(input.bookingId);
+    return booking === null || PRE_CONFIRM_STATUSES.has(booking.status);
   }
 
   /** Báo cho phía còn lại có tin mới (NTF-001). */
-  private async notifyCounterparts(booking: Booking, senderUserId: string): Promise<void> {
-    const recipients = [booking.brandUserId, booking.creatorUserId].filter(
+  private async notifyCounterpart(
+    conversation: Conversation,
+    senderUserId: string,
+  ): Promise<void> {
+    const recipients = [conversation.brandUserId, conversation.creatorUserId].filter(
       (userId): userId is string => userId !== null && userId !== senderUserId,
     );
     await this.notifications.notifyMany(recipients, {
       type: 'new_message',
-      title: `Tin nhắn mới trong booking ${booking.code}`,
-      body: 'Bạn có tin nhắn mới cần xem.',
-      link: `/bookings/${booking.id}`,
+      title: 'Bạn có tin nhắn mới',
+      body: 'Mở cuộc trò chuyện để xem nội dung.',
+      link: `/messages?c=${conversation.id}`,
     });
   }
 }

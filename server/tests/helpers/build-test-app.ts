@@ -10,6 +10,7 @@ import type { Brand } from '../../src/modules/brands/brand.types.js';
 import { InMemoryVerificationTokenRepository } from '../../src/modules/auth/verification.repository.memory.js';
 import type { VerificationTokenRepository } from '../../src/modules/auth/verification.repository.js';
 import { InMemoryBookingRepository } from '../../src/modules/bookings/booking.repository.memory.js';
+import { InMemoryConversationRepository } from '../../src/modules/conversations/conversation.repository.memory.js';
 import { InMemoryMessageRepository } from '../../src/modules/messages/message.repository.memory.js';
 import { InMemorySubmissionRepository } from '../../src/modules/submissions/submission.repository.memory.js';
 import { InMemoryNotificationRepository } from '../../src/modules/notifications/notification.repository.memory.js';
@@ -56,6 +57,7 @@ export const buildTestApp = (options: TestAppOptions = {}): Express =>
     brandRepository: new InMemoryBrandRepository(options.brands ?? BRAND_SEED),
     bookingRepository: options.bookingRepository ?? new InMemoryBookingRepository(),
     messageRepository: new InMemoryMessageRepository(),
+    conversationRepository: new InMemoryConversationRepository(),
     submissionRepository: new InMemorySubmissionRepository(),
     notificationRepository: options.notificationRepository ?? new InMemoryNotificationRepository(),
     favoriteRepository: new InMemoryFavoriteRepository(),

@@ -7,7 +7,9 @@ export type MessageSenderRole = (typeof MESSAGE_SENDER_ROLES)[number];
 /** Một tin nhắn trong thread của booking (CHAT-001..CHAT-003). */
 export interface Message {
   readonly id: string;
-  readonly bookingId: string;
+  readonly conversationId: string;
+  /** Gắn nhãn booking khi tin được gửi từ màn booking — null nếu chat trước booking. */
+  readonly bookingId: string | null;
   readonly senderUserId: string;
   readonly senderRole: MessageSenderRole;
   readonly type: MessageType;
@@ -28,7 +30,8 @@ export interface Message {
 }
 
 export interface CreateMessageInput {
-  readonly bookingId: string;
+  readonly conversationId: string;
+  readonly bookingId: string | null;
   readonly senderUserId: string;
   readonly senderRole: MessageSenderRole;
   readonly type: MessageType;
@@ -39,7 +42,7 @@ export interface CreateMessageInput {
 }
 
 export interface MessageListFilter {
-  readonly bookingId: string;
+  readonly conversationId: string;
   readonly page: number;
   readonly limit: number;
 }
@@ -52,7 +55,8 @@ export interface MessageListResult {
 /** DTO trả client — tin đã xóa chỉ còn dấu vết, không lộ nội dung cũ. */
 export interface MessageDto {
   readonly id: string;
-  readonly bookingId: string;
+  readonly conversationId: string;
+  readonly bookingId: string | null;
   readonly senderUserId: string;
   readonly senderRole: MessageSenderRole;
   readonly type: MessageType;

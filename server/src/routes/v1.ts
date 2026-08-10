@@ -10,7 +10,8 @@ import { createAuditRouter } from '../modules/audit/audit.routes.js';
 import { createBookingRouter } from '../modules/bookings/booking.routes.js';
 import type { BookingRepository } from '../modules/bookings/booking.repository.js';
 import { createBrandRouter } from '../modules/brands/brand.routes.js';
-import { createMessageRouter } from '../modules/messages/message.routes.js';
+import { createConversationRouter } from '../modules/conversations/conversation.routes.js';
+import type { ConversationRepository } from '../modules/conversations/conversation.repository.js';
 import { createSubmissionRouter } from '../modules/submissions/submission.routes.js';
 import type { SubmissionRepository } from '../modules/submissions/submission.repository.js';
 import type { MessageRepository } from '../modules/messages/message.repository.js';
@@ -37,6 +38,7 @@ export interface AppDependencies {
   readonly brandRepository: BrandRepository;
   readonly bookingRepository: BookingRepository;
   readonly messageRepository: MessageRepository;
+  readonly conversationRepository: ConversationRepository;
   readonly submissionRepository: SubmissionRepository;
   readonly notificationRepository: NotificationRepository;
   readonly favoriteRepository: FavoriteRepository;
@@ -129,13 +131,15 @@ export const createV1Router = (deps: AppDependencies): Router => {
       notificationService,
     }),
   );
-  // Chat gắn với booking — mount cùng prefix /bookings (CHAT-001).
+  // Chat độc lập với booking: một luồng cho mỗi cặp brand-creator (OD-09).
   router.use(
-    '/bookings',
-    createMessageRouter({
+    '/conversations',
+    createConversationRouter({
+      conversationRepository: deps.conversationRepository,
       messageRepository: deps.messageRepository,
       bookingRepository: deps.bookingRepository,
       creatorRepository: deps.creatorRepository,
+      userRepository: deps.userRepository,
       notificationService,
       auditRepository: deps.auditRepository,
     }),
