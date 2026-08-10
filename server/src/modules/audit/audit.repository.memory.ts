@@ -1,5 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import type { AuditRepository } from './audit.repository.js';
+import type {
+  AuditListFilter,
+  AuditListResult,
+  AuditRepository,
+} from './audit.repository.js';
 import type { AuditEntry, CreateAuditEntryInput } from './audit.types.js';
 
 /**
@@ -35,6 +39,25 @@ export class InMemoryAuditRepository implements AuditRepository {
 
   listAll(): Promise<readonly AuditEntry[]> {
     return Promise.resolve(this.entries.map((entry) => this.clone(entry)));
+  }
+
+  list(filter: AuditListFilter): Promise<AuditListResult> {
+    const action = filter.action?.trim().toLowerCase();
+    const matched = this.entries
+      .filter((entry) => {
+        if (filter.targetType && entry.targetType !== filter.targetType) return false;
+        if (action && !entry.action.toLowerCase().includes(action)) return false;
+        return true;
+      })
+      // Mới nhất lên đầu — audit đọc theo dòng thời gian ngược.
+      .slice()
+      .reverse();
+
+    const start = (filter.page - 1) * filter.limit;
+    return Promise.resolve({
+      items: matched.slice(start, start + filter.limit).map((entry) => this.clone(entry)),
+      total: matched.length,
+    });
   }
 
   private clone(entry: AuditEntry): AuditEntry {

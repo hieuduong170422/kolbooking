@@ -2,8 +2,11 @@ import { Navigate, Route, Routes } from 'react-router';
 import { MainLayout } from '../shared/components/layout/main-layout';
 import { RequireAuth } from '../shared/components/routing/require-auth';
 import { RequireRole } from '../shared/components/routing/require-role';
+import { AdminLayout } from '../shared/components/layout/admin-layout';
+import { AdminAuditPage } from '../pages/admin-audit-page';
 import { AdminBrandsPage } from '../pages/admin-brands-page';
 import { AdminCreatorsPage } from '../pages/admin-creators-page';
+import { AdminUsersPage } from '../pages/admin-users-page';
 import { BrandOnboardingPage } from '../pages/brand-onboarding-page';
 import { CreatorDetailPage } from '../pages/creator-detail-page';
 import { CreatorsPage } from '../pages/creators-page';
@@ -55,22 +58,21 @@ export const AppRoutes = () => (
             </RequireRole>
           }
         />
+        {/* Khu vực quản trị — layout riêng có sidebar, mọi route con đều chỉ dành cho admin. */}
         <Route
-          path="/admin/creators"
+          path="/admin"
           element={
             <RequireRole role="admin">
-              <AdminCreatorsPage />
+              <AdminLayout />
             </RequireRole>
           }
-        />
-        <Route
-          path="/admin/brands"
-          element={
-            <RequireRole role="admin">
-              <AdminBrandsPage />
-            </RequireRole>
-          }
-        />
+        >
+          <Route index element={<Navigate to="/admin/users" replace />} />
+          <Route path="users" element={<AdminUsersPage />} />
+          <Route path="creators" element={<AdminCreatorsPage />} />
+          <Route path="brands" element={<AdminBrandsPage />} />
+          <Route path="audit" element={<AdminAuditPage />} />
+        </Route>
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

@@ -8,9 +8,11 @@ import { createCreatorPortfolioRouter } from '../modules/creators/creator-portfo
 import { createCreatorReviewRouter } from '../modules/creators/creator-review.routes.js';
 import { createCreatorRouter } from '../modules/creators/creator.routes.js';
 import type { CreatorRepository } from '../modules/creators/creator.repository.js';
+import { createAuditRouter } from '../modules/audit/audit.routes.js';
 import { createBrandRouter } from '../modules/brands/brand.routes.js';
 import type { BrandRepository } from '../modules/brands/brand.repository.js';
 import { createHealthRouter } from '../modules/health/health.routes.js';
+import { createUserRouter } from '../modules/users/user.routes.js';
 import { createPackageRouter } from '../modules/packages/package.routes.js';
 import type { PackageRepository } from '../modules/packages/package.repository.js';
 import type { VerificationTokenRepository } from '../modules/auth/verification.repository.js';
@@ -102,6 +104,22 @@ export const createV1Router = (deps: AppDependencies): Router => {
       userRepository: deps.userRepository,
       auditRepository: deps.auditRepository,
       privateFileStorage: deps.privateFileStorage,
+    }),
+  );
+  // Khu vực quản trị: quản lý tài khoản + đọc audit log (ADM-002, ADM-004, ADM-009).
+  router.use(
+    '/users',
+    createUserRouter({
+      userRepository: deps.userRepository,
+      sessionRepository: deps.sessionRepository,
+      auditRepository: deps.auditRepository,
+    }),
+  );
+  router.use(
+    '/audit',
+    createAuditRouter({
+      auditRepository: deps.auditRepository,
+      userRepository: deps.userRepository,
     }),
   );
 

@@ -52,3 +52,32 @@ export interface UserPatch {
   readonly emailVerifiedAt?: string | null;
   readonly status?: UserStatus;
 }
+
+/**
+ * DTO cho admin quản lý tài khoản (ADM-002, ADM-004) — có thêm status và
+ * phiên bản consent so với UserDto công khai; KHÔNG bao giờ có passwordHash.
+ */
+export interface UserAdminDto {
+  readonly id: string;
+  readonly email: string;
+  readonly displayName: string;
+  readonly role: UserRole;
+  readonly status: UserStatus;
+  readonly emailVerified: boolean;
+  readonly consentVersion: string | null;
+  readonly createdAt: string;
+}
+
+export interface UserListFilter {
+  /** Khớp một phần email hoặc tên hiển thị, không phân biệt hoa thường. */
+  readonly search?: string | undefined;
+  readonly role?: UserRole | undefined;
+  readonly status?: UserStatus | undefined;
+  readonly page: number;
+  readonly limit: number;
+}
+
+export interface UserListResult {
+  readonly items: readonly User[];
+  readonly total: number;
+}

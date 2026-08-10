@@ -123,16 +123,11 @@ export const DashboardPage = () => {
             <span className="dashboard-card__icon" aria-hidden="true">
               <IconShield />
             </span>
-            <h2>Duyệt hồ sơ</h2>
-            <p>Hàng chờ duyệt creator và brand cho đội vận hành.</p>
-            <div className="form-actions">
-              <Link to="/admin/creators" className="button button--primary">
-                Creator
-              </Link>
-              <Link to="/admin/brands" className="button button--secondary">
-                Brand
-              </Link>
-            </div>
+            <h2>Khu vực quản trị</h2>
+            <p>Quản lý tài khoản, duyệt hồ sơ creator/brand và xem nhật ký hoạt động.</p>
+            <Link to="/admin/users" className="button button--primary">
+              Mở khu quản trị
+            </Link>
           </div>
         ) : null}
       </div>

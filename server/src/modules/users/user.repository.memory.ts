@@ -1,6 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import type { UserRepository } from './user.repository.js';
-import type { CreateUserInput, User, UserPatch } from './user.types.js';
+import type {
+  CreateUserInput,
+  User,
+  UserListFilter,
+  UserListResult,
+  UserPatch,
+} from './user.types.js';
 
 /**
  * In-memory implementation — lưu theo Map nhưng luôn trả bản ghi immutable.
@@ -41,6 +47,28 @@ export class InMemoryUserRepository implements UserRepository {
     };
     this.usersById.set(user.id, user);
     return Promise.resolve(user);
+  }
+
+  findAll(filter: UserListFilter): Promise<UserListResult> {
+    const keyword = filter.search?.trim().toLowerCase();
+    const matched = [...this.usersById.values()]
+      .filter((user) => {
+        if (filter.role && user.role !== filter.role) return false;
+        if (filter.status && user.status !== filter.status) return false;
+        if (keyword) {
+          const haystack = `${user.email} ${user.displayName}`.toLowerCase();
+          if (!haystack.includes(keyword)) return false;
+        }
+        return true;
+      })
+      // Mới nhất lên đầu — admin quan tâm tài khoản vừa đăng ký.
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+    const start = (filter.page - 1) * filter.limit;
+    return Promise.resolve({
+      items: matched.slice(start, start + filter.limit),
+      total: matched.length,
+    });
   }
 
   update(id: string, patch: UserPatch): Promise<User | null> {
