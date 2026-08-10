@@ -1,17 +1,100 @@
-/* ===== Design tokens ===== */
+/* ===== Fonts: Be Vietnam Pro (self-host, subset vietnamese + latin) ===== */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/be-vietnam-pro-400-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/be-vietnam-pro-400-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/be-vietnam-pro-600-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/be-vietnam-pro-600-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/be-vietnam-pro-800-vietnamese.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/be-vietnam-pro-800-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ===== Design tokens — "Tím Măng Cụt" =====
+ * Primary: tím măng cụt #6F2DBD (thang 50-900). Trung tính pha tím (tím than),
+ * vàng nghệ chỉ dành cho rating/badge, xanh giao dịch cho tiền/hoàn tất.
+ */
 :root {
-  --color-bg: #f7f7fb;
+  /* Thang tím măng cụt */
+  --violet-50: #f7f2fd;
+  --violet-100: #ede3fb;
+  --violet-300: #d9c4f5;
+  --violet-500: #8b4ddb;
+  --violet-600: #6f2dbd;
+  --violet-700: #5a1f9e;
+  --violet-900: #2c0e52;
+
+  /* Trung tính tím than */
+  --color-bg: #faf8fd;
   --color-surface: #ffffff;
-  --color-border: #e4e4ef;
-  --color-text: #1c1c28;
-  --color-text-muted: #6b6b80;
-  --color-primary: #5b48ee;
-  --color-primary-dark: #4837c8;
-  --color-danger: #d64545;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --shadow-card: 0 1px 3px rgba(28, 28, 40, 0.08);
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --color-border: #e5dff0;
+  --color-text: #221a33;
+  --color-text-muted: #655c7a;
+
+  /* Màu chức năng */
+  --color-primary: var(--violet-600);
+  --color-primary-dark: var(--violet-700);
+  --color-primary-soft: #f3ecfc;
+  --color-primary-border: var(--violet-300);
+  --color-accent: #e8a020;
+  --color-success: #0e7a55;
+  --color-success-soft: #e4f4ed;
+  --color-success-border: #b7e0cd;
+  --color-warning: #9a5b08;
+  --color-warning-soft: #fbf1de;
+  --color-warning-border: #ecd3a8;
+  --color-danger: #c22a50;
+  --color-danger-dark: #a32342;
+  --color-danger-soft: #fbe9ee;
+  --color-danger-border: #f2c2cf;
+
+  --radius-md: 9px;
+  --radius-lg: 14px;
+  --shadow-card: 0 1px 3px rgba(34, 26, 51, 0.08);
+  --font-family: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* ===== Reset & base ===== */
@@ -96,7 +179,7 @@ a {
 .app-header__link--active,
 .app-header__link:hover {
   color: var(--color-primary);
-  background: rgba(91, 72, 238, 0.08);
+  background: var(--color-primary-soft);
 }
 
 /* Các tab + nút user luôn nằm trên một hàng (không wrap khi viewport hẹp). */
@@ -207,7 +290,7 @@ a {
 
 .creator-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(28, 28, 40, 0.12);
+  box-shadow: 0 6px 16px rgba(34, 26, 51, 0.12);
 }
 
 .creator-card__avatar {
@@ -215,7 +298,7 @@ a {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary), #8f7bff);
+  background: linear-gradient(135deg, var(--color-primary), var(--violet-500));
   color: #fff;
   font-weight: 700;
   display: flex;
@@ -268,7 +351,7 @@ a {
 
 /* ===== Badge & tags ===== */
 .badge {
-  background: rgba(91, 72, 238, 0.1);
+  background: var(--color-primary-soft);
   color: var(--color-primary);
   font-size: 0.75rem;
   font-weight: 700;
@@ -404,8 +487,8 @@ a {
 }
 
 .form-error {
-  background: rgba(214, 69, 69, 0.08);
-  border: 1px solid rgba(214, 69, 69, 0.3);
+  background: var(--color-danger-soft);
+  border: 1px solid var(--color-danger-border);
   color: var(--color-danger);
   border-radius: var(--radius-md);
   padding: 10px 12px;
@@ -466,7 +549,7 @@ a {
 }
 
 .app-header__user:hover {
-  background: rgba(91, 72, 238, 0.08);
+  background: var(--color-primary-soft);
   color: var(--color-primary);
 }
 
@@ -515,7 +598,7 @@ a {
 
 .app-header__menu-item:hover,
 .app-header__menu-item:focus-visible {
-  background: rgba(214, 69, 69, 0.1);
+  background: var(--color-danger-soft);
   outline: none;
 }
 
@@ -806,8 +889,8 @@ a {
 }
 
 .onboarding-note {
-  background: rgba(91, 72, 238, 0.08);
-  border: 1px solid rgba(91, 72, 238, 0.3);
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
   color: var(--color-primary);
   border-radius: var(--radius-md);
   padding: 10px 12px;
@@ -816,15 +899,15 @@ a {
 }
 
 .onboarding-note--danger {
-  background: rgba(214, 69, 69, 0.08);
-  border-color: rgba(214, 69, 69, 0.3);
+  background: var(--color-danger-soft);
+  border-color: var(--color-danger-border);
   color: var(--color-danger);
 }
 
 .form-success {
-  background: rgba(45, 148, 84, 0.1);
-  border: 1px solid rgba(45, 148, 84, 0.3);
-  color: #1f7a4d;
+  background: var(--color-success-soft);
+  border: 1px solid var(--color-success-border);
+  color: var(--color-success);
   border-radius: var(--radius-md);
   padding: 10px 12px;
   font-size: 0.9rem;
@@ -845,27 +928,27 @@ a {
 }
 
 .status-banner--info {
-  background: rgba(91, 72, 238, 0.08);
-  border: 1px solid rgba(91, 72, 238, 0.3);
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-primary-border);
   color: var(--color-primary);
 }
 
 .status-banner--warning {
-  background: rgba(183, 121, 31, 0.1);
-  border: 1px solid rgba(183, 121, 31, 0.35);
-  color: #9a6213;
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-border);
+  color: var(--color-warning);
 }
 
 .status-banner--danger {
-  background: rgba(214, 69, 69, 0.08);
-  border: 1px solid rgba(214, 69, 69, 0.3);
+  background: var(--color-danger-soft);
+  border: 1px solid var(--color-danger-border);
   color: var(--color-danger);
 }
 
 .status-banner--success {
-  background: rgba(45, 148, 84, 0.1);
-  border: 1px solid rgba(45, 148, 84, 0.3);
-  color: #1f7a4d;
+  background: var(--color-success-soft);
+  border: 1px solid var(--color-success-border);
+  color: var(--color-success);
 }
 
 .creator-detail__avatar {
@@ -996,7 +1079,7 @@ a {
   height: 52px;
   border-radius: 50%;
   object-fit: cover;
-  background: linear-gradient(135deg, var(--color-primary), #8f7bff);
+  background: linear-gradient(135deg, var(--color-primary), var(--violet-500));
   color: #fff;
   font-weight: 700;
   display: flex;
@@ -1049,22 +1132,22 @@ a {
 }
 
 .button--danger:hover:not(:disabled) {
-  background: #b03535;
+  background: var(--color-danger-dark);
 }
 
 .button--warning {
-  background: #b45309;
+  background: var(--color-warning);
   color: #fff;
 }
 
 .button--warning:hover:not(:disabled) {
-  background: #92400e;
+  background: #7a4806;
 }
 
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(28, 28, 40, 0.5);
+  background: rgba(34, 26, 51, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1075,7 +1158,7 @@ a {
 .modal__card {
   background: var(--color-surface);
   border-radius: var(--radius-lg);
-  box-shadow: 0 12px 32px rgba(28, 28, 40, 0.2);
+  box-shadow: 0 12px 32px rgba(34, 26, 51, 0.2);
   padding: 24px;
   width: 100%;
   max-width: 440px;
@@ -1224,4 +1307,74 @@ a {
 .creator-modal__portfolio-category {
   color: var(--color-text-muted);
   font-size: 0.8rem;
+}
+
+/* ===== P0: checkbox điều khoản, OTP, notice xác minh email ===== */
+.checkbox-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.checkbox-field input[type='checkbox'] {
+  margin-top: 4px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.checkbox-field a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.input--otp {
+  font-size: 1.4rem;
+  letter-spacing: 0.4em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.button-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.button-link:hover {
+  text-decoration: underline;
+}
+
+.button-link:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.notice--warning {
+  background: var(--color-warning-soft);
+  border: 1px solid var(--color-warning-border);
+  color: var(--color-warning);
+}
+
+.notice p {
+  margin: 0;
 }
