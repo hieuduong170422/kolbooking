@@ -11,6 +11,8 @@ import { createBookingRouter } from '../modules/bookings/booking.routes.js';
 import type { BookingRepository } from '../modules/bookings/booking.repository.js';
 import { createBrandRouter } from '../modules/brands/brand.routes.js';
 import { createMessageRouter } from '../modules/messages/message.routes.js';
+import { createSubmissionRouter } from '../modules/submissions/submission.routes.js';
+import type { SubmissionRepository } from '../modules/submissions/submission.repository.js';
 import type { MessageRepository } from '../modules/messages/message.repository.js';
 import { createNotificationRouter } from '../modules/notifications/notification.routes.js';
 import type { NotificationRepository } from '../modules/notifications/notification.repository.js';
@@ -35,6 +37,7 @@ export interface AppDependencies {
   readonly brandRepository: BrandRepository;
   readonly bookingRepository: BookingRepository;
   readonly messageRepository: MessageRepository;
+  readonly submissionRepository: SubmissionRepository;
   readonly notificationRepository: NotificationRepository;
   readonly favoriteRepository: FavoriteRepository;
   readonly reportRepository: ReportRepository;
@@ -135,6 +138,18 @@ export const createV1Router = (deps: AppDependencies): Router => {
       creatorRepository: deps.creatorRepository,
       notificationService,
       auditRepository: deps.auditRepository,
+    }),
+  );
+  // Nộp bài / yêu cầu sửa — cùng prefix /bookings (DLV-001..006).
+  router.use(
+    '/bookings',
+    createSubmissionRouter({
+      submissionRepository: deps.submissionRepository,
+      bookingRepository: deps.bookingRepository,
+      packageRepository: deps.packageRepository,
+      creatorRepository: deps.creatorRepository,
+      auditRepository: deps.auditRepository,
+      notificationService,
     }),
   );
   router.use('/notifications', createNotificationRouter(notificationService));

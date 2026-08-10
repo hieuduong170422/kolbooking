@@ -11,6 +11,10 @@ export const BOOKING_ACTIONS = [
   'propose_change',
   'confirm_payment',
   'start_work',
+  'submit',
+  'request_revision',
+  'approve',
+  'complete',
   'cancel',
   'expire',
 ] as const;
@@ -81,6 +85,44 @@ export const TRANSITIONS: Readonly<Record<BookingAction, TransitionRule>> = Obje
     from: ['confirmed'],
     to: 'in_progress',
     actors: ['creator'],
+    requiresReason: false,
+    expiresInHours: null,
+  },
+  // Creator nộp bài lần đầu hoặc nộp lại sau khi bị yêu cầu sửa (DLV-001, DLV-004).
+  submit: {
+    from: ['in_progress', 'revision_requested'],
+    to: 'delivered',
+    actors: ['creator'],
+    requiresReason: false,
+    expiresInHours: null,
+  },
+  /**
+   * Brand yêu cầu sửa (DLV-003) — lý do bắt buộc. Hạn mức số lần sửa do
+   * SubmissionService kiểm tra trước khi gọi, vì nó cần đếm lịch sử.
+   */
+  request_revision: {
+    from: ['delivered'],
+    to: 'revision_requested',
+    actors: ['brand'],
+    requiresReason: true,
+    expiresInHours: null,
+  },
+  // Brand nghiệm thu (DLV-005) — có timestamp và actor trong timeline.
+  approve: {
+    from: ['delivered'],
+    to: 'approved',
+    actors: ['brand'],
+    requiresReason: false,
+    expiresInHours: null,
+  },
+  /**
+   * Chốt hoàn tất để đủ điều kiện settlement (SRS §9.1). Do Operations bấm
+   * ở MVP; P6 gắn với giải ngân thật.
+   */
+  complete: {
+    from: ['approved'],
+    to: 'completed',
+    actors: ['admin'],
     requiresReason: false,
     expiresInHours: null,
   },
