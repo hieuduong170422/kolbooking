@@ -18,6 +18,15 @@ export const hashOtp = (code: string): string =>
 
 const generateOtp = (): string => randomInt(0, 1_000_000).toString().padStart(6, '0');
 
+/**
+ * Mã cố định (nếu môi trường đặt DEV_OTP_CODE) hoặc mã ngẫu nhiên.
+ *
+ * Chỉ thay khâu SINH mã: mã vẫn phải được cấp trước, vẫn hết hạn theo
+ * OTP_TTL_MINUTES, vẫn bị khóa sau OTP_MAX_ATTEMPTS lần sai và vẫn chỉ dùng
+ * được một lần. env chặn cấu hình này ở production.
+ */
+export const resolveOtp = (fixedCode: string | undefined): string => fixedCode ?? generateOtp();
+
 // Message chung cho mọi trường hợp mã sai/hết hạn — không tiết lộ trạng thái nội bộ.
 const INVALID_CODE_MESSAGE = 'Mã xác minh không đúng hoặc đã hết hạn. Vui lòng thử lại hoặc yêu cầu mã mới.';
 
@@ -112,7 +121,7 @@ export class VerificationService {
     // Mã mới thay thế mọi mã đang chờ — chỉ một mã hiệu lực tại một thời điểm.
     await this.tokens.invalidateAllFor(user.id, purpose);
 
-    const code = generateOtp();
+    const code = resolveOtp(env.DEV_OTP_CODE);
     const expiresAt = new Date(Date.now() + env.OTP_TTL_MINUTES * MINUTE_MS).toISOString();
     await this.tokens.create({
       userId: user.id,
