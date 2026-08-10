@@ -30,6 +30,9 @@ const openAs = async (email) => {
   return page;
 };
 
+/** Trạng thái booking = pill ở header, KHÔNG quét cả trang (nhãn nút dễ trùng). */
+const statusOf = async (page) => (await page.locator('.page__header--row .pill').innerText()).trim();
+
 const brand = await openAs('brand@demo.vn');
 const creator = await openAs('creator2@demo.vn');
 const admin = await openAs('admin@demo.vn');
@@ -127,6 +130,62 @@ check(
 await brand.locator('.notif__item').first().click();
 await brand.waitForTimeout(800);
 check('bấm thông báo nhảy đúng booking (deep link)', brand.url().includes('/bookings/bkg_'));
+
+// --- P5: nộp bài → yêu cầu sửa → nộp lại → nghiệm thu → hoàn tất ---
+await creator.goto(bookingUrl);
+await creator.waitForSelector('.next-action');
+await creator.getByRole('button', { name: 'Bắt đầu sản xuất' }).click();
+await creator.waitForTimeout(700);
+check('creator bắt đầu sản xuất', (await statusOf(creator)) === 'Đang sản xuất');
+
+const fillSubmission = async (page, link, desc) => {
+  try {
+    await page.waitForSelector('.submit-form', { timeout: 12000 });
+  } catch {
+    console.log('DIAG url:', page.url());
+    console.log('DIAG body:', (await page.locator('body').innerText()).slice(0, 200).replace(/\n/g, ' | '));
+    console.log('DIAG fulfillment:', await page.locator('.fulfillment').innerText().catch(() => 'KHÔNG CÓ PANEL'));
+    throw new Error('không thấy form nộp bài');
+  }
+  await page.locator('.submit-form input[type="url"]').first().fill(link);
+  await page.locator('.submit-form input[type="text"]').first().fill(desc);
+  await page.locator('.submit-form input[type="url"]').last().fill(link);
+  await page.getByRole('button', { name: 'Nộp bài' }).click();
+  await page.waitForTimeout(900);
+};
+
+await fillSubmission(creator, 'https://www.tiktok.com/@lanchifoodie/video/1', 'Video 45 giây quay dọc');
+check('creator nộp bài → Đã nộp bài', (await statusOf(creator)) === 'Đã nộp bài');
+
+await brand.goto(bookingUrl);
+await brand.waitForSelector('.fulfillment');
+check('brand thấy bản nộp 1', (await brand.locator('.fulfillment').innerText()).includes('Bản 1'));
+
+await brand.getByRole('button', { name: /Yêu cầu sửa \(/ }).click();
+await brand.waitForSelector('.modal__card');
+await brand.getByLabel('Nội dung cần sửa').fill('Cảnh mở đầu chưa thấy rõ biển hiệu quán, nhờ bạn quay lại.');
+await brand.getByRole('button', { name: 'Gửi yêu cầu sửa' }).click();
+await brand.waitForTimeout(900);
+check('yêu cầu sửa → trạng thái Yêu cầu sửa', (await statusOf(brand)) === 'Yêu cầu sửa');
+
+await creator.goto(bookingUrl);
+await fillSubmission(creator, 'https://www.tiktok.com/@lanchifoodie/video/2', 'Bản sửa cảnh mở đầu');
+check('creator nộp lại → có bản 2',
+  (await creator.locator('.fulfillment').innerText()).includes('Bản 2'));
+
+await brand.goto(bookingUrl);
+await brand.waitForSelector('.next-action');
+check('hết lượt sửa thì không còn nút yêu cầu sửa',
+  (await brand.getByRole('button', { name: /Yêu cầu sửa \(/ }).count()) === 0);
+await brand.getByRole('button', { name: 'Nghiệm thu nội dung' }).click();
+await brand.waitForTimeout(800);
+check('brand nghiệm thu → Đã nghiệm thu', (await statusOf(brand)) === 'Đã nghiệm thu');
+
+await admin.goto(bookingUrl);
+await admin.waitForSelector('.next-action');
+await admin.getByRole('button', { name: 'Chốt hoàn tất' }).click();
+await admin.waitForTimeout(800);
+check('admin chốt hoàn tất → Hoàn tất', (await statusOf(admin)) === 'Hoàn tất');
 
 await browser.close();
 console.log(`\n${pass} pass / ${fail} fail`);

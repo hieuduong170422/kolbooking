@@ -11,6 +11,7 @@ import {
   type BookingAction,
 } from '../features/bookings/types/booking-types';
 import { BookingChat } from '../features/messages/components/booking-chat';
+import { FulfillmentPanel } from '../features/submissions/components/fulfillment-panel';
 import { ApiClientError } from '../shared/api/api-types';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
@@ -185,6 +186,12 @@ export const BookingDetailPage = () => {
                   </strong>
                 </li>
               </ul>
+            </section>
+          ) : null}
+
+          {terms !== null ? (
+            <section className="creator-detail__section">
+              <FulfillmentPanel booking={booking} role={user.role} />
             </section>
           ) : null}
 

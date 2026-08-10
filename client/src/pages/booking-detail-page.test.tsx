@@ -16,6 +16,9 @@ vi.mock('../features/bookings/hooks/use-bookings', () => ({
 vi.mock('../features/messages/components/booking-chat', () => ({
   BookingChat: () => <div data-testid="booking-chat" />,
 }));
+vi.mock('../features/submissions/components/fulfillment-panel', () => ({
+  FulfillmentPanel: () => <div data-testid="fulfillment-panel" />,
+}));
 
 const mockUseAuth = vi.mocked(useAuth);
 const mockUseBooking = vi.mocked(useBooking);

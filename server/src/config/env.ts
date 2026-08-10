@@ -19,7 +19,12 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
-  RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
+  /**
+   * Giới hạn chung mỗi IP/phút. Đặt 300 vì client có polling: chat 8 giây
+   * (~8 req/phút) + thông báo 30 giây, mỗi lần mở trang lại gọi 4-6 API.
+   * Một người mở vài tab, hoặc một văn phòng chung IP NAT, rất dễ vượt 100.
+   */
+  RATE_LIMIT_MAX: z.coerce.number().int().positive().default(300),
   AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
   JWT_SECRET: z.string().min(32).default(DEV_ONLY_JWT_SECRET),
   ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(900),

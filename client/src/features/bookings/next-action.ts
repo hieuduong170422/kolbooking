@@ -7,6 +7,10 @@ const ACTIONS_BY_STATUS: Partial<Record<BookingStatus, Partial<Record<AuthRole, 
   pending_creator: { creator: ['accept', 'propose_change', 'reject'], brand: ['cancel'] },
   awaiting_payment: { admin: ['confirm_payment'], brand: ['cancel'] },
   confirmed: { creator: ['start_work'] },
+  // submit và request_revision cần dữ liệu kèm theo nên do FulfillmentPanel lo,
+  // không phải nút transition trơn.
+  delivered: { brand: ['approve'] },
+  approved: { admin: ['complete'] },
 };
 
 /** Các action người dùng hiện tại thực hiện được — server vẫn là chốt chặn cuối. */
@@ -41,8 +45,22 @@ export const nextActionHint = (booking: Booking, role: AuthRole): string => {
         : 'Creator sắp bắt đầu sản xuất.';
     case 'in_progress':
       return role === 'creator'
-        ? 'Đang sản xuất. Nộp bài sẽ có ở bước tiếp theo của sản phẩm.'
+        ? 'Đang sản xuất — nộp bài ở mục Bàn giao bên dưới khi xong.'
         : 'Creator đang sản xuất nội dung.';
+    case 'delivered':
+      return role === 'brand'
+        ? 'Xem bài nộp rồi nghiệm thu, hoặc yêu cầu sửa trong số lượt đã mua.'
+        : 'Đã nộp bài, đang chờ brand xem.';
+    case 'revision_requested':
+      return role === 'creator'
+        ? 'Brand yêu cầu sửa — chỉnh rồi nộp lại ở mục Bàn giao.'
+        : 'Đang chờ creator nộp lại bản sửa.';
+    case 'approved':
+      return role === 'admin'
+        ? 'Nội dung đã được nghiệm thu — chốt hoàn tất để đủ điều kiện giải ngân.'
+        : 'Đã nghiệm thu, chờ đội vận hành chốt hoàn tất.';
+    case 'completed':
+      return 'Booking đã hoàn tất.';
     case 'cancelled':
       return 'Booking đã hủy.';
     case 'expired':

@@ -26,6 +26,8 @@ export const BOOKING_ACTIONS = [
   'propose_change',
   'confirm_payment',
   'start_work',
+  'approve',
+  'complete',
   'cancel',
 ] as const;
 export type BookingAction = (typeof BOOKING_ACTIONS)[number];
@@ -138,6 +140,8 @@ export const BOOKING_ACTION_LABELS: Record<BookingAction, string> = {
   propose_change: 'Đề nghị thay đổi',
   confirm_payment: 'Xác nhận đã thanh toán',
   start_work: 'Bắt đầu sản xuất',
+  approve: 'Nghiệm thu nội dung',
+  complete: 'Chốt hoàn tất',
   cancel: 'Hủy booking',
 };
 
