@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { ApiError } from '../../shared/errors/api-error.js';
 import type { AuditRepository } from '../audit/audit.repository.js';
 import type { CreatorRepository } from '../creators/creator.repository.js';
+import type { NotificationService } from '../notifications/notification.service.js';
 import type { PackageRepository } from '../packages/package.repository.js';
 import type { PackageAddOn, ServicePackage } from '../packages/package.types.js';
 import { calculateTotals, generateBookingCode } from './booking.pricing.js';
@@ -48,17 +49,21 @@ export class BookingService {
   private readonly packages: PackageRepository;
   private readonly creators: CreatorRepository;
   private readonly audit: AuditRepository;
+  /** Tùy chọn: thiếu kênh thông báo thì booking vẫn phải chạy đúng. */
+  private readonly notifications: NotificationService | undefined;
 
   constructor(
     bookings: BookingRepository,
     packages: PackageRepository,
     creators: CreatorRepository,
     audit: AuditRepository,
+    notifications?: NotificationService,
   ) {
     this.bookings = bookings;
     this.packages = packages;
     this.creators = creators;
     this.audit = audit;
+    this.notifications = notifications;
   }
 
   /** Tạo booking nháp từ package đang bán (BKG-001, BKG-002). */
@@ -192,6 +197,9 @@ export class BookingService {
       });
     }
 
+    // Báo cho phía còn lại biết booking đổi trạng thái (NTF-001).
+    await this.notifyStatusChange(updated, actor.userId);
+
     return updated;
   }
 
@@ -206,6 +214,19 @@ export class BookingService {
       );
     }
     return overdue.length;
+  }
+
+  private async notifyStatusChange(booking: Booking, actorUserId: string): Promise<void> {
+    if (this.notifications === undefined) return;
+    const recipients = [booking.brandUserId, booking.creatorUserId].filter(
+      (userId): userId is string => userId !== null && userId !== actorUserId,
+    );
+    await this.notifications.notifyMany(recipients, {
+      type: 'booking_status',
+      title: `Booking ${booking.code}: ${booking.status}`,
+      body: booking.statusReason ?? 'Booking vừa chuyển trạng thái, xem việc cần làm tiếp.',
+      link: `/bookings/${booking.id}`,
+    });
   }
 
   async getById(actor: BookingActor, bookingId: string): Promise<Booking> {

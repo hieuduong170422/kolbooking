@@ -10,6 +10,8 @@ import type { Brand } from '../../src/modules/brands/brand.types.js';
 import { InMemoryVerificationTokenRepository } from '../../src/modules/auth/verification.repository.memory.js';
 import type { VerificationTokenRepository } from '../../src/modules/auth/verification.repository.js';
 import { InMemoryBookingRepository } from '../../src/modules/bookings/booking.repository.memory.js';
+import { InMemoryMessageRepository } from '../../src/modules/messages/message.repository.memory.js';
+import { InMemoryNotificationRepository } from '../../src/modules/notifications/notification.repository.memory.js';
 import { InMemoryCreatorRepository } from '../../src/modules/creators/creator.repository.memory.js';
 import { InMemoryFavoriteRepository } from '../../src/modules/favorites/favorite.repository.memory.js';
 import { InMemoryReportRepository } from '../../src/modules/reports/report.repository.memory.js';
@@ -23,6 +25,7 @@ import type { UserRepository } from '../../src/modules/users/user.repository.js'
 import { buildUserSeed } from '../../src/modules/users/user.seed.js';
 import type { User } from '../../src/modules/users/user.types.js';
 import type { BookingRepository } from '../../src/modules/bookings/booking.repository.js';
+import type { NotificationRepository } from '../../src/modules/notifications/notification.repository.js';
 import type { Mailer } from '../../src/shared/email/mailer.js';
 import type { FileStorage } from '../../src/shared/storage/file-storage.js';
 import { InMemoryFileStorage } from '../../src/shared/storage/file-storage.memory.js';
@@ -41,6 +44,7 @@ export interface TestAppOptions {
   readonly sessionRepository?: SessionRepository;
   readonly verificationTokenRepository?: VerificationTokenRepository;
   readonly bookingRepository?: BookingRepository;
+  readonly notificationRepository?: NotificationRepository;
   readonly mailer?: Mailer;
 }
 
@@ -50,6 +54,8 @@ export const buildTestApp = (options: TestAppOptions = {}): Express =>
     packageRepository: new InMemoryPackageRepository(options.packages ?? PACKAGE_SEED),
     brandRepository: new InMemoryBrandRepository(options.brands ?? BRAND_SEED),
     bookingRepository: options.bookingRepository ?? new InMemoryBookingRepository(),
+    messageRepository: new InMemoryMessageRepository(),
+    notificationRepository: options.notificationRepository ?? new InMemoryNotificationRepository(),
     favoriteRepository: new InMemoryFavoriteRepository(),
     reportRepository: new InMemoryReportRepository(),
     userRepository: options.userRepository ?? new InMemoryUserRepository(options.users ?? []),

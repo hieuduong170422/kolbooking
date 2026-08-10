@@ -12,6 +12,11 @@ import { createAuditRouter } from '../modules/audit/audit.routes.js';
 import { createBookingRouter } from '../modules/bookings/booking.routes.js';
 import type { BookingRepository } from '../modules/bookings/booking.repository.js';
 import { createBrandRouter } from '../modules/brands/brand.routes.js';
+import { createMessageRouter } from '../modules/messages/message.routes.js';
+import type { MessageRepository } from '../modules/messages/message.repository.js';
+import { createNotificationRouter } from '../modules/notifications/notification.routes.js';
+import type { NotificationRepository } from '../modules/notifications/notification.repository.js';
+import { NotificationService } from '../modules/notifications/notification.service.js';
 import type { BrandRepository } from '../modules/brands/brand.repository.js';
 import { createFavoriteRouter } from '../modules/favorites/favorite.routes.js';
 import type { FavoriteRepository } from '../modules/favorites/favorite.repository.js';
@@ -32,6 +37,8 @@ export interface AppDependencies {
   readonly packageRepository: PackageRepository;
   readonly brandRepository: BrandRepository;
   readonly bookingRepository: BookingRepository;
+  readonly messageRepository: MessageRepository;
+  readonly notificationRepository: NotificationRepository;
   readonly favoriteRepository: FavoriteRepository;
   readonly reportRepository: ReportRepository;
   readonly userRepository: UserRepository;
@@ -60,6 +67,13 @@ const authRateLimiter = rateLimit({
  */
 export const createV1Router = (deps: AppDependencies): Router => {
   const router = Router();
+
+  // Một instance dùng chung cho mọi module cần gửi thông báo (NTF-001).
+  const notificationService = new NotificationService(
+    deps.notificationRepository,
+    deps.userRepository,
+    deps.mailer,
+  );
 
   router.use('/health', createHealthRouter());
   router.use(
@@ -123,8 +137,21 @@ export const createV1Router = (deps: AppDependencies): Router => {
       creatorRepository: deps.creatorRepository,
       auditRepository: deps.auditRepository,
       userRepository: deps.userRepository,
+      notificationService,
     }),
   );
+  // Chat gắn với booking — mount cùng prefix /bookings (CHAT-001).
+  router.use(
+    '/bookings',
+    createMessageRouter({
+      messageRepository: deps.messageRepository,
+      bookingRepository: deps.bookingRepository,
+      creatorRepository: deps.creatorRepository,
+      notificationService,
+      auditRepository: deps.auditRepository,
+    }),
+  );
+  router.use('/notifications', createNotificationRouter(notificationService));
   router.use(
     '/favorites',
     createFavoriteRouter({

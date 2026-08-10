@@ -6,6 +6,8 @@ import { BRAND_SEED } from './modules/brands/brand.seed.js';
 import { InMemorySessionRepository } from './modules/auth/session.repository.memory.js';
 import { InMemoryVerificationTokenRepository } from './modules/auth/verification.repository.memory.js';
 import { InMemoryBookingRepository } from './modules/bookings/booking.repository.memory.js';
+import { InMemoryMessageRepository } from './modules/messages/message.repository.memory.js';
+import { InMemoryNotificationRepository } from './modules/notifications/notification.repository.memory.js';
 import { InMemoryCreatorRepository } from './modules/creators/creator.repository.memory.js';
 import { InMemoryFavoriteRepository } from './modules/favorites/favorite.repository.memory.js';
 import { InMemoryReportRepository } from './modules/reports/report.repository.memory.js';
@@ -25,6 +27,8 @@ const app = createApp({
   packageRepository: new InMemoryPackageRepository(PACKAGE_SEED),
   brandRepository: new InMemoryBrandRepository(BRAND_SEED),
   bookingRepository: new InMemoryBookingRepository(),
+  messageRepository: new InMemoryMessageRepository(),
+  notificationRepository: new InMemoryNotificationRepository(),
   favoriteRepository: new InMemoryFavoriteRepository(),
   reportRepository: new InMemoryReportRepository(),
   userRepository: new InMemoryUserRepository(userSeed),

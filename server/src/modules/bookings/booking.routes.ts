@@ -12,6 +12,7 @@ import {
 import type { AuditRepository } from '../audit/audit.repository.js';
 import { getAuthUser, requireAuth, requireVerifiedEmail } from '../auth/auth.middleware.js';
 import type { CreatorRepository } from '../creators/creator.repository.js';
+import type { NotificationService } from '../notifications/notification.service.js';
 import type { PackageRepository } from '../packages/package.repository.js';
 import type { UserRepository } from '../users/user.repository.js';
 import { BookingService, type BookingActor } from './booking.service.js';
@@ -73,6 +74,7 @@ export interface BookingRouterDeps {
   readonly creatorRepository: CreatorRepository;
   readonly auditRepository: AuditRepository;
   readonly userRepository: UserRepository;
+  readonly notificationService: NotificationService;
 }
 
 export const createBookingRouter = (deps: BookingRouterDeps): Router => {
@@ -81,6 +83,7 @@ export const createBookingRouter = (deps: BookingRouterDeps): Router => {
     deps.packageRepository,
     deps.creatorRepository,
     deps.auditRepository,
+    deps.notificationService,
   );
   const router = Router();
 
