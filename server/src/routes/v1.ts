@@ -11,7 +11,11 @@ import type { CreatorRepository } from '../modules/creators/creator.repository.j
 import { createAuditRouter } from '../modules/audit/audit.routes.js';
 import { createBrandRouter } from '../modules/brands/brand.routes.js';
 import type { BrandRepository } from '../modules/brands/brand.repository.js';
+import { createFavoriteRouter } from '../modules/favorites/favorite.routes.js';
+import type { FavoriteRepository } from '../modules/favorites/favorite.repository.js';
 import { createHealthRouter } from '../modules/health/health.routes.js';
+import { createReportRouter } from '../modules/reports/report.routes.js';
+import type { ReportRepository } from '../modules/reports/report.repository.js';
 import { createUserRouter } from '../modules/users/user.routes.js';
 import { createPackageRouter } from '../modules/packages/package.routes.js';
 import type { PackageRepository } from '../modules/packages/package.repository.js';
@@ -25,6 +29,8 @@ export interface AppDependencies {
   readonly creatorRepository: CreatorRepository;
   readonly packageRepository: PackageRepository;
   readonly brandRepository: BrandRepository;
+  readonly favoriteRepository: FavoriteRepository;
+  readonly reportRepository: ReportRepository;
   readonly userRepository: UserRepository;
   readonly sessionRepository: SessionRepository;
   readonly verificationTokenRepository: VerificationTokenRepository;
@@ -104,6 +110,22 @@ export const createV1Router = (deps: AppDependencies): Router => {
       userRepository: deps.userRepository,
       auditRepository: deps.auditRepository,
       privateFileStorage: deps.privateFileStorage,
+    }),
+  );
+  router.use(
+    '/favorites',
+    createFavoriteRouter({
+      favoriteRepository: deps.favoriteRepository,
+      creatorRepository: deps.creatorRepository,
+    }),
+  );
+  router.use(
+    '/reports',
+    createReportRouter({
+      reportRepository: deps.reportRepository,
+      creatorRepository: deps.creatorRepository,
+      packageRepository: deps.packageRepository,
+      auditRepository: deps.auditRepository,
     }),
   );
   // Khu vực quản trị: quản lý tài khoản + đọc audit log (ADM-002, ADM-004, ADM-009).

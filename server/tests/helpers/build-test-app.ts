@@ -10,6 +10,8 @@ import type { Brand } from '../../src/modules/brands/brand.types.js';
 import { InMemoryVerificationTokenRepository } from '../../src/modules/auth/verification.repository.memory.js';
 import type { VerificationTokenRepository } from '../../src/modules/auth/verification.repository.js';
 import { InMemoryCreatorRepository } from '../../src/modules/creators/creator.repository.memory.js';
+import { InMemoryFavoriteRepository } from '../../src/modules/favorites/favorite.repository.memory.js';
+import { InMemoryReportRepository } from '../../src/modules/reports/report.repository.memory.js';
 import { CREATOR_SEED } from '../../src/modules/creators/creator.seed.js';
 import type { Creator } from '../../src/modules/creators/creator.types.js';
 import { InMemoryPackageRepository } from '../../src/modules/packages/package.repository.memory.js';
@@ -44,6 +46,8 @@ export const buildTestApp = (options: TestAppOptions = {}): Express =>
     creatorRepository: new InMemoryCreatorRepository(options.creators ?? CREATOR_SEED),
     packageRepository: new InMemoryPackageRepository(options.packages ?? PACKAGE_SEED),
     brandRepository: new InMemoryBrandRepository(options.brands ?? BRAND_SEED),
+    favoriteRepository: new InMemoryFavoriteRepository(),
+    reportRepository: new InMemoryReportRepository(),
     userRepository: options.userRepository ?? new InMemoryUserRepository(options.users ?? []),
     sessionRepository: options.sessionRepository ?? new InMemorySessionRepository(),
     verificationTokenRepository:
