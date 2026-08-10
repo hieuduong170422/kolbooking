@@ -10,6 +10,7 @@ export const DEMO_PASSWORD = 'Demo@1234';
 export const buildUserSeed = async (): Promise<readonly User[]> => {
   const passwordHash = await hashPassword(DEMO_PASSWORD);
   const seededAt = '2026-07-01T08:00:00.000Z';
+  const consent = { version: '2026-08-mvp', acceptedAt: seededAt, source: 'seed' } as const;
 
   return [
     {
@@ -20,6 +21,7 @@ export const buildUserSeed = async (): Promise<readonly User[]> => {
       role: 'creator',
       status: 'active',
       emailVerifiedAt: seededAt,
+      consent,
       createdAt: seededAt,
     },
     {
@@ -30,6 +32,7 @@ export const buildUserSeed = async (): Promise<readonly User[]> => {
       role: 'brand',
       status: 'active',
       emailVerifiedAt: seededAt,
+      consent,
       createdAt: seededAt,
     },
     {
@@ -40,6 +43,7 @@ export const buildUserSeed = async (): Promise<readonly User[]> => {
       role: 'admin',
       status: 'active',
       emailVerifiedAt: seededAt,
+      consent,
       createdAt: seededAt,
     },
     {
@@ -50,6 +54,7 @@ export const buildUserSeed = async (): Promise<readonly User[]> => {
       role: 'creator',
       status: 'locked',
       emailVerifiedAt: seededAt,
+      consent,
       createdAt: seededAt,
     },
   ];

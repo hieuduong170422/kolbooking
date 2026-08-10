@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { UserRepository } from './user.repository.js';
-import type { CreateUserInput, User } from './user.types.js';
+import type { CreateUserInput, User, UserPatch } from './user.types.js';
 
 /**
  * In-memory implementation — lưu theo Map nhưng luôn trả bản ghi immutable.
@@ -36,9 +36,20 @@ export class InMemoryUserRepository implements UserRepository {
       role: input.role,
       status: 'active',
       emailVerifiedAt: null,
+      consent: input.consent,
       createdAt: new Date().toISOString(),
     };
     this.usersById.set(user.id, user);
     return Promise.resolve(user);
+  }
+
+  update(id: string, patch: UserPatch): Promise<User | null> {
+    const existing = this.usersById.get(id);
+    if (!existing) {
+      return Promise.resolve(null);
+    }
+    const updated: User = { ...existing, ...patch };
+    this.usersById.set(id, updated);
+    return Promise.resolve(updated);
   }
 }

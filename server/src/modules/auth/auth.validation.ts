@@ -15,6 +15,8 @@ export const registerBodySchema = z.object({
   password: passwordSchema,
   displayName: z.string().trim().min(2, 'Tên hiển thị tối thiểu 2 ký tự.').max(50),
   role: z.enum(SELF_REGISTER_ROLES, 'Vai trò phải là creator hoặc brand.'),
+  // AUTH-007: đăng ký bắt buộc chấp thuận điều khoản một cách tường minh.
+  termsAccepted: z.literal(true, 'Bạn cần đồng ý Điều khoản sử dụng để đăng ký.'),
 });
 
 export type RegisterBody = z.infer<typeof registerBodySchema>;
@@ -25,3 +27,27 @@ export const loginBodySchema = z.object({
 });
 
 export type LoginBody = z.infer<typeof loginBodySchema>;
+
+const otpCodeSchema = z
+  .string()
+  .regex(/^\d{6}$/, 'Mã xác minh gồm 6 chữ số.');
+
+export const verifyEmailBodySchema = z.object({
+  code: otpCodeSchema,
+});
+
+export type VerifyEmailBody = z.infer<typeof verifyEmailBodySchema>;
+
+export const forgotPasswordBodySchema = z.object({
+  email: emailSchema,
+});
+
+export type ForgotPasswordBody = z.infer<typeof forgotPasswordBodySchema>;
+
+export const resetPasswordBodySchema = z.object({
+  email: emailSchema,
+  code: otpCodeSchema,
+  newPassword: passwordSchema,
+});
+
+export type ResetPasswordBody = z.infer<typeof resetPasswordBodySchema>;

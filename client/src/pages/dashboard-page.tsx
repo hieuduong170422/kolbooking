@@ -50,6 +50,17 @@ export const DashboardPage = () => {
         </p>
       </div>
 
+      {!user.emailVerified ? (
+        <div className="notice notice--warning">
+          <p>
+            Tài khoản chưa xác minh email — bạn chưa thể gửi hồ sơ duyệt hay tạo booking.
+          </p>
+          <Link to="/verify-email" className="button button--primary">
+            Xác minh ngay
+          </Link>
+        </div>
+      ) : null}
+
       <div className="dashboard-grid">
         {user.role === 'creator' ? <CreatorProfileCard /> : null}
         <div className="dashboard-card">

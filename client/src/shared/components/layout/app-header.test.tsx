@@ -46,6 +46,7 @@ describe('AppHeader', () => {
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateUser: vi.fn(),
     });
   });
 
@@ -85,6 +86,7 @@ describe('AppHeader', () => {
       login: vi.fn(),
       register: vi.fn(),
       logout: mockLogout,
+      updateUser: vi.fn(),
     });
     renderHeader();
 
@@ -124,6 +126,7 @@ describe('AppHeader', () => {
       login: vi.fn(),
       register: vi.fn(),
       logout: vi.fn(),
+      updateUser: vi.fn(),
     });
     renderHeader();
 

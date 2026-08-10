@@ -9,16 +9,20 @@ import { createCreatorReviewRouter } from '../modules/creators/creator-review.ro
 import { createCreatorRouter } from '../modules/creators/creator.routes.js';
 import type { CreatorRepository } from '../modules/creators/creator.repository.js';
 import { createHealthRouter } from '../modules/health/health.routes.js';
+import type { VerificationTokenRepository } from '../modules/auth/verification.repository.js';
 import type { UserRepository } from '../modules/users/user.repository.js';
 import { buildErrorBody } from '../shared/http/api-response.js';
+import type { Mailer } from '../shared/email/mailer.js';
 import type { FileStorage } from '../shared/storage/file-storage.js';
 
 export interface AppDependencies {
   readonly creatorRepository: CreatorRepository;
   readonly userRepository: UserRepository;
   readonly sessionRepository: SessionRepository;
+  readonly verificationTokenRepository: VerificationTokenRepository;
   readonly auditRepository: AuditRepository;
   readonly fileStorage: FileStorage;
+  readonly mailer: Mailer;
 }
 
 /** Rate limit chặt hơn cho auth: chống brute-force login/OTP (SEC-002). */
@@ -39,7 +43,16 @@ export const createV1Router = (deps: AppDependencies): Router => {
   const router = Router();
 
   router.use('/health', createHealthRouter());
-  router.use('/auth', authRateLimiter, createAuthRouter(deps.userRepository, deps.sessionRepository));
+  router.use(
+    '/auth',
+    authRateLimiter,
+    createAuthRouter({
+      users: deps.userRepository,
+      sessions: deps.sessionRepository,
+      verificationTokens: deps.verificationTokenRepository,
+      mailer: deps.mailer,
+    }),
+  );
   // Mount admin review TRƯỚC creators router: /reviews không được rơi vào /:id (route ordering).
   router.use(
     '/creators',
@@ -62,6 +75,7 @@ export const createV1Router = (deps: AppDependencies): Router => {
     createCreatorRouter({
       creatorRepository: deps.creatorRepository,
       auditRepository: deps.auditRepository,
+      userRepository: deps.userRepository,
     }),
   );
 

@@ -21,6 +21,10 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32).default(DEV_ONLY_JWT_SECRET),
   ACCESS_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(900),
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
+  OTP_TTL_MINUTES: z.coerce.number().int().positive().default(10),
+  OTP_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
+  /** Phiên bản điều khoản sử dụng hiện hành — ghi vào consent lúc đăng ký (AUTH-007). */
+  TERMS_VERSION: z.string().min(1).default('2026-08-mvp'),
 });
 
 const parsed = envSchema.safeParse(process.env);

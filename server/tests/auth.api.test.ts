@@ -24,6 +24,7 @@ describe('POST /api/v1/auth/register', () => {
       password: 'MatKhau123',
       displayName: 'Brand Mới',
       role: 'brand',
+      termsAccepted: true,
     });
 
     expect(response.status).toBe(201);
@@ -41,6 +42,7 @@ describe('POST /api/v1/auth/register', () => {
       password: 'MatKhau123',
       displayName: 'Trùng Email',
       role: 'creator',
+      termsAccepted: true,
     };
     const response = await request(app).post('/api/v1/auth/register').send(payload);
 
@@ -54,6 +56,7 @@ describe('POST /api/v1/auth/register', () => {
       password: 'MatKhau123',
       displayName: 'Hacker',
       role: 'admin',
+      termsAccepted: true,
     });
 
     expect(response.status).toBe(400);
@@ -66,6 +69,7 @@ describe('POST /api/v1/auth/register', () => {
       password: 'ngan',
       displayName: 'Mật Khẩu Yếu',
       role: 'creator',
+      termsAccepted: true,
     });
 
     expect(response.status).toBe(400);

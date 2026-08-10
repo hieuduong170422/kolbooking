@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { validate } from '../../shared/middlewares/validate.js';
-import { requireAuth, requireRole } from '../auth/auth.middleware.js';
+import { requireAuth, requireRole, requireVerifiedEmail } from '../auth/auth.middleware.js';
 import type { AuditRepository } from '../audit/audit.repository.js';
+import type { UserRepository } from '../users/user.repository.js';
 import { CreatorController } from './creator.controller.js';
 import type { CreatorRepository } from './creator.repository.js';
 import { CreatorService } from './creator.service.js';
@@ -15,6 +16,7 @@ import {
 export interface CreatorRouterDeps {
   readonly creatorRepository: CreatorRepository;
   readonly auditRepository: AuditRepository;
+  readonly userRepository: UserRepository;
 }
 
 /** Composition tại biên module: repository → service → controller → routes. */
@@ -36,7 +38,14 @@ export const createCreatorRouter = (deps: CreatorRouterDeps): Router => {
     validate({ body: creatorProfileBodySchema }),
     controller.updateMe,
   );
-  router.post('/me/submit-review', requireAuth, requireRole('creator'), controller.submitForReview);
+  // AUTH-002: chưa xác minh email thì không được submit hồ sơ đi duyệt.
+  router.post(
+    '/me/submit-review',
+    requireAuth,
+    requireRole('creator'),
+    requireVerifiedEmail(deps.userRepository),
+    controller.submitForReview,
+  );
   router.patch(
     '/me/availability',
     requireAuth,

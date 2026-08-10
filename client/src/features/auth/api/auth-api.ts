@@ -5,6 +5,7 @@ import type {
   AuthUser,
   LoginInput,
   RegisterInput,
+  ResetPasswordInput,
 } from '../types/auth-types';
 
 export const login = async (input: LoginInput): Promise<AuthUser> => {
@@ -35,4 +36,25 @@ export const restoreSession = async (): Promise<AuthUser> => {
   } catch (error) {
     throw toApiClientError(error);
   }
+};
+
+/** AUTH-002: gửi (lại) mã OTP xác minh email cho user đang đăng nhập. */
+export const requestEmailVerification = async (): Promise<void> => {
+  await apiPost('/auth/verify-email/request');
+};
+
+/** AUTH-002: xác nhận OTP — trả về user đã cập nhật emailVerified. */
+export const confirmEmailVerification = async (code: string): Promise<AuthUser> => {
+  const response = await apiPost<{ user: AuthUser }>('/auth/verify-email/confirm', { code });
+  return response.data.user;
+};
+
+/** AUTH-004: yêu cầu mã đặt lại mật khẩu — luôn thành công, không lộ tài khoản. */
+export const forgotPassword = async (email: string): Promise<void> => {
+  await apiPost('/auth/password/forgot', { email });
+};
+
+/** AUTH-004: đặt lại mật khẩu bằng mã OTP nhận qua email. */
+export const resetPassword = async (input: ResetPasswordInput): Promise<void> => {
+  await apiPost('/auth/password/reset', input);
 };

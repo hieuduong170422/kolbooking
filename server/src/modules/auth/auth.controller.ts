@@ -4,15 +4,24 @@ import { sendCreated, sendOk } from '../../shared/http/api-response.js';
 import { getValidatedBody } from '../../shared/middlewares/validate.js';
 import { getAuthUser } from './auth.middleware.js';
 import type { AuthService } from './auth.service.js';
-import type { LoginBody, RegisterBody } from './auth.validation.js';
+import type {
+  ForgotPasswordBody,
+  LoginBody,
+  RegisterBody,
+  ResetPasswordBody,
+  VerifyEmailBody,
+} from './auth.validation.js';
+import type { VerificationService } from './verification.service.js';
 import { clearRefreshCookie, readRefreshCookie, setRefreshCookie } from './refresh-cookie.js';
 
 /** Response body auth: access token trả trong body, refresh token chỉ nằm trong cookie. */
 export class AuthController {
   private readonly service: AuthService;
+  private readonly verification: VerificationService;
 
-  constructor(service: AuthService) {
+  constructor(service: AuthService, verification: VerificationService) {
     this.service = service;
+    this.verification = verification;
   }
 
   register = async (_req: Request, res: Response): Promise<void> => {
@@ -52,5 +61,31 @@ export class AuthController {
     const authUser = getAuthUser(res);
     const user = await this.service.getCurrentUser(authUser.userId);
     sendOk(res, { user });
+  };
+
+  requestEmailVerification = async (_req: Request, res: Response): Promise<void> => {
+    const authUser = getAuthUser(res);
+    await this.verification.requestEmailVerification(authUser.userId);
+    sendOk(res, { sent: true });
+  };
+
+  confirmEmailVerification = async (_req: Request, res: Response): Promise<void> => {
+    const authUser = getAuthUser(res);
+    const body = getValidatedBody<VerifyEmailBody>(res);
+    const user = await this.verification.confirmEmailVerification(authUser.userId, body.code);
+    sendOk(res, { user });
+  };
+
+  forgotPassword = async (_req: Request, res: Response): Promise<void> => {
+    const body = getValidatedBody<ForgotPasswordBody>(res);
+    await this.verification.requestPasswordReset(body.email);
+    // Luôn trả 200 — không tiết lộ email có tài khoản hay không.
+    sendOk(res, { sent: true });
+  };
+
+  resetPassword = async (_req: Request, res: Response): Promise<void> => {
+    const body = getValidatedBody<ResetPasswordBody>(res);
+    await this.verification.resetPassword(body.email, body.code, body.newPassword);
+    sendOk(res, { reset: true });
   };
 }

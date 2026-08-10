@@ -1,5 +1,6 @@
 import { env } from '../../config/env.js';
 import { ApiError } from '../../shared/errors/api-error.js';
+import { logger } from '../../shared/logger/logger.js';
 import { toUserDto } from '../users/user.mapper.js';
 import type { UserRepository } from '../users/user.repository.js';
 import type { User, UserDto } from '../users/user.types.js';
@@ -10,6 +11,7 @@ import {
   hashRefreshToken,
   signAccessToken,
 } from './token.service.js';
+import type { VerificationService } from './verification.service.js';
 import type { LoginBody, RegisterBody } from './auth.validation.js';
 
 export interface AuthResult {
@@ -28,10 +30,16 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 export class AuthService {
   private readonly users: UserRepository;
   private readonly sessions: SessionRepository;
+  private readonly verification: VerificationService;
 
-  constructor(users: UserRepository, sessions: SessionRepository) {
+  constructor(
+    users: UserRepository,
+    sessions: SessionRepository,
+    verification: VerificationService,
+  ) {
     this.users = users;
     this.sessions = sessions;
+    this.verification = verification;
   }
 
   async register(input: RegisterBody): Promise<AuthResult> {
@@ -46,7 +54,21 @@ export class AuthService {
       passwordHash,
       displayName: input.displayName,
       role: input.role,
+      // AUTH-007: ghi version + timestamp + nguồn consent tại thời điểm chấp nhận.
+      consent: {
+        version: env.TERMS_VERSION,
+        acceptedAt: new Date().toISOString(),
+        source: 'web_register',
+      },
     });
+
+    // AUTH-002: gửi OTP xác minh ngay khi đăng ký. Lỗi gửi mail không làm hỏng
+    // đăng ký — user vẫn có thể bấm "gửi lại mã" sau.
+    try {
+      await this.verification.requestEmailVerification(user.id);
+    } catch (error) {
+      logger.warn({ err: error, userId: user.id }, 'Gửi OTP xác minh sau đăng ký thất bại');
+    }
 
     return this.issueTokens(user);
   }

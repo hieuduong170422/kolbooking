@@ -16,6 +16,7 @@ export const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<SelfRegisterRole>('brand');
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<unknown>(null);
 
@@ -24,7 +25,7 @@ export const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
     setPending(true);
     setError(null);
     try {
-      await onSubmit({ displayName, email, password, role });
+      await onSubmit({ displayName, email, password, role, termsAccepted });
     } catch (submitError) {
       setError(submitError);
     } finally {
@@ -86,7 +87,22 @@ export const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
         />
         <small>Tối thiểu 8 ký tự, gồm chữ và số.</small>
       </label>
-      <button type="submit" className="button button--primary" disabled={pending}>
+      <label className="checkbox-field">
+        <input
+          type="checkbox"
+          checked={termsAccepted}
+          onChange={(event) => setTermsAccepted(event.target.checked)}
+        />
+        <span>
+          Tôi đồng ý với <a href="/terms">Điều khoản sử dụng</a> và{' '}
+          <a href="/privacy">Chính sách quyền riêng tư</a>.
+        </span>
+      </label>
+      <button
+        type="submit"
+        className="button button--primary"
+        disabled={pending || !termsAccepted}
+      >
         {pending ? 'Đang tạo tài khoản...' : 'Đăng ký'}
       </button>
     </form>

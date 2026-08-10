@@ -2,10 +2,12 @@ import { createApp } from './app.js';
 import { UPLOADS_DIR, env } from './config/env.js';
 import { InMemoryAuditRepository } from './modules/audit/audit.repository.memory.js';
 import { InMemorySessionRepository } from './modules/auth/session.repository.memory.js';
+import { InMemoryVerificationTokenRepository } from './modules/auth/verification.repository.memory.js';
 import { InMemoryCreatorRepository } from './modules/creators/creator.repository.memory.js';
 import { CREATOR_SEED } from './modules/creators/creator.seed.js';
 import { InMemoryUserRepository } from './modules/users/user.repository.memory.js';
 import { buildUserSeed } from './modules/users/user.seed.js';
+import { ConsoleMailer } from './shared/email/mailer.js';
 import { logger } from './shared/logger/logger.js';
 import { LocalDiskFileStorage } from './shared/storage/file-storage.local.js';
 
@@ -15,8 +17,11 @@ const app = createApp({
   creatorRepository: new InMemoryCreatorRepository(CREATOR_SEED),
   userRepository: new InMemoryUserRepository(userSeed),
   sessionRepository: new InMemorySessionRepository(),
+  verificationTokenRepository: new InMemoryVerificationTokenRepository(),
   auditRepository: new InMemoryAuditRepository(),
   fileStorage: new LocalDiskFileStorage(UPLOADS_DIR),
+  // Dev: OTP in ra console. Thay adapter thật trước khi mở pilot (NTF-002).
+  mailer: new ConsoleMailer(),
 });
 
 const server = app.listen(env.PORT, () => {

@@ -24,6 +24,14 @@ export interface RegisterInput {
   readonly password: string;
   readonly displayName: string;
   readonly role: SelfRegisterRole;
+  /** AUTH-007: bắt buộc tick đồng ý điều khoản — server từ chối nếu thiếu. */
+  readonly termsAccepted: boolean;
+}
+
+export interface ResetPasswordInput {
+  readonly email: string;
+  readonly code: string;
+  readonly newPassword: string;
 }
 
 export interface AuthResponseData {
