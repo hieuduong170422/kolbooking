@@ -105,3 +105,40 @@ describe('POST /api/v1/packages/:id/unhide (PKG-010)', () => {
     expect(again.status).toBe(409);
   });
 });
+
+describe('GET /api/v1/packages/admin (PKG-010 — moderation queue)', () => {
+  it('admin thấy mọi package của mọi creator kèm tên creator', async () => {
+    const adminToken = await loginAs('admin@demo.vn');
+    const response = await request(app)
+      .get('/api/v1/packages/admin')
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.length).toBeGreaterThanOrEqual(5);
+    expect(response.body.data[0].creatorName).toBeTruthy();
+    expect(response.body.data[0].status).toBeDefined();
+  });
+
+  it('lọc theo trạng thái — package bị ẩn nằm riêng một nhóm', async () => {
+    const adminToken = await loginAs('admin@demo.vn');
+    await request(app)
+      .post('/api/v1/packages/pkg_0001/hide')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ reason: 'Nội dung sai lệch giá niêm yết.' });
+
+    const hidden = await request(app)
+      .get('/api/v1/packages/admin?status=hidden')
+      .set('Authorization', `Bearer ${adminToken}`);
+    expect(hidden.body.data).toHaveLength(1);
+    expect(hidden.body.data[0].id).toBe('pkg_0001');
+    expect(hidden.body.data[0].statusReason).toContain('sai lệch');
+  });
+
+  it('creator không xem được queue moderation → 403', async () => {
+    const creatorToken = await loginAs('creator@demo.vn');
+    const response = await request(app)
+      .get('/api/v1/packages/admin')
+      .set('Authorization', `Bearer ${creatorToken}`);
+    expect(response.status).toBe(403);
+  });
+});

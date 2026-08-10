@@ -1,13 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createPackage,
+  fetchPackagesForAdmin,
+  hidePackage,
+  unhidePackage,
   deleteDraftPackage,
   fetchMyPackages,
   publishPackage,
   unpublishPackage,
   updatePackage,
 } from '../api/packages-api';
-import type { PackageInput } from '../types/package-types';
+import type { PackageInput, PackageStatus } from '../types/package-types';
 
 export const myPackagesQueryKey = ['packages', 'me'] as const;
 
@@ -41,4 +44,32 @@ export const usePackageActions = () => {
   const removeDraft = useMutation({ mutationFn: deleteDraftPackage, onSuccess: invalidate });
 
   return { create, update, publish, unpublish, removeDraft };
+};
+
+/** Moderation queue của admin (PKG-010) — tách khỏi hook owner. */
+export const useAdminPackages = (filter: {
+  status?: PackageStatus;
+  page: number;
+  limit: number;
+}) =>
+  useQuery({
+    queryKey: ['admin', 'packages', filter] as const,
+    queryFn: () => fetchPackagesForAdmin(filter),
+  });
+
+export const usePackageModeration = () => {
+  const queryClient = useQueryClient();
+  const invalidate = (): void => {
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'packages'] });
+    void queryClient.invalidateQueries({ queryKey: ['admin', 'audit'] });
+    void queryClient.invalidateQueries({ queryKey: ['packages'] });
+  };
+
+  const hide = useMutation({
+    mutationFn: ({ id, reason }: { id: string; reason: string }) => hidePackage(id, reason),
+    onSuccess: invalidate,
+  });
+  const unhide = useMutation({ mutationFn: unhidePackage, onSuccess: invalidate });
+
+  return { hide, unhide };
 };

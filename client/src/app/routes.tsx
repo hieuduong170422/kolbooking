@@ -6,6 +6,8 @@ import { AdminLayout } from '../shared/components/layout/admin-layout';
 import { AdminAuditPage } from '../pages/admin-audit-page';
 import { AdminBrandsPage } from '../pages/admin-brands-page';
 import { AdminCreatorsPage } from '../pages/admin-creators-page';
+import { AdminPackagesPage } from '../pages/admin-packages-page';
+import { AdminReportsPage } from '../pages/admin-reports-page';
 import { AdminUsersPage } from '../pages/admin-users-page';
 import { BrandOnboardingPage } from '../pages/brand-onboarding-page';
 import { CreatorDetailPage } from '../pages/creator-detail-page';
@@ -81,6 +83,8 @@ export const AppRoutes = () => (
           <Route path="users" element={<AdminUsersPage />} />
           <Route path="creators" element={<AdminCreatorsPage />} />
           <Route path="brands" element={<AdminBrandsPage />} />
+          <Route path="packages" element={<AdminPackagesPage />} />
+          <Route path="reports" element={<AdminReportsPage />} />
           <Route path="audit" element={<AdminAuditPage />} />
         </Route>
       </Route>

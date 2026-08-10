@@ -1,10 +1,12 @@
 import { NavLink, Outlet } from 'react-router';
-import { IconInbox, IconPackage, IconShield, IconUser } from '../icons';
+import { IconBriefcase, IconInbox, IconPackage, IconShield, IconStar, IconUser } from '../icons';
 
 const NAV_ITEMS = [
   { to: '/admin/users', label: 'Tài khoản', Icon: IconUser },
-  { to: '/admin/creators', label: 'Duyệt creator', Icon: IconShield },
-  { to: '/admin/brands', label: 'Duyệt brand', Icon: IconPackage },
+  { to: '/admin/creators', label: 'Duyệt creator', Icon: IconStar },
+  { to: '/admin/brands', label: 'Duyệt brand', Icon: IconBriefcase },
+  { to: '/admin/packages', label: 'Package', Icon: IconPackage },
+  { to: '/admin/reports', label: 'Báo cáo', Icon: IconShield },
   { to: '/admin/audit', label: 'Nhật ký', Icon: IconInbox },
 ] as const;
 

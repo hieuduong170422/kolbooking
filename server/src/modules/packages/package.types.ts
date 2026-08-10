@@ -140,6 +140,18 @@ export interface PackageListFilter {
   readonly limit: number;
 }
 
+/** Bộ lọc cho màn moderation của admin — mọi creator, mọi trạng thái (PKG-010). */
+export interface PackageAdminFilter {
+  readonly status?: PackageStatus | undefined;
+  readonly page: number;
+  readonly limit: number;
+}
+
+/** DTO admin — kèm tên creator để đội duyệt biết package của ai. */
+export interface PackageAdminDto extends PackageOwnerDto {
+  readonly creatorName: string;
+}
+
 export interface PackageListResult {
   readonly items: readonly ServicePackage[];
   readonly total: number;

@@ -1,6 +1,12 @@
 import { apiDelete, apiGet, apiPost, apiPut } from '../../../shared/api/http-client';
 import type { ApiSuccessBody } from '../../../shared/api/api-types';
-import type { PackageInput, PackageOwner, PackagePublic } from '../types/package-types';
+import type {
+  PackageAdmin,
+  PackageInput,
+  PackageOwner,
+  PackagePublic,
+  PackageStatus,
+} from '../types/package-types';
 
 /** Danh sách package published của một creator (public, PKG-001). */
 export const fetchPackagesByCreator = (
@@ -40,4 +46,26 @@ export const unpublishPackage = async (id: string): Promise<PackageOwner> => {
 /** Chỉ xóa được draft (BR-015). */
 export const deleteDraftPackage = async (id: string): Promise<void> => {
   await apiDelete(`/packages/${id}`);
+};
+
+/** Moderation queue của admin — mọi package, mọi trạng thái (PKG-010). */
+export const fetchPackagesForAdmin = (filter: {
+  status?: PackageStatus;
+  page: number;
+  limit: number;
+}): Promise<ApiSuccessBody<readonly PackageAdmin[]>> =>
+  apiGet<readonly PackageAdmin[]>('/packages/admin', {
+    status: filter.status,
+    page: filter.page,
+    limit: filter.limit,
+  });
+
+export const hidePackage = async (id: string, reason: string): Promise<PackageAdmin> => {
+  const response = await apiPost<{ package: PackageAdmin }>(`/packages/${id}/hide`, { reason });
+  return response.data.package;
+};
+
+export const unhidePackage = async (id: string): Promise<PackageAdmin> => {
+  const response = await apiPost<{ package: PackageAdmin }>(`/packages/${id}/unhide`);
+  return response.data.package;
 };

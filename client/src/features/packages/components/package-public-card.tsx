@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { formatVnd } from '../../../shared/utils/format';
 import {
   DELIVERABLE_TYPE_LABELS,
@@ -18,7 +19,14 @@ const usageSummary = (pkg: PackagePublic): string => {
 };
 
 /** Card package trên trang public creator detail (PKG-001, SRCH-005). */
-export const PackagePublicCard = ({ pkg }: { pkg: PackagePublic }) => (
+export const PackagePublicCard = ({
+  pkg,
+  action,
+}: {
+  pkg: PackagePublic;
+  /** Slot cuối cột phải — vd nút báo cáo package. */
+  action?: ReactNode;
+}) => (
   <article className="pkg-card">
     <div className="pkg-card__main">
       <h3 className="pkg-card__name">{pkg.name}</h3>
@@ -45,6 +53,7 @@ export const PackagePublicCard = ({ pkg }: { pkg: PackagePublic }) => (
       <button type="button" className="button button--primary" disabled>
         Booking (sắp ra mắt)
       </button>
+      {action}
     </div>
   </article>
 );

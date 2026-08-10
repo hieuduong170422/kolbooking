@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { SOCIAL_PLATFORMS } from '../creators/creator.types.js';
-import { ADD_ON_TYPES, DELIVERABLE_TYPES } from './package.types.js';
+import { ADD_ON_TYPES, DELIVERABLE_TYPES, PACKAGE_STATUSES } from './package.types.js';
 
 const MAX_PAGE_LIMIT = 50;
 const DEFAULT_PAGE_LIMIT = 12;
@@ -73,6 +73,14 @@ export const packageListQuerySchema = z.object({
 });
 
 export type PackageListQuery = z.infer<typeof packageListQuerySchema>;
+
+export const packageAdminQuerySchema = z.object({
+  status: z.enum(PACKAGE_STATUSES).optional(),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().max(MAX_PAGE_LIMIT).default(DEFAULT_PAGE_LIMIT),
+});
+
+export type PackageAdminQuery = z.infer<typeof packageAdminQuerySchema>;
 
 export const packageHideBodySchema = z.object({
   reason: z.string().trim().min(5, 'Lý do ẩn tối thiểu 5 ký tự.').max(500),

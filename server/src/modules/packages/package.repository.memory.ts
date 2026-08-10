@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { PackageRepository } from './package.repository.js';
 import type {
+  PackageAdminFilter,
   PackageListFilter,
   PackageListResult,
   ServicePackage,
@@ -32,6 +33,17 @@ export class InMemoryPackageRepository implements PackageRepository {
       .filter((pkg) => pkg.creatorId === creatorId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
     return Promise.resolve(matched);
+  }
+
+  findAllForAdmin(filter: PackageAdminFilter): Promise<PackageListResult> {
+    const matched = [...this.packagesById.values()]
+      .filter((pkg) => (filter.status ? pkg.status === filter.status : true))
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    const start = (filter.page - 1) * filter.limit;
+    return Promise.resolve({
+      items: matched.slice(start, start + filter.limit),
+      total: matched.length,
+    });
   }
 
   findById(id: string): Promise<ServicePackage | null> {

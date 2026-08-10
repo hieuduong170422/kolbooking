@@ -12,6 +12,7 @@ import { PackageController } from './package.controller.js';
 import type { PackageRepository } from './package.repository.js';
 import { PackageService } from './package.service.js';
 import {
+  packageAdminQuerySchema,
   packageBodySchema,
   packageHideBodySchema,
   packageIdParamsSchema,
@@ -34,6 +35,15 @@ export const createPackageRouter = (deps: PackageRouterDeps): Router => {
 
   // Public — danh sách/chi tiết package published (PKG-001, SRCH-005).
   router.get('/', validate({ query: packageListQuerySchema }), controller.listPublic);
+
+  // Moderation admin — /admin PHẢI đứng trước /:id (route ordering).
+  router.get(
+    '/admin',
+    requireAuth,
+    requireRole('admin'),
+    validate({ query: packageAdminQuerySchema }),
+    controller.listForAdmin,
+  );
 
   // Owner (creator) — /me PHẢI đứng trước /:id (route ordering).
   router.get('/me', requireAuth, requireRole('creator'), controller.listMine);

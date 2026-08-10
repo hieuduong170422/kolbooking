@@ -8,6 +8,7 @@ import {
 } from '../features/creators/types/creator-types';
 import { PackagePublicCard } from '../features/packages/components/package-public-card';
 import { usePackagesByCreator } from '../features/packages/hooks/use-public-packages';
+import { ReportButton } from '../features/reports/components/report-button';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { formatCompactNumber, formatVnd } from '../shared/utils/format';
@@ -64,7 +65,11 @@ const CreatorPackages = ({ creatorId }: { creatorId: string }) => {
   return (
     <div className="pkg-card-list">
       {data.data.map((pkg) => (
-        <PackagePublicCard key={pkg.id} pkg={pkg} />
+        <PackagePublicCard
+          key={pkg.id}
+          pkg={pkg}
+          action={<ReportButton targetType="package" targetId={pkg.id} targetName={pkg.name} />}
+        />
       ))}
     </div>
   );
@@ -165,6 +170,13 @@ export const CreatorDetailPage = () => {
             <p className="booking-panel__note">
               Thanh toán được bảo đảm — tiền chỉ giải ngân sau khi bạn nghiệm thu nội dung.
             </p>
+            <div className="booking-panel__report">
+              <ReportButton
+                targetType="creator"
+                targetId={creator.id}
+                targetName={creator.displayName}
+              />
+            </div>
           </div>
 
           <div className="booking-panel">

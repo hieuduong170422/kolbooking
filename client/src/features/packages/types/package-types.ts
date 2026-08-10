@@ -61,6 +61,11 @@ export interface PackageOwner {
   readonly updatedAt: string;
 }
 
+/** DTO admin — như owner nhưng kèm tên creator (PKG-010). */
+export interface PackageAdmin extends PackageOwner {
+  readonly creatorName: string;
+}
+
 /** DTO public — không status/version. */
 export interface PackagePublic {
   readonly id: string;

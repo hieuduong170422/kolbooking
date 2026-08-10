@@ -8,6 +8,7 @@ import {
 import { getAuthUser } from '../auth/auth.middleware.js';
 import type { PackageService } from './package.service.js';
 import type {
+  PackageAdminQuery,
   PackageBody,
   PackageHideBody,
   PackageIdParams,
@@ -31,6 +32,12 @@ export class PackageController {
     const params = getValidatedParams<PackageIdParams>(res);
     const pkg = await this.service.getPublicById(params.id);
     sendOk(res, { package: pkg });
+  };
+
+  listForAdmin = async (_req: Request, res: Response): Promise<void> => {
+    const query = getValidatedQuery<PackageAdminQuery>(res);
+    const result = await this.service.listForAdmin(query);
+    sendOk(res, result.items, buildPaginationMeta(result.page, result.limit, result.total));
   };
 
   listMine = async (_req: Request, res: Response): Promise<void> => {

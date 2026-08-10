@@ -3234,3 +3234,41 @@ a {
     gap: 44px;
   }
 }
+
+/* ===== Moderation: nút báo cáo, mô tả ticket ===== */
+.report-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.report-link:hover {
+  color: var(--color-danger);
+}
+
+.booking-panel__report {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.pkg-card__side .report-link {
+  margin-top: 6px;
+}
+
+.report-row__description {
+  font-size: 0.9rem;
+  margin-top: 4px;
+  color: var(--color-text);
+}
+
+.pill--muted {
+  color: var(--color-text-muted);
+  background: var(--color-border);
+}

@@ -6,11 +6,20 @@ import type { Creator } from '../creators/creator.types.js';
 import { toPackageOwnerDto, toPackagePublicDto } from './package.mapper.js';
 import type { PackageRepository } from './package.repository.js';
 import type {
+  PackageAdminDto,
+  PackageAdminFilter,
   PackageInput,
   PackageOwnerDto,
   PackagePublicDto,
   ServicePackage,
 } from './package.types.js';
+
+export interface PackageAdminPage {
+  readonly items: readonly PackageAdminDto[];
+  readonly total: number;
+  readonly page: number;
+  readonly limit: number;
+}
 
 export interface PackageListPage {
   readonly items: readonly PackagePublicDto[];
@@ -69,6 +78,30 @@ export class PackageService {
       throw ApiError.notFound('Không tìm thấy package này.');
     }
     return toPackagePublicDto(pkg);
+  }
+
+  /** Moderation queue: mọi package, mọi trạng thái, kèm tên creator (PKG-010). */
+  async listForAdmin(filter: PackageAdminFilter): Promise<PackageAdminPage> {
+    const { items, total } = await this.packages.findAllForAdmin(filter);
+
+    // Gom creatorId trùng để không truy vấn lặp cho cùng một creator.
+    const nameByCreatorId = new Map<string, string>();
+    for (const pkg of items) {
+      if (!nameByCreatorId.has(pkg.creatorId)) {
+        const creator = await this.creators.findForReviewById(pkg.creatorId);
+        nameByCreatorId.set(pkg.creatorId, creator?.displayName ?? 'Không rõ');
+      }
+    }
+
+    return {
+      items: items.map((pkg) => ({
+        ...toPackageOwnerDto(pkg),
+        creatorName: nameByCreatorId.get(pkg.creatorId) ?? 'Không rõ',
+      })),
+      total,
+      page: filter.page,
+      limit: filter.limit,
+    };
   }
 
   async listForOwner(userId: string): Promise<readonly PackageOwnerDto[]> {
