@@ -6,6 +6,7 @@ import {
 } from '../features/auth/api/auth-api';
 import { AuthError } from '../features/auth/components/auth-error';
 import { useAuth } from '../features/auth/store/use-auth';
+import { Button, Input } from '../shared/components/ui';
 
 const OTP_LENGTH = 6;
 
@@ -66,40 +67,33 @@ export const VerifyEmailPage = () => {
         <form className="auth-form" onSubmit={(event) => void handleConfirm(event)}>
           <AuthError error={error} />
           {resent ? <p className="form-success">Đã gửi lại mã — kiểm tra hộp thư của bạn.</p> : null}
-          <label className="form-field">
-            <span>Mã xác minh</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              className="input input--otp"
-              value={code}
-              onChange={(event) => setCode(event.target.value.replace(/\D/g, ''))}
-              minLength={OTP_LENGTH}
-              maxLength={OTP_LENGTH}
-              pattern="\d{6}"
-              placeholder="000000"
-              required
-            />
-          </label>
-          <button
+          <Input
+            label="Mã xác minh"
+            className="input--otp"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            value={code}
+            onChange={(event) => setCode(event.target.value.replace(/\D/g, ''))}
+            minLength={OTP_LENGTH}
+            maxLength={OTP_LENGTH}
+            pattern="\d{6}"
+            placeholder="000000"
+            required
+          />
+          <Button
             type="submit"
-            className="button button--primary"
-            disabled={pending || code.length !== OTP_LENGTH}
+            variant="primary"
+            loading={pending}
+            disabled={code.length !== OTP_LENGTH}
           >
             {pending ? 'Đang xác minh...' : 'Xác minh'}
-          </button>
+          </Button>
         </form>
         <p className="auth-card__switch">
           Chưa nhận được mã?{' '}
-          <button
-            type="button"
-            className="button-link"
-            onClick={() => void handleResend()}
-            disabled={pending}
-          >
+          <Button variant="link" onClick={() => void handleResend()} disabled={pending}>
             Gửi lại mã
-          </button>
+          </Button>
         </p>
       </div>
     </section>

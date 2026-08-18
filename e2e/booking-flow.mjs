@@ -92,13 +92,13 @@ check(
 
 // Link sai định dạng bị chặn ngay tại chỗ nhập, không phải đợi server.
 await brand.getByLabel('Thêm link tham khảo').fill('khong-phai-link');
-await brand.getByRole('button', { name: '+ Thêm link' }).click();
+await brand.getByRole('button', { name: 'Thêm link' }).click();
 check(
   'link sai định dạng bị chặn tại chỗ',
   (await brand.locator('[role="alert"]').innerText()).includes('http'),
 );
 await brand.getByLabel('Thêm link tham khảo').fill('https://tiktok.com/@lanchi/video/1');
-await brand.getByRole('button', { name: '+ Thêm link' }).click();
+await brand.getByRole('button', { name: 'Thêm link' }).click();
 
 await brand.getByLabel('Deadline mong muốn').fill('2026-09-01');
 await brand.getByRole('button', { name: 'Tạo yêu cầu booking' }).click();

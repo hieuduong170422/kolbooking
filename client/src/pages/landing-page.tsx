@@ -1,5 +1,5 @@
-import { Link } from 'react-router';
 import { CreatorCard } from '../features/creators/components/creator-card';
+import { LinkButton } from '../shared/components/ui';
 import { useCreators } from '../features/creators/hooks/use-creators';
 import { IconPackage, IconShield, IconStar } from '../shared/components/icons';
 
@@ -55,12 +55,12 @@ export const LandingPage = () => {
             vụ chuẩn hóa, thanh toán được giữ lại tới khi bạn nghiệm thu nội dung.
           </p>
           <div className="hero__actions">
-            <Link to="/creators" className="button button--primary">
+            <LinkButton to="/creators">
               Tìm creator
-            </Link>
-            <Link to="/register" className="button button--secondary">
+            </LinkButton>
+            <LinkButton to="/register" variant="secondary">
               Đăng ký làm creator
-            </Link>
+            </LinkButton>
           </div>
           <p className="hero__note">Miễn phí tạo tài khoản · Chỉ tính phí khi booking thành công</p>
         </div>
@@ -107,9 +107,9 @@ export const LandingPage = () => {
               <h2>Creator nổi bật</h2>
               <p>Đánh giá cao nhất từ các booking đã hoàn thành.</p>
             </div>
-            <Link to="/creators" className="button button--secondary">
+            <LinkButton to="/creators" variant="secondary">
               Xem tất cả
-            </Link>
+            </LinkButton>
           </header>
           <div className="creator-grid">
             {featured.map((creator) => (
@@ -122,9 +122,9 @@ export const LandingPage = () => {
       <section className="cta-band">
         <h2>Sẵn sàng cho chiến dịch tiếp theo?</h2>
         <p>Tạo tài khoản trong một phút và gửi yêu cầu booking đầu tiên.</p>
-        <Link to="/register" className="button button--primary">
+        <LinkButton to="/register">
           Bắt đầu miễn phí
-        </Link>
+        </LinkButton>
       </section>
     </div>
   );

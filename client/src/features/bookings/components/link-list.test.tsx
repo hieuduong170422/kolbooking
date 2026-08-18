@@ -10,7 +10,7 @@ const Harness = ({ initial = [] as readonly string[] }) => {
 
 const addLink = (value: string): void => {
   fireEvent.change(screen.getByLabelText('Thêm link tham khảo'), { target: { value } });
-  fireEvent.click(screen.getByRole('button', { name: '+ Thêm link' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Thêm link' }));
 };
 
 describe('LinkList', () => {

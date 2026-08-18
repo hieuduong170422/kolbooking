@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Button, Input, RadioGroup } from '../../../shared/components/ui';
 import { AuthError } from '../../auth/components/auth-error';
 import {
   BRAND_ENTITY_TYPES,
@@ -60,128 +61,94 @@ export const BrandProfileForm = ({ initial, onSubmit }: BrandProfileFormProps) =
       <AuthError error={error} />
 
       <div className="form-grid">
-        <label className="form-field">
-          <span>Tên brand</span>
-          <input
-            type="text"
-            className="input"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            minLength={2}
-            maxLength={100}
-            required
-          />
-        </label>
-        <label className="form-field">
-          <span>Ngành hàng</span>
-          <input
-            type="text"
-            className="input"
-            value={industry}
-            onChange={(event) => setIndustry(event.target.value)}
-            placeholder="f&b, fashion, beauty..."
-            minLength={2}
-            maxLength={50}
-            required
-          />
-        </label>
-      </div>
-
-      <fieldset className="radio-group">
-        <legend>Loại chủ thể (dùng cho xác minh và chứng từ)</legend>
-        {BRAND_ENTITY_TYPES.map((option) => (
-          <label key={option} className="radio-option">
-            <input
-              type="radio"
-              name="entityType"
-              value={option}
-              checked={entityType === option}
-              onChange={() => setEntityType(option)}
-            />
-            <span>{BRAND_ENTITY_TYPE_LABELS[option]}</span>
-          </label>
-        ))}
-      </fieldset>
-
-      <label className="form-field">
-        <span>Địa chỉ kinh doanh</span>
-        <input
-          type="text"
-          className="input"
-          value={businessAddress}
-          onChange={(event) => setBusinessAddress(event.target.value)}
-          minLength={5}
-          maxLength={200}
+        <Input
+          label="Tên brand"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          minLength={2}
+          maxLength={100}
           required
         />
-      </label>
+        <Input
+          label="Ngành hàng"
+          value={industry}
+          onChange={(event) => setIndustry(event.target.value)}
+          placeholder="f&b, fashion, beauty..."
+          minLength={2}
+          maxLength={50}
+          required
+        />
+      </div>
+
+      <RadioGroup
+        legend="Loại chủ thể (dùng cho xác minh và chứng từ)"
+        name="entityType"
+        value={entityType}
+        options={BRAND_ENTITY_TYPES.map((option) => ({
+          value: option,
+          label: BRAND_ENTITY_TYPE_LABELS[option],
+        }))}
+        onChange={setEntityType}
+      />
+
+      <Input
+        label="Địa chỉ kinh doanh"
+        value={businessAddress}
+        onChange={(event) => setBusinessAddress(event.target.value)}
+        minLength={5}
+        maxLength={200}
+        required
+      />
 
       <div className="form-grid">
-        <label className="form-field">
-          <span>Website (không bắt buộc)</span>
-          <input
-            type="url"
-            className="input"
-            value={website}
-            onChange={(event) => setWebsite(event.target.value)}
-            placeholder="https://..."
-          />
-        </label>
-        <label className="form-field">
-          <span>Link mạng xã hội (phân cách dấu phẩy)</span>
-          <input
-            type="text"
-            className="input"
-            value={socialLinks}
-            onChange={(event) => setSocialLinks(event.target.value)}
-            placeholder="https://facebook.com/..."
-          />
-        </label>
+        <Input
+          label="Website (không bắt buộc)"
+          type="url"
+          value={website}
+          onChange={(event) => setWebsite(event.target.value)}
+          placeholder="https://..."
+        />
+        <Input
+          label="Link mạng xã hội (phân cách dấu phẩy)"
+          value={socialLinks}
+          onChange={(event) => setSocialLinks(event.target.value)}
+          placeholder="https://facebook.com/..."
+        />
       </div>
 
       <fieldset className="form-section">
         <legend>Người liên hệ booking — không hiển thị công khai (BRD-005)</legend>
         <div className="form-grid form-grid--3">
-          <label className="form-field">
-            <span>Họ tên</span>
-            <input
-              type="text"
-              className="input"
-              value={contactName}
-              onChange={(event) => setContactName(event.target.value)}
-              minLength={2}
-              maxLength={50}
-              required
-            />
-          </label>
-          <label className="form-field">
-            <span>Email liên hệ</span>
-            <input
-              type="email"
-              className="input"
-              value={contactEmail}
-              onChange={(event) => setContactEmail(event.target.value)}
-              required
-            />
-          </label>
-          <label className="form-field">
-            <span>Số điện thoại</span>
-            <input
-              type="tel"
-              className="input"
-              value={contactPhone}
-              onChange={(event) => setContactPhone(event.target.value)}
-              pattern="(0|\+84)[0-9]{8,10}"
-              placeholder="0912345678"
-              required
-            />
-          </label>
+          <Input
+            label="Họ tên"
+            value={contactName}
+            onChange={(event) => setContactName(event.target.value)}
+            minLength={2}
+            maxLength={50}
+            required
+          />
+          <Input
+            label="Email liên hệ"
+            type="email"
+            value={contactEmail}
+            onChange={(event) => setContactEmail(event.target.value)}
+            required
+          />
+          <Input
+            label="Số điện thoại"
+            type="tel"
+            value={contactPhone}
+            onChange={(event) => setContactPhone(event.target.value)}
+            pattern="(0|\+84)[0-9]{8,10}"
+            placeholder="0912345678"
+            required
+          />
         </div>
       </fieldset>
 
-      <button type="submit" className="button button--primary" disabled={pending}>
+      <Button type="submit" variant="primary" loading={pending}>
         {pending ? 'Đang lưu...' : initial ? 'Lưu hồ sơ' : 'Tạo hồ sơ brand'}
-      </button>
+      </Button>
     </form>
   );
 };

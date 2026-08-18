@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { ApiClientError } from '../../../shared/api/api-types';
+import { Button, Input, Modal, Textarea } from '../../../shared/components/ui';
 import type { Booking } from '../../bookings/types/booking-types';
 import type { AuthRole } from '../../auth/types/auth-types';
 import { useFulfillment, useFulfillmentActions } from '../hooks/use-submissions';
@@ -156,79 +157,64 @@ export const FulfillmentPanel = ({ booking, role }: FulfillmentPanelProps) => {
           <h3>{submissions.length === 0 ? 'Nộp bài' : 'Nộp lại sau khi sửa'}</h3>
           {deliverables.map((deliverable, index) => (
             <div key={index} className="field-grid">
-              <label className="form-field field--half">
-                <span>
-                  {deliverable.quantity}× {deliverable.description}
-                </span>
-                <input
-                  type="url"
-                  className="input"
-                  value={links[index] ?? ''}
-                  onChange={(event) => setLinks(patchAt(links, index, event.target.value))}
-                  placeholder="Link file hoặc bài đăng"
-                  required
-                />
-              </label>
-              <label className="form-field field--half">
-                <span>Ghi chú cho mục này</span>
-                <input
-                  type="text"
-                  className="input"
-                  value={descriptions[index] ?? ''}
-                  onChange={(event) =>
-                    setDescriptions(patchAt(descriptions, index, event.target.value))
-                  }
-                  minLength={3}
-                  placeholder="VD: Video 45 giây quay dọc"
-                  required
-                />
-              </label>
+              <Input
+                label={`${deliverable.quantity}× ${deliverable.description}`}
+                span="half"
+                type="url"
+                value={links[index] ?? ''}
+                onChange={(event) => setLinks(patchAt(links, index, event.target.value))}
+                placeholder="Link file hoặc bài đăng"
+                required
+              />
+              <Input
+                label="Ghi chú cho mục này"
+                span="half"
+                value={descriptions[index] ?? ''}
+                onChange={(event) =>
+                  setDescriptions(patchAt(descriptions, index, event.target.value))
+                }
+                minLength={3}
+                placeholder="VD: Video 45 giây quay dọc"
+                required
+              />
             </div>
           ))}
 
           {needsPosting ? (
-            <label className="form-field">
-              <span>Link bài đăng công khai (bắt buộc với gói đăng kênh creator)</span>
-              <input
-                type="url"
-                className="input"
-                value={proofUrl}
-                onChange={(event) => setProofUrl(event.target.value)}
-                placeholder="https://www.tiktok.com/@ban/video/..."
-                required
-              />
-            </label>
+            <Input
+              label="Link bài đăng công khai (bắt buộc với gói đăng kênh creator)"
+              type="url"
+              value={proofUrl}
+              onChange={(event) => setProofUrl(event.target.value)}
+              placeholder="https://www.tiktok.com/@ban/video/..."
+              required
+            />
           ) : null}
 
-          <label className="form-field">
-            <span>Ghi chú chung (tùy chọn)</span>
-            <textarea
-              className="textarea"
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
-              rows={2}
-            />
-          </label>
+          <Textarea
+            label="Ghi chú chung (tùy chọn)"
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            rows={2}
+          />
 
-          <button type="submit" className="button button--primary" disabled={submit.isPending}>
+          <Button type="submit" variant="primary" loading={submit.isPending}>
             {submit.isPending ? 'Đang nộp...' : 'Nộp bài'}
-          </button>
+          </Button>
         </form>
       ) : null}
 
       {role === 'brand' && booking.status === 'delivered' ? (
         <div className="fulfillment__review">
           {canRevise ? (
-            <button
-              type="button"
-              className="button button--secondary"
+            <Button
               onClick={() => {
                 setReviseOpen(true);
                 setReason('');
               }}
             >
               Yêu cầu sửa ({revisionsLeft} lượt còn lại)
-            </button>
+            </Button>
           ) : (
             <p className="onb-hint">
               Đã dùng hết lượt sửa trong gói. Muốn sửa tiếp cần thỏa thuận thêm với creator.
@@ -238,43 +224,36 @@ export const FulfillmentPanel = ({ booking, role }: FulfillmentPanelProps) => {
       ) : null}
 
       {reviseOpen ? (
-        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="revise-title">
-          <div className="modal__card">
-            <h2 id="revise-title">Yêu cầu sửa</h2>
-            <p className="page__subtitle">
-              Nêu cụ thể chỗ cần sửa — yêu cầu ngoài brief đã chốt cần thỏa thuận riêng (DLV-008).
-            </p>
-            <label className="form-field">
-              <span>Nội dung cần sửa</span>
-              <textarea
-                className="textarea"
-                value={reason}
-                onChange={(event) => setReason(event.target.value)}
-                rows={4}
-                minLength={10}
-              />
-            </label>
-            <div className="form-actions">
-              <button
-                type="button"
-                className="button button--primary"
-                disabled={reason.trim().length < 10 || revise.isPending}
+        <Modal
+          title="Yêu cầu sửa"
+          description="Nêu cụ thể chỗ cần sửa — yêu cầu ngoài brief đã chốt cần thỏa thuận riêng (DLV-008)."
+          onClose={() => setReviseOpen(false)}
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => setReviseOpen(false)}>
+                Hủy
+              </Button>
+              <Button
+                variant="primary"
+                loading={revise.isPending}
+                disabled={reason.trim().length < 10}
                 onClick={() =>
                   revise.mutate(reason.trim(), { onSuccess: () => setReviseOpen(false) })
                 }
               >
                 {revise.isPending ? 'Đang gửi...' : 'Gửi yêu cầu sửa'}
-              </button>
-              <button
-                type="button"
-                className="button button--ghost"
-                onClick={() => setReviseOpen(false)}
-              >
-                Hủy
-              </button>
-            </div>
-          </div>
-        </div>
+              </Button>
+            </>
+          }
+        >
+          <Textarea
+            label="Nội dung cần sửa"
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            rows={4}
+            minLength={10}
+          />
+        </Modal>
       ) : null}
     </section>
   );

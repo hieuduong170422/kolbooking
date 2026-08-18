@@ -14,6 +14,7 @@ import { ApiClientError } from '../shared/api/api-types';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { Pagination } from '../shared/components/pagination/pagination';
+import { Button, Modal, Tabs, Textarea } from '../shared/components/ui';
 import { formatVnd } from '../shared/utils/format';
 
 const PAGE_LIMIT = 20;
@@ -67,31 +68,22 @@ export const AdminPackagesPage = () => {
         </p>
       </div>
 
-      <div className="review-tabs" role="tablist" aria-label="Lọc theo trạng thái">
-        <button
-          type="button"
-          className={`review-tabs__tab${status === '' ? ' review-tabs__tab--active' : ''}`}
-          onClick={() => {
-            setStatus('');
-            setPage(1);
-          }}
-        >
-          Tất cả
-        </button>
-        {PACKAGE_STATUSES.map((item) => (
-          <button
-            key={item}
-            type="button"
-            className={`review-tabs__tab${item === status ? ' review-tabs__tab--active' : ''}`}
-            onClick={() => {
-              setStatus(item);
-              setPage(1);
-            }}
-          >
-            {PACKAGE_STATUS_LABELS[item]}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        label="Lọc theo trạng thái"
+        value={status}
+        options={[
+          { key: 'all', value: '' as PackageStatus | '', label: 'Tất cả' },
+          ...PACKAGE_STATUSES.map((item) => ({
+            key: item,
+            value: item as PackageStatus | '',
+            label: PACKAGE_STATUS_LABELS[item],
+          })),
+        ]}
+        onChange={(next) => {
+          setStatus(next);
+          setPage(1);
+        }}
+      />
 
       {actionError instanceof ApiClientError ? (
         <div className="notice notice--warning" role="alert">
@@ -143,25 +135,20 @@ export const AdminPackagesPage = () => {
                       </td>
                       <td className="cell-actions">
                         {pkg.status === 'hidden' ? (
-                          <button
-                            type="button"
-                            className="button button--secondary"
-                            disabled={unhide.isPending}
-                            onClick={() => handleUnhide(pkg)}
-                          >
+                          <Button size="sm" disabled={unhide.isPending} onClick={() => handleUnhide(pkg)}>
                             Khôi phục
-                          </button>
+                          </Button>
                         ) : (
-                          <button
-                            type="button"
-                            className="button button--danger"
+                          <Button
+                            size="sm"
+                            variant="danger"
                             onClick={() => {
                               setHideTarget(pkg);
                               setReason('');
                             }}
                           >
                             Ẩn
-                          </button>
+                          </Button>
                         )}
                       </td>
                     </tr>
@@ -177,43 +164,35 @@ export const AdminPackagesPage = () => {
       ) : null}
 
       {hideTarget !== null ? (
-        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="hide-title">
-          <div className="modal__card">
-            <h2 id="hide-title">Ẩn package</h2>
-            <p className="page__subtitle">
-              {hideTarget.name} — của {hideTarget.creatorName}. Package sẽ biến mất khỏi tìm kiếm
-              và creator không sửa được cho tới khi khôi phục.
-            </p>
-            <label className="form-field">
-              <span>Lý do ẩn (bắt buộc)</span>
-              <textarea
-                className="textarea"
-                value={reason}
-                onChange={(event) => setReason(event.target.value)}
-                rows={3}
-                minLength={5}
-                placeholder="VD: Nội dung sai lệch giá niêm yết."
-              />
-            </label>
-            <div className="form-actions">
-              <button
-                type="button"
-                className="button button--danger"
-                disabled={reason.trim().length < 5 || hide.isPending}
+        <Modal
+          title="Ẩn package"
+          description={`${hideTarget.name} — của ${hideTarget.creatorName}. Package sẽ biến mất khỏi tìm kiếm và creator không sửa được cho tới khi khôi phục.`}
+          onClose={() => setHideTarget(null)}
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => setHideTarget(null)}>
+                Hủy
+              </Button>
+              <Button
+                variant="danger"
+                loading={hide.isPending}
+                disabled={reason.trim().length < 5}
                 onClick={confirmHide}
               >
                 {hide.isPending ? 'Đang ẩn...' : 'Xác nhận ẩn'}
-              </button>
-              <button
-                type="button"
-                className="button button--ghost"
-                onClick={() => setHideTarget(null)}
-              >
-                Hủy
-              </button>
-            </div>
-          </div>
-        </div>
+              </Button>
+            </>
+          }
+        >
+          <Textarea
+            label="Lý do ẩn (bắt buộc)"
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            rows={3}
+            minLength={5}
+            placeholder="VD: Nội dung sai lệch giá niêm yết."
+          />
+        </Modal>
       ) : null}
     </section>
   );

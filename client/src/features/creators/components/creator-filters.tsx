@@ -1,3 +1,4 @@
+import { Button, Input, Select, ToggleChips } from '../../../shared/components/ui';
 import {
   CREATOR_TYPES,
   CREATOR_TYPE_LABELS,
@@ -54,138 +55,89 @@ export const CreatorFilters = ({ filter, onChange }: CreatorFiltersProps) => {
       <div className="filter-rail__head">
         <span className="filter-rail__title">Bộ lọc</span>
         {activeCount > 0 ? (
-          <button
-            type="button"
-            className="button-link"
+          <Button
+            variant="link"
             onClick={() => onChange({ sort: filter.sort, page: 1, limit: filter.limit })}
           >
             Xóa lọc ({activeCount})
-          </button>
+          </Button>
         ) : null}
       </div>
 
-      <input
+      <Input
         type="search"
-        className="input"
         placeholder="Tìm theo tên, lĩnh vực..."
         aria-label="Tìm kiếm creator"
         value={filter.search ?? ''}
         onChange={(event) => patch({ search: event.target.value || undefined })}
       />
 
-      <div className="filter-group" role="group" aria-label="Loại creator">
-        <p className="filter-group__legend">Loại creator</p>
-        <div className="chip-row">
-          {CREATOR_TYPES.map((type) => (
-            <button
-              key={type}
-              type="button"
-              className="chip-btn"
-              aria-pressed={filter.creatorType === type}
-              onClick={() =>
-                patch({ creatorType: filter.creatorType === type ? undefined : type })
-              }
-            >
-              {CREATOR_TYPE_LABELS[type]}
-            </button>
-          ))}
-        </div>
-      </div>
+      <ToggleChips
+        legend="Loại creator"
+        options={CREATOR_TYPES.map((type) => ({
+          key: type,
+          value: type,
+          label: CREATOR_TYPE_LABELS[type],
+        }))}
+        isActive={(type) => filter.creatorType === type}
+        onToggle={(type) => patch({ creatorType: filter.creatorType === type ? undefined : type })}
+      />
 
-      <div className="filter-group" role="group" aria-label="Nền tảng">
-        <p className="filter-group__legend">Nền tảng</p>
-        <div className="chip-row">
-          {SOCIAL_PLATFORMS.map((platform) => (
-            <button
-              key={platform}
-              type="button"
-              className="chip-btn"
-              aria-pressed={filter.platform === platform}
-              onClick={() =>
-                patch({ platform: filter.platform === platform ? undefined : platform })
-              }
-            >
-              {platform}
-            </button>
-          ))}
-        </div>
-      </div>
+      <ToggleChips
+        legend="Nền tảng"
+        options={SOCIAL_PLATFORMS.map((platform) => ({
+          key: platform,
+          value: platform,
+          label: platform,
+        }))}
+        isActive={(platform) => filter.platform === platform}
+        onToggle={(platform) =>
+          patch({ platform: filter.platform === platform ? undefined : platform })
+        }
+      />
 
-      <div className="filter-group" role="group" aria-label="Ngân sách">
-        <p className="filter-group__legend">Ngân sách</p>
-        <div className="chip-row chip-row--stack">
-          {PRICE_BANDS.map((band) => (
-            <button
-              key={band.label}
-              type="button"
-              className="chip-btn"
-              aria-pressed={isPriceBandActive(band)}
-              onClick={() =>
-                patch(
-                  isPriceBandActive(band)
-                    ? { minPriceVnd: undefined, maxPriceVnd: undefined }
-                    : { minPriceVnd: band.min, maxPriceVnd: band.max },
-                )
-              }
-            >
-              {band.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <ToggleChips
+        legend="Ngân sách"
+        stack
+        options={PRICE_BANDS.map((band) => ({ key: band.label, value: band, label: band.label }))}
+        isActive={isPriceBandActive}
+        onToggle={(band) =>
+          patch(
+            isPriceBandActive(band)
+              ? { minPriceVnd: undefined, maxPriceVnd: undefined }
+              : { minPriceVnd: band.min, maxPriceVnd: band.max },
+          )
+        }
+      />
 
-      <div className="filter-group" role="group" aria-label="Đánh giá tối thiểu">
-        <p className="filter-group__legend">Đánh giá tối thiểu</p>
-        <div className="chip-row">
-          {RATING_BANDS.map((rating) => (
-            <button
-              key={rating}
-              type="button"
-              className="chip-btn"
-              aria-pressed={filter.minRating === rating}
-              onClick={() =>
-                patch({ minRating: filter.minRating === rating ? undefined : rating })
-              }
-            >
-              {rating.toFixed(1)} ★ trở lên
-            </button>
-          ))}
-        </div>
-      </div>
+      <ToggleChips
+        legend="Đánh giá tối thiểu"
+        options={RATING_BANDS.map((rating) => ({
+          key: String(rating),
+          value: rating,
+          label: `${rating.toFixed(1)} ★ trở lên`,
+        }))}
+        isActive={(rating) => filter.minRating === rating}
+        onToggle={(rating) => patch({ minRating: filter.minRating === rating ? undefined : rating })}
+      />
 
-      <label className="form-field">
-        <span>Thành phố</span>
-        <select
-          className="select"
-          value={filter.city ?? ''}
-          onChange={(event) => patch({ city: event.target.value || undefined })}
-        >
-          <option value="">Tất cả thành phố</option>
-          {COMMON_CITIES.map((city) => (
-            <option key={city} value={city}>
-              {city}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Select
+        label="Thành phố"
+        placeholder="Tất cả thành phố"
+        options={COMMON_CITIES.map((city) => ({ value: city, label: city }))}
+        value={filter.city ?? ''}
+        onChange={(event) => patch({ city: event.target.value || undefined })}
+      />
 
-      <label className="form-field">
-        <span>Hình thức nhận việc</span>
-        <select
-          className="select"
-          value={filter.serviceMode ?? ''}
-          onChange={(event) =>
-            patch({ serviceMode: (event.target.value || undefined) as ServiceMode | undefined })
-          }
-        >
-          <option value="">Tất cả hình thức</option>
-          {SERVICE_MODES.map((mode) => (
-            <option key={mode} value={mode}>
-              {SERVICE_MODE_LABELS[mode]}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Select
+        label="Hình thức nhận việc"
+        placeholder="Tất cả hình thức"
+        options={SERVICE_MODES.map((mode) => ({ value: mode, label: SERVICE_MODE_LABELS[mode] }))}
+        value={filter.serviceMode ?? ''}
+        onChange={(event) =>
+          patch({ serviceMode: (event.target.value || undefined) as ServiceMode | undefined })
+        }
+      />
     </form>
   );
 };

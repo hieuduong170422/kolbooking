@@ -12,6 +12,7 @@ import {
 } from '../features/bookings/types/booking-types';
 import { BookingChat } from '../features/messages/components/booking-chat';
 import { FulfillmentPanel } from '../features/submissions/components/fulfillment-panel';
+import { Button, Modal, Textarea } from '../shared/components/ui';
 import { ApiClientError } from '../shared/api/api-types';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
@@ -92,15 +93,14 @@ export const BookingDetailPage = () => {
         {actions.length > 0 ? (
           <div className="next-action__buttons">
             {actions.map((action) => (
-              <button
+              <Button
                 key={action}
-                type="button"
-                className={`button ${action === 'reject' || action === 'cancel' ? 'button--danger' : 'button--primary'}`}
+                variant={action === 'reject' || action === 'cancel' ? 'danger' : 'primary'}
                 disabled={transition.isPending}
                 onClick={() => handleAction(action)}
               >
                 {BOOKING_ACTION_LABELS[action]}
-              </button>
+              </Button>
             ))}
           </div>
         ) : null}
@@ -253,39 +253,34 @@ export const BookingDetailPage = () => {
       </div>
 
       {pendingAction !== null ? (
-        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="action-title">
-          <div className="modal__card">
-            <h2 id="action-title">{BOOKING_ACTION_LABELS[pendingAction]}</h2>
-            <label className="form-field">
-              <span>Lý do (bắt buộc)</span>
-              <textarea
-                className="textarea"
-                value={reason}
-                onChange={(event) => setReason(event.target.value)}
-                rows={3}
-                minLength={5}
-                placeholder="Nêu rõ để phía kia hiểu và xử lý nhanh."
-              />
-            </label>
-            <div className="form-actions">
-              <button
-                type="button"
-                className="button button--primary"
-                disabled={reason.trim().length < 5 || transition.isPending}
+        <Modal
+          title={BOOKING_ACTION_LABELS[pendingAction]}
+          onClose={() => setPendingAction(null)}
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => setPendingAction(null)}>
+                Hủy
+              </Button>
+              <Button
+                variant="primary"
+                loading={transition.isPending}
+                disabled={reason.trim().length < 5}
                 onClick={() => run(pendingAction, reason.trim())}
               >
                 Xác nhận
-              </button>
-              <button
-                type="button"
-                className="button button--ghost"
-                onClick={() => setPendingAction(null)}
-              >
-                Hủy
-              </button>
-            </div>
-          </div>
-        </div>
+              </Button>
+            </>
+          }
+        >
+          <Textarea
+            label="Lý do (bắt buộc)"
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            rows={3}
+            minLength={5}
+            placeholder="Nêu rõ để phía kia hiểu và xử lý nhanh."
+          />
+        </Modal>
       ) : null}
     </section>
   );

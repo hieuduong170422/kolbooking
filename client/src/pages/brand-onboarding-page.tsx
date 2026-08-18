@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { BrandProfileForm } from '../features/brands/components/brand-profile-form';
 import { useBrandActions, useBrandProfile } from '../features/brands/hooks/use-brand-profile';
 import type { BrandProfileInput } from '../features/brands/types/brand-types';
@@ -6,6 +6,8 @@ import { StatusBanner } from '../features/creators/components/status-banner';
 import { ApiClientError } from '../shared/api/api-types';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
+import { IconUpload } from '../shared/components/icons';
+import { Button, FileButton } from '../shared/components/ui';
 
 /**
  * Trang /brand-onboarding — hồ sơ brand: form + giấy tờ xác minh + gửi duyệt
@@ -14,7 +16,6 @@ import { LoadingState } from '../shared/components/feedback/loading-state';
 export const BrandOnboardingPage = () => {
   const { data: brand, isLoading, isError, error, refetch } = useBrandProfile();
   const actions = useBrandActions();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [actionError, setActionError] = useState<unknown>(null);
 
   if (isLoading) {
@@ -38,12 +39,9 @@ export const BrandOnboardingPage = () => {
     await actions.update.mutateAsync(input);
   };
 
-  const handleUpload = (file: File | undefined): void => {
-    if (!file) return;
+  const handleUpload = (file: File): void => {
     setActionError(null);
     actions.uploadDoc.mutateAsync(file).catch((err: unknown) => setActionError(err));
-    // Reset input để chọn lại cùng file vẫn trigger change.
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleSubmitReview = (): void => {
@@ -102,22 +100,13 @@ export const BrandOnboardingPage = () => {
           ) : (
             <p className="feedback">Chưa có giấy tờ nào — cần ít nhất một file để gửi duyệt.</p>
           )}
-          <input
-            ref={fileInputRef}
-            type="file"
+          <FileButton
+            icon={<IconUpload />}
+            label={actions.uploadDoc.isPending ? 'Đang tải lên...' : 'Tải giấy tờ'}
             accept="image/jpeg,image/png,image/webp"
-            className="visually-hidden"
-            aria-label="Chọn file giấy tờ"
-            onChange={(event) => handleUpload(event.target.files?.[0])}
-          />
-          <button
-            type="button"
-            className="button button--secondary"
+            onSelect={handleUpload}
             disabled={actions.uploadDoc.isPending}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            {actions.uploadDoc.isPending ? 'Đang tải lên...' : '+ Tải giấy tờ'}
-          </button>
+          />
         </div>
       ) : null}
 
@@ -127,14 +116,14 @@ export const BrandOnboardingPage = () => {
           <p className="page__subtitle">
             Đội vận hành sẽ duyệt trong 24-48h. Hồ sơ Verified mới tạo được booking.
           </p>
-          <button
-            type="button"
-            className="button button--primary"
-            disabled={actions.submit.isPending || brand.verificationDocs.length === 0}
+          <Button
+            variant="primary"
+            loading={actions.submit.isPending}
+            disabled={brand.verificationDocs.length === 0}
             onClick={handleSubmitReview}
           >
             {actions.submit.isPending ? 'Đang gửi...' : 'Gửi hồ sơ duyệt'}
-          </button>
+          </Button>
           {/* Nút mờ mà không nói lý do khiến người dùng tưởng hỏng: hồ sơ nằm
               mãi ở Bản nháp và đội duyệt không bao giờ thấy nó trong hàng chờ. */}
           {brand.verificationDocs.length === 0 ? (

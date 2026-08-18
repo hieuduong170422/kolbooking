@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Button, Input } from '../../../shared/components/ui';
 import type { LoginInput } from '../types/auth-types';
 import { AuthError } from './auth-error';
 
@@ -28,31 +29,25 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
   return (
     <form className="auth-form" onSubmit={(event) => void handleSubmit(event)}>
       <AuthError error={error} />
-      <label className="form-field">
-        <span>Email</span>
-        <input
-          type="email"
-          className="input"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          autoComplete="email"
-          required
-        />
-      </label>
-      <label className="form-field">
-        <span>Mật khẩu</span>
-        <input
-          type="password"
-          className="input"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          autoComplete="current-password"
-          required
-        />
-      </label>
-      <button type="submit" className="button button--primary" disabled={pending}>
+      <Input
+        label="Email"
+        type="email"
+        value={email}
+        onChange={(event) => setEmail(event.target.value)}
+        autoComplete="email"
+        required
+      />
+      <Input
+        label="Mật khẩu"
+        type="password"
+        value={password}
+        onChange={(event) => setPassword(event.target.value)}
+        autoComplete="current-password"
+        required
+      />
+      <Button type="submit" variant="primary" loading={pending}>
         {pending ? 'Đang đăng nhập...' : 'Đăng nhập'}
-      </button>
+      </Button>
     </form>
   );
 };

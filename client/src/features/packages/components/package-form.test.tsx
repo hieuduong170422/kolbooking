@@ -8,7 +8,7 @@ const fillMinimalForm = (): void => {
   });
   fireEvent.change(screen.getByLabelText('Category'), { target: { value: 'f&b' } });
   fireEvent.click(screen.getByRole('checkbox', { name: 'tiktok' }));
-  fireEvent.change(screen.getByLabelText(/nói rõ brand nhận được gì/), {
+  fireEvent.change(screen.getByLabelText('Mô tả'), {
     target: { value: 'Một video review 30-60s quay dọc tại quán, đăng kênh creator.' },
   });
   fireEvent.change(screen.getByLabelText('Mô tả deliverable 1'), {
@@ -44,7 +44,7 @@ describe('PackageForm (PKG-001..PKG-006)', () => {
   it('thêm và xóa deliverable động', () => {
     render(<PackageForm onSubmit={vi.fn()} onCancel={vi.fn()} />);
 
-    fireEvent.click(screen.getByRole('button', { name: '+ Thêm deliverable' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm deliverable' }));
     expect(screen.getByLabelText('Mô tả deliverable 2')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Xóa deliverable 2' }));

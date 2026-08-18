@@ -7,6 +7,7 @@ import { CREATOR_STATUS_LABELS, CREATOR_TYPE_LABELS } from '../features/creators
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { Pagination } from '../shared/components/pagination/pagination';
+import { Button, Tabs } from '../shared/components/ui';
 
 // Tab trạng thái của hàng chờ duyệt (CRE-008).
 const QUEUE_STATUSES: readonly CreatorStatus[] = [
@@ -58,18 +59,16 @@ export const AdminCreatorsPage = () => {
         <p className="page__subtitle">Hàng chờ duyệt hồ sơ creator theo trạng thái (CRE-008).</p>
       </div>
 
-      <div className="review-tabs" role="tablist" aria-label="Lọc theo trạng thái">
-        {QUEUE_STATUSES.map((item) => (
-          <button
-            key={item}
-            type="button"
-            className={`review-tabs__tab${item === status ? ' review-tabs__tab--active' : ''}`}
-            onClick={() => handleStatusChange(item)}
-          >
-            {CREATOR_STATUS_LABELS[item]}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        label="Lọc theo trạng thái"
+        value={status}
+        options={QUEUE_STATUSES.map((item) => ({
+          key: item,
+          value: item,
+          label: CREATOR_STATUS_LABELS[item],
+        }))}
+        onChange={handleStatusChange}
+      />
 
       {creators.length === 0 ? (
         <p className="feedback">Không có hồ sơ nào ở trạng thái {CREATOR_STATUS_LABELS[status]}.</p>
@@ -101,13 +100,7 @@ export const AdminCreatorsPage = () => {
                   </p>
                   <p className="review-row__email">{creator.userEmail}</p>
                 </div>
-                <button
-                  type="button"
-                  className="button button--secondary"
-                  onClick={() => setSelectedCreator(creator)}
-                >
-                  Xem chi tiết
-                </button>
+                <Button onClick={() => setSelectedCreator(creator)}>Xem chi tiết</Button>
                 <ReviewActions
                   creatorId={creator.id}
                   status={creator.status}

@@ -11,6 +11,7 @@ import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { IconSearch } from '../shared/components/icons';
 import { Pagination } from '../shared/components/pagination/pagination';
+import { Button, Input, Modal, Select, Textarea } from '../shared/components/ui';
 
 const PAGE_LIMIT = 20;
 
@@ -68,48 +69,40 @@ export const AdminUsersPage = () => {
 
       <div className="creator-filters">
         <form className="admin-search" onSubmit={applySearch}>
-          <input
+          <Input
             type="search"
-            className="input"
             value={searchInput}
             onChange={(event) => setSearchInput(event.target.value)}
             placeholder="Tìm theo email hoặc tên..."
             aria-label="Tìm tài khoản"
           />
-          <button type="submit" className="button button--secondary">
-            <IconSearch />
+          <Button type="submit" icon={<IconSearch />}>
             Tìm
-          </button>
+          </Button>
         </form>
-        <select
-          className="select"
-          value={role}
+        <Select
           aria-label="Lọc theo vai trò"
+          placeholder="Tất cả vai trò"
+          options={AUTH_ROLES.map((option) => ({ value: option, label: ROLE_LABELS[option] }))}
+          value={role}
           onChange={(event) => {
             setRole(event.target.value as AuthRole | '');
             setPage(1);
           }}
-        >
-          <option value="">Tất cả vai trò</option>
-          {AUTH_ROLES.map((option) => (
-            <option key={option} value={option}>
-              {ROLE_LABELS[option]}
-            </option>
-          ))}
-        </select>
-        <select
-          className="select"
-          value={status}
+        />
+        <Select
           aria-label="Lọc theo trạng thái"
+          placeholder="Tất cả trạng thái"
+          options={[
+            { value: 'active', label: USER_STATUS_LABELS.active },
+            { value: 'locked', label: USER_STATUS_LABELS.locked },
+          ]}
+          value={status}
           onChange={(event) => {
             setStatus(event.target.value as UserStatus | '');
             setPage(1);
           }}
-        >
-          <option value="">Tất cả trạng thái</option>
-          <option value="active">{USER_STATUS_LABELS.active}</option>
-          <option value="locked">{USER_STATUS_LABELS.locked}</option>
-        </select>
+        />
       </div>
 
       {actionError instanceof ApiClientError ? (
@@ -174,25 +167,24 @@ export const AdminUsersPage = () => {
                         {user.role === 'admin' ? (
                           <span className="cell-muted">Tài khoản quản trị</span>
                         ) : user.status === 'locked' ? (
-                          <button
-                            type="button"
-                            className="button button--secondary"
+                          <Button
+                            size="sm"
                             disabled={unlock.isPending}
                             onClick={() => handleUnlock(user)}
                           >
                             Mở khóa
-                          </button>
+                          </Button>
                         ) : (
-                          <button
-                            type="button"
-                            className="button button--danger"
+                          <Button
+                            size="sm"
+                            variant="danger"
                             onClick={() => {
                               setLockTarget(user);
                               setReason('');
                             }}
                           >
                             Khóa
-                          </button>
+                          </Button>
                         )}
                       </td>
                     </tr>
@@ -208,42 +200,35 @@ export const AdminUsersPage = () => {
       ) : null}
 
       {lockTarget !== null ? (
-        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="lock-title">
-          <div className="modal__card">
-            <h2 id="lock-title">Khóa tài khoản {lockTarget.displayName}</h2>
-            <p className="page__subtitle">
-              {lockTarget.email} sẽ không đăng nhập được và mọi phiên hiện tại bị thu hồi.
-            </p>
-            <label className="form-field">
-              <span>Lý do khóa (bắt buộc)</span>
-              <textarea
-                className="textarea"
-                value={reason}
-                onChange={(event) => setReason(event.target.value)}
-                rows={3}
-                minLength={5}
-                placeholder="VD: Spam brand nhiều lần sau cảnh báo."
-              />
-            </label>
-            <div className="form-actions">
-              <button
-                type="button"
-                className="button button--danger"
-                disabled={reason.trim().length < 5 || lock.isPending}
+        <Modal
+          title={`Khóa tài khoản ${lockTarget.displayName}`}
+          description={`${lockTarget.email} sẽ không đăng nhập được và mọi phiên hiện tại bị thu hồi.`}
+          onClose={() => setLockTarget(null)}
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => setLockTarget(null)}>
+                Hủy
+              </Button>
+              <Button
+                variant="danger"
+                loading={lock.isPending}
+                disabled={reason.trim().length < 5}
                 onClick={confirmLock}
               >
                 {lock.isPending ? 'Đang khóa...' : 'Xác nhận khóa'}
-              </button>
-              <button
-                type="button"
-                className="button button--ghost"
-                onClick={() => setLockTarget(null)}
-              >
-                Hủy
-              </button>
-            </div>
-          </div>
-        </div>
+              </Button>
+            </>
+          }
+        >
+          <Textarea
+            label="Lý do khóa (bắt buộc)"
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            rows={3}
+            minLength={5}
+            placeholder="VD: Spam brand nhiều lần sau cảnh báo."
+          />
+        </Modal>
       ) : null}
     </section>
   );

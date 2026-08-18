@@ -64,7 +64,7 @@ describe('TagPicker', () => {
     const input = screen.getByLabelText(/Thêm mục cho/);
 
     fireEvent.change(input, { target: { value: 'Quay cảnh pha chế' } });
-    fireEvent.click(screen.getByRole('button', { name: '+ Thêm' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm' }));
 
     // Mục tự nhập phải hiện ra và ở trạng thái đã chọn.
     expect(screen.getByLabelText('Quay cảnh pha chế')).toBeChecked();
@@ -85,10 +85,10 @@ describe('TagPicker', () => {
     const input = screen.getByLabelText(/Thêm mục cho/);
 
     fireEvent.change(input, { target: { value: '   ' } });
-    expect(screen.getByRole('button', { name: '+ Thêm' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Thêm' })).toBeDisabled();
 
     fireEvent.change(input, { target: { value: 'Cận cảnh sản phẩm' } });
-    fireEvent.click(screen.getByRole('button', { name: '+ Thêm' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm' }));
     expect(onChange).not.toHaveBeenCalled();
   });
 

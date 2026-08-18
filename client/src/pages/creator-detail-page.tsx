@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router';
+import { LinkButton } from '../shared/components/ui';
 import { useCreator } from '../features/creators/hooks/use-creator';
 import {
   CREATOR_LANGUAGE_LABELS,
@@ -165,12 +166,9 @@ export const CreatorDetailPage = () => {
                 <strong>{SERVICE_MODE_LABELS[creator.serviceMode]}</strong>
               </li>
             </ul>
-            <Link
-              to={`/creators/${creator.id}/book`}
-              className="button button--primary booking-panel__cta ff"
-            >
+            <LinkButton to={`/creators/${creator.id}/book`} className="booking-panel__cta ff">
               Đặt booking
-            </Link>
+            </LinkButton>
             <MessageCreatorButton creatorId={creator.id} />
             <p className="booking-panel__note">
               Thanh toán được bảo đảm — tiền chỉ giải ngân sau khi bạn nghiệm thu nội dung.

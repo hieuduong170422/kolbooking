@@ -1,4 +1,6 @@
 import { useState, type KeyboardEvent } from 'react';
+import { IconPlus } from '../../../shared/components/icons';
+import { Button, Input } from '../../../shared/components/ui';
 
 interface LinkListProps {
   readonly links: readonly string[];
@@ -61,23 +63,21 @@ export const LinkList = ({ links, onChange }: LinkListProps) => {
           {links.map((link) => (
             <li key={link} className="doc-list__item">
               <span>{link}</span>
-              <button
-                type="button"
-                className="button-link"
+              <Button
+                variant="link"
                 aria-label={`Xoá link ${link}`}
                 onClick={() => onChange(links.filter((item) => item !== link))}
               >
                 Xoá
-              </button>
+              </Button>
             </li>
           ))}
         </ul>
       ) : null}
 
       <div className="link-row">
-        <input
+        <Input
           type="url"
-          className="input"
           value={draft}
           placeholder="https://..."
           aria-label="Thêm link tham khảo"
@@ -87,14 +87,9 @@ export const LinkList = ({ links, onChange }: LinkListProps) => {
           }}
           onKeyDown={handleKeyDown}
         />
-        <button
-          type="button"
-          className="button button--secondary"
-          disabled={draft.trim().length === 0}
-          onClick={add}
-        >
-          + Thêm link
-        </button>
+        <Button icon={<IconPlus />} disabled={draft.trim().length === 0} onClick={add}>
+          Thêm link
+        </Button>
       </div>
       {error !== null ? (
         <p className="field-note field-note--error" role="alert">

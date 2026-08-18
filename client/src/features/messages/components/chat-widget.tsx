@@ -9,6 +9,7 @@ import {
   formatUnreadBadge,
   totalUnread,
 } from '../utils/conversation-peer';
+import { Button } from '../../../shared/components/ui';
 import { ChatThread } from './chat-thread';
 
 /** Nội dung widget — chỉ mount khi đã đăng nhập (hook cần provider). */
@@ -100,9 +101,7 @@ const WidgetBody = ({ role }: { role: AuthRole }) => {
         {active === null && isError ? (
           <div className="chat-widget__empty">
             <p>Không tải được danh sách trò chuyện.</p>
-            <button type="button" className="button button--secondary" onClick={() => void refetch()}>
-              Thử lại
-            </button>
+            <Button onClick={() => void refetch()}>Thử lại</Button>
           </div>
         ) : null}
 

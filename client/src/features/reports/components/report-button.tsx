@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react';
 import { AuthContext } from '../../auth/store/auth-context';
 import { ApiClientError } from '../../../shared/api/api-types';
+import { Button, Modal, Select, Textarea } from '../../../shared/components/ui';
 import { useCreateReport } from '../hooks/use-reports';
 import {
   REPORT_REASONS,
@@ -48,80 +49,65 @@ const ReportControl = ({ targetType, targetId, targetName }: ReportButtonProps) 
         Báo cáo
       </button>
 
-      {open ? (
-        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="report-title">
-          <div className="modal__card">
-            {sent ? (
-              <>
-                <h2 id="report-title">Đã gửi báo cáo</h2>
-                <p className="page__subtitle">
-                  Đội vận hành sẽ xem xét và phản hồi. Cảm ơn bạn đã báo cáo.
-                </p>
-                <div className="form-actions">
-                  <button type="button" className="button button--primary" onClick={close}>
-                    Đóng
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <h2 id="report-title">Báo cáo {targetName}</h2>
-                <p className="page__subtitle">
-                  Mô tả càng cụ thể, đội vận hành xử lý càng nhanh.
-                </p>
+      {open && sent ? (
+        <Modal
+          title="Đã gửi báo cáo"
+          description="Đội vận hành sẽ xem xét và phản hồi. Cảm ơn bạn đã báo cáo."
+          onClose={close}
+          footer={
+            <Button variant="primary" onClick={close}>
+              Đóng
+            </Button>
+          }
+        />
+      ) : null}
 
-                {error instanceof ApiClientError ? (
-                  <div className="notice notice--warning" role="alert">
-                    <p>{error.message}</p>
-                  </div>
-                ) : null}
+      {open && !sent ? (
+        <Modal
+          title={`Báo cáo ${targetName}`}
+          description="Mô tả càng cụ thể, đội vận hành xử lý càng nhanh."
+          onClose={close}
+          footer={
+            <>
+              <Button variant="ghost" onClick={close}>
+                Hủy
+              </Button>
+              <Button
+                variant="danger"
+                loading={createReport.isPending}
+                disabled={description.trim().length < MIN_DESCRIPTION}
+                onClick={submit}
+              >
+                {createReport.isPending ? 'Đang gửi...' : 'Gửi báo cáo'}
+              </Button>
+            </>
+          }
+        >
+          {error instanceof ApiClientError ? (
+            <div className="notice notice--warning" role="alert">
+              <p>{error.message}</p>
+            </div>
+          ) : null}
 
-                <label className="form-field">
-                  <span>Lý do</span>
-                  <select
-                    className="select"
-                    value={reason}
-                    onChange={(event) => setReason(event.target.value as ReportReason)}
-                  >
-                    {REPORT_REASONS.map((option) => (
-                      <option key={option} value={option}>
-                        {REPORT_REASON_LABELS[option]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+          <Select
+            label="Lý do"
+            options={REPORT_REASONS.map((option) => ({
+              value: option,
+              label: REPORT_REASON_LABELS[option],
+            }))}
+            value={reason}
+            onChange={(event) => setReason(event.target.value as ReportReason)}
+          />
 
-                <label className="form-field">
-                  <span>Mô tả chi tiết</span>
-                  <textarea
-                    className="textarea"
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    rows={4}
-                    minLength={MIN_DESCRIPTION}
-                    placeholder="Chuyện gì đã xảy ra? Có bằng chứng gì không?"
-                  />
-                </label>
-
-                <div className="form-actions">
-                  <button
-                    type="button"
-                    className="button button--danger"
-                    disabled={
-                      description.trim().length < MIN_DESCRIPTION || createReport.isPending
-                    }
-                    onClick={submit}
-                  >
-                    {createReport.isPending ? 'Đang gửi...' : 'Gửi báo cáo'}
-                  </button>
-                  <button type="button" className="button button--ghost" onClick={close}>
-                    Hủy
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+          <Textarea
+            label="Mô tả chi tiết"
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            rows={4}
+            minLength={MIN_DESCRIPTION}
+            placeholder="Chuyện gì đã xảy ra? Có bằng chứng gì không?"
+          />
+        </Modal>
       ) : null}
     </>
   );

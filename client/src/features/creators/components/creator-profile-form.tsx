@@ -1,6 +1,16 @@
-import { useState, type ChangeEvent, type FormEvent, type KeyboardEvent } from 'react';
+import { useState, type FormEvent, type KeyboardEvent } from 'react';
 import { ApiClientError } from '../../../shared/api/api-types';
 import { IconLink, IconPlus, IconTrash, IconUpload } from '../../../shared/components/icons';
+import {
+  Button,
+  ChipGroup,
+  FileButton,
+  IconButton,
+  Input,
+  SegmentedControl,
+  Select,
+  Textarea,
+} from '../../../shared/components/ui';
 import {
   usePortfolioActions,
   useSubmitProfileForReview,
@@ -109,7 +119,7 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
   );
   const [followerCount, setFollowerCount] = useState(profile?.audienceMetrics?.followerCount ?? 0);
   const [viewCount, setViewCount] = useState(profile?.audienceMetrics?.viewCount ?? 0);
-  const [availableDays, setAvailableDays] = useState<CreatorDayOfWeek[]>(() =>
+  const [availableDays, setAvailableDays] = useState<readonly CreatorDayOfWeek[]>(() =>
     profile ? [...profile.availability.availableDays] : [],
   );
   const [isPaused, setIsPaused] = useState(profile?.availability.isPaused ?? false);
@@ -208,25 +218,14 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
     setSocialAccounts((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const toggleDay = (day: CreatorDayOfWeek): void => {
-    setAvailableDays((prev) =>
-      prev.includes(day) ? prev.filter((item) => item !== day) : [...prev, day],
-    );
-  };
-
-  const handleAvatarUpload = (event: ChangeEvent<HTMLInputElement>): void => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleAvatarUpload = (file: File): void => {
     uploadAvatar.mutate(file, {
       onSuccess: (owner) => setAvatarUrl(owner.avatarUrl),
       onError: (uploadError) => setError(uploadError),
     });
-    event.target.value = '';
   };
 
-  const handlePortfolioUpload = (event: ChangeEvent<HTMLInputElement>): void => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handlePortfolioUpload = (file: File): void => {
     upload.mutate(
       {
         file,
@@ -235,7 +234,6 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
       },
       { onError: (uploadError) => setError(uploadError) },
     );
-    event.target.value = '';
   };
 
   const handleAddLink = (): void => {
@@ -321,75 +319,56 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
             <div className="avatar-row__body">
               <span className="form-field__label">Ảnh đại diện</span>
               <p className="onb-hint">JPG/PNG, tối đa 5MB. Ảnh rõ mặt giúp brand tin tưởng hơn.</p>
-              <label className="button button--secondary avatar-upload">
-                <IconUpload />
-                {uploadAvatar.isPending ? 'Đang tải ảnh...' : 'Tải ảnh lên'}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="file-input"
-                  onChange={handleAvatarUpload}
-                  disabled={readOnly}
-                />
-              </label>
+              <FileButton
+                icon={<IconUpload />}
+                label={uploadAvatar.isPending ? 'Đang tải ảnh...' : 'Tải ảnh lên'}
+                accept="image/*"
+                onSelect={handleAvatarUpload}
+                disabled={readOnly}
+              />
             </div>
           </div>
 
           <div className="field-grid">
-            <label className="form-field field--half">
-              <span>Tên hiển thị</span>
-              <input
-                type="text"
-                className="input"
-                value={displayName}
-                onChange={(event) => setDisplayName(event.target.value)}
-                minLength={2}
-                maxLength={80}
-                required
-                disabled={readOnly}
-              />
-            </label>
-            <label className="form-field field--half">
-              <span>Thành phố</span>
-              <input
-                type="text"
-                className="input"
-                value={city}
-                onChange={(event) => setCity(event.target.value)}
-                minLength={2}
-                maxLength={60}
-                placeholder="VD: Hà Nội"
-                required
-                disabled={readOnly}
-              />
-            </label>
+            <Input
+              label="Tên hiển thị"
+              span="half"
+              value={displayName}
+              onChange={(event) => setDisplayName(event.target.value)}
+              minLength={2}
+              maxLength={80}
+              required
+              disabled={readOnly}
+            />
+            <Input
+              label="Thành phố"
+              span="half"
+              value={city}
+              onChange={(event) => setCity(event.target.value)}
+              minLength={2}
+              maxLength={60}
+              placeholder="VD: Hà Nội"
+              required
+              disabled={readOnly}
+            />
 
-            {/* Bộ đếm nằm NGOÀI <label> — nếu để trong, tên nhãn thành "Giới thiệu 0/500". */}
-            <div className="form-field field--full">
-              <label className="form-field">
-                <span>Giới thiệu</span>
-                <textarea
-                  className="textarea"
-                  value={bio}
-                  onChange={(event) => setBio(event.target.value)}
-                  minLength={10}
-                  maxLength={BIO_MAX_LENGTH}
-                  placeholder="Bạn làm nội dung gì, cho tệp khán giả nào, thế mạnh của bạn là gì?"
-                  required
-                  disabled={readOnly}
-                />
-              </label>
-              <span className="onb-counter">
-                {bio.trim().length}/{BIO_MAX_LENGTH}
-              </span>
-            </div>
+            <Textarea
+              label="Giới thiệu"
+              span="full"
+              counter={`${bio.trim().length}/${BIO_MAX_LENGTH}`}
+              value={bio}
+              onChange={(event) => setBio(event.target.value)}
+              minLength={10}
+              maxLength={BIO_MAX_LENGTH}
+              placeholder="Bạn làm nội dung gì, cho tệp khán giả nào, thế mạnh của bạn là gì?"
+              required
+              disabled={readOnly}
+            />
 
             <div className="form-field field--full">
               <span className="form-field__label">Lĩnh vực (niche)</span>
               <div className="niches">
-                <input
-                  type="text"
-                  className="input"
+                <Input
                   value={nicheInput}
                   onChange={(event) => setNicheInput(event.target.value)}
                   onKeyDown={handleNicheKeyDown}
@@ -398,14 +377,9 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
                   aria-label="Lĩnh vực (niche)"
                   disabled={readOnly}
                 />
-                <button
-                  type="button"
-                  className="button button--secondary"
-                  onClick={addNiche}
-                  disabled={readOnly || nicheInput.trim() === ''}
-                >
+                <Button onClick={addNiche} disabled={readOnly || nicheInput.trim() === ''}>
                   Thêm lĩnh vực
-                </button>
+                </Button>
               </div>
               {niches.length > 0 ? (
                 <ul className="niche-tags">
@@ -429,55 +403,41 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
               )}
             </div>
 
-            <fieldset className="form-field field--full segmented">
-              <legend className="form-field__label">Loại hình</legend>
-              <div className="segmented__options">
-                {CREATOR_TYPES.map((option) => (
-                  <label key={option} className="segmented__option">
-                    <input
-                      type="radio"
-                      name="creatorType"
-                      value={option}
-                      checked={creatorType === option}
-                      onChange={() => setCreatorType(option)}
-                      disabled={readOnly}
-                    />
-                    <span>{CREATOR_TYPE_LABELS[option]}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
+            <SegmentedControl
+              className="form-field field--full"
+              legend="Loại hình"
+              name="creatorType"
+              value={creatorType}
+              options={CREATOR_TYPES.map((option) => ({
+                value: option,
+                label: CREATOR_TYPE_LABELS[option],
+              }))}
+              onChange={setCreatorType}
+              disabled={readOnly}
+            />
 
-            <label className="form-field field--half">
-              <span>Hình thức nhận việc</span>
-              <select
-                className="select"
-                value={serviceMode}
-                onChange={(event) => setServiceMode(event.target.value as ServiceMode)}
-                disabled={readOnly}
-              >
-                {SERVICE_MODES.map((option) => (
-                  <option key={option} value={option}>
-                    {SERVICE_MODE_LABELS[option]}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="form-field field--half">
-              <span>Ngôn ngữ</span>
-              <select
-                className="select"
-                value={language}
-                onChange={(event) => setLanguage(event.target.value as CreatorLanguage)}
-                disabled={readOnly}
-              >
-                {CREATOR_LANGUAGES.map((option) => (
-                  <option key={option} value={option}>
-                    {CREATOR_LANGUAGE_LABELS[option]}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <Select
+              label="Hình thức nhận việc"
+              span="half"
+              options={SERVICE_MODES.map((option) => ({
+                value: option,
+                label: SERVICE_MODE_LABELS[option],
+              }))}
+              value={serviceMode}
+              onChange={(event) => setServiceMode(event.target.value as ServiceMode)}
+              disabled={readOnly}
+            />
+            <Select
+              label="Ngôn ngữ"
+              span="half"
+              options={CREATOR_LANGUAGES.map((option) => ({
+                value: option,
+                label: CREATOR_LANGUAGE_LABELS[option],
+              }))}
+              value={language}
+              onChange={(event) => setLanguage(event.target.value as CreatorLanguage)}
+              disabled={readOnly}
+            />
           </div>
         </section>
 
@@ -505,15 +465,14 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
               ))}
             </div>
           )}
-          <button
-            type="button"
-            className="button button--secondary onb-add"
+          <Button
+            className="onb-add"
+            icon={<IconPlus />}
             onClick={addSocial}
             disabled={readOnly || socialAccounts.length >= MAX_SOCIAL_ACCOUNTS}
           >
-            <IconPlus />
             Thêm tài khoản
-          </button>
+          </Button>
         </section>
 
         {/* 3. Chỉ số khán giả */}
@@ -525,28 +484,24 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
             description="Số liệu tự khai báo — hiển thị công khai kèm nhãn để brand biết nguồn."
           />
           <div className="field-grid">
-            <label className="form-field field--half">
-              <span>Followers</span>
-              <input
-                type="number"
-                className="input"
-                value={followerCount}
-                onChange={(event) => setFollowerCount(Number(event.target.value))}
-                min={0}
-                disabled={readOnly}
-              />
-            </label>
-            <label className="form-field field--half">
-              <span>Lượt xem trung bình</span>
-              <input
-                type="number"
-                className="input"
-                value={viewCount}
-                onChange={(event) => setViewCount(Number(event.target.value))}
-                min={0}
-                disabled={readOnly}
-              />
-            </label>
+            <Input
+              label="Followers"
+              span="half"
+              type="number"
+              value={followerCount}
+              onChange={(event) => setFollowerCount(Number(event.target.value))}
+              min={0}
+              disabled={readOnly}
+            />
+            <Input
+              label="Lượt xem trung bình"
+              span="half"
+              type="number"
+              value={viewCount}
+              onChange={(event) => setViewCount(Number(event.target.value))}
+              min={0}
+              disabled={readOnly}
+            />
           </div>
           <p className="onb-hint">
             Cập nhật lần cuối: {new Date(metricsUpdatedAt).toLocaleString('vi-VN')}
@@ -561,22 +516,16 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
             title="Lịch nhận việc"
             description="Ngày bạn rảnh quay/dựng — brand dựa vào đây để chọn deadline."
           />
-          <fieldset className="chip-group">
-            <legend className="form-field__label">Ngày trong tuần</legend>
-            <div className="chip-group__options">
-              {CREATOR_DAYS_OF_WEEK.map((day) => (
-                <label key={day} className="chip-toggle">
-                  <input
-                    type="checkbox"
-                    checked={availableDays.includes(day)}
-                    onChange={() => toggleDay(day)}
-                    disabled={readOnly}
-                  />
-                  <span>{CREATOR_DAY_OF_WEEK_LABELS[day]}</span>
-                </label>
-              ))}
-            </div>
-          </fieldset>
+          <ChipGroup
+            legend="Ngày trong tuần"
+            value={availableDays}
+            options={CREATOR_DAYS_OF_WEEK.map((day) => ({
+              value: day,
+              label: CREATOR_DAY_OF_WEEK_LABELS[day],
+            }))}
+            onChange={setAvailableDays}
+            disabled={readOnly}
+          />
           <label className="onb-pause">
             <input
               type="checkbox"
@@ -601,67 +550,51 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
           />
 
           <div className="field-grid">
-            <label className="form-field field--half">
-              <span>Chú thích (tùy chọn)</span>
-              <input
-                type="text"
-                className="input"
-                value={captionInput}
-                onChange={(event) => setCaptionInput(event.target.value)}
-                placeholder="VD: Review quán cà phê Hoàn Kiếm"
-                aria-label="Chú thích mục portfolio"
-                disabled={readOnly}
-              />
-            </label>
-            <label className="form-field field--half">
-              <span>Danh mục (tùy chọn)</span>
-              <input
-                type="text"
-                className="input"
-                value={categoryInput}
-                onChange={(event) => setCategoryInput(event.target.value)}
-                placeholder="VD: f&b"
-                aria-label="Danh mục mục portfolio"
-                disabled={readOnly}
-              />
-            </label>
+            <Input
+              label="Chú thích (tùy chọn)"
+              span="half"
+              value={captionInput}
+              onChange={(event) => setCaptionInput(event.target.value)}
+              placeholder="VD: Review quán cà phê Hoàn Kiếm"
+              disabled={readOnly}
+            />
+            <Input
+              label="Danh mục (tùy chọn)"
+              span="half"
+              value={categoryInput}
+              onChange={(event) => setCategoryInput(event.target.value)}
+              placeholder="VD: f&b"
+              disabled={readOnly}
+            />
           </div>
           <p className="onb-hint">Hai ô trên áp dụng cho mục bạn thêm ngay sau đây.</p>
 
-          <label className="dropzone">
-            <IconUpload />
-            <span className="dropzone__title">
-              {upload.isPending ? 'Đang tải lên...' : 'Tải ảnh hoặc video lên'}
-            </span>
-            <span className="dropzone__hint">Ảnh tối đa 5MB · Video tối đa 50MB</span>
-            <input
-              type="file"
-              accept="image/*,video/*"
-              className="file-input"
-              onChange={handlePortfolioUpload}
-              disabled={readOnly}
-            />
-          </label>
+          <FileButton
+            dropzone
+            icon={<IconUpload />}
+            label={upload.isPending ? 'Đang tải lên...' : 'Tải ảnh hoặc video lên'}
+            hint="Ảnh tối đa 5MB · Video tối đa 50MB"
+            accept="image/*,video/*"
+            onSelect={handlePortfolioUpload}
+            disabled={readOnly}
+          />
 
           <div className="link-row">
-            <input
+            <Input
               type="url"
-              className="input"
               value={linkInput}
               onChange={(event) => setLinkInput(event.target.value)}
               placeholder="https://... (thêm liên kết bài đăng)"
               aria-label="URL liên kết portfolio"
               disabled={readOnly}
             />
-            <button
-              type="button"
-              className="button button--secondary"
+            <Button
+              icon={<IconLink />}
               onClick={handleAddLink}
               disabled={readOnly || linkInput.trim() === ''}
             >
-              <IconLink />
               Thêm liên kết
-            </button>
+            </Button>
           </div>
 
           {portfolioItems.length > 0 ? (
@@ -684,16 +617,14 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
                     {item.caption ?? (item.type === 'link' ? item.url : 'Không có chú thích')}
                     {item.category ? <em>{item.category}</em> : null}
                   </span>
-                  <button
-                    type="button"
-                    className="icon-button icon-button--danger"
+                  <IconButton
+                    label="Xóa mục portfolio"
+                    title="Xóa"
+                    tone="danger"
+                    icon={<IconTrash />}
                     onClick={() => handleRemoveItem(item.id)}
                     disabled={readOnly || remove.isPending}
-                    aria-label="Xóa mục portfolio"
-                    title="Xóa"
-                  >
-                    <IconTrash />
-                  </button>
+                  />
                 </li>
               ))}
             </ul>
@@ -709,21 +640,21 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
           <h2 className="onb-panel__title">Tiến độ hồ sơ</h2>
           <ProfileChecklist items={checklist} />
           <div className="onb-panel__actions">
-            <button
+            <Button
               type="submit"
-              className="button button--primary"
-              disabled={readOnly || isIncomplete || updateProfile.isPending}
+              variant="primary"
+              loading={updateProfile.isPending}
+              disabled={readOnly || isIncomplete}
             >
               {updateProfile.isPending ? 'Đang lưu...' : 'Lưu hồ sơ'}
-            </button>
-            <button
-              type="button"
-              className="button button--secondary"
+            </Button>
+            <Button
+              loading={submitReview.isPending}
+              disabled={readOnly || isIncomplete}
               onClick={handleSubmitReview}
-              disabled={readOnly || isIncomplete || submitReview.isPending}
             >
               {submitReview.isPending ? 'Đang gửi...' : 'Gửi duyệt'}
-            </button>
+            </Button>
           </div>
           <p className="onb-panel__note">{panelNote}</p>
         </div>

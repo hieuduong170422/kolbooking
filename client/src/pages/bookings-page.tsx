@@ -12,6 +12,7 @@ import {
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { Pagination } from '../shared/components/pagination/pagination';
+import { LinkButton, Tabs } from '../shared/components/ui';
 import { formatVnd } from '../shared/utils/format';
 
 const PAGE_LIMIT = 20;
@@ -40,31 +41,22 @@ export const BookingsPage = () => {
         </p>
       </div>
 
-      <div className="review-tabs" role="tablist" aria-label="Lọc theo trạng thái">
-        <button
-          type="button"
-          className={`review-tabs__tab${status === '' ? ' review-tabs__tab--active' : ''}`}
-          onClick={() => {
-            setStatus('');
-            setPage(1);
-          }}
-        >
-          Tất cả
-        </button>
-        {BOOKING_STATUSES.slice(0, 6).map((item) => (
-          <button
-            key={item}
-            type="button"
-            className={`review-tabs__tab${item === status ? ' review-tabs__tab--active' : ''}`}
-            onClick={() => {
-              setStatus(item);
-              setPage(1);
-            }}
-          >
-            {BOOKING_STATUS_LABELS[item]}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        label="Lọc theo trạng thái"
+        value={status}
+        options={[
+          { key: 'all', value: '' as BookingStatus | '', label: 'Tất cả' },
+          ...BOOKING_STATUSES.slice(0, 6).map((item) => ({
+            key: item,
+            value: item as BookingStatus | '',
+            label: BOOKING_STATUS_LABELS[item],
+          })),
+        ]}
+        onChange={(next) => {
+          setStatus(next);
+          setPage(1);
+        }}
+      />
 
       {isPending ? <LoadingState message="Đang tải booking..." /> : null}
       {isError ? (
@@ -80,12 +72,9 @@ export const BookingsPage = () => {
                 ? 'Publish gói dịch vụ để brand tìm thấy và gửi yêu cầu.'
                 : 'Tìm creator phù hợp và gửi yêu cầu booking đầu tiên.'}
             </p>
-            <Link
-              to={user.role === 'creator' ? '/my-packages' : '/creators'}
-              className="button button--primary"
-            >
+            <LinkButton to={user.role === 'creator' ? '/my-packages' : '/creators'}>
               {user.role === 'creator' ? 'Quản lý package' : 'Khám phá creator'}
-            </Link>
+            </LinkButton>
           </div>
         ) : (
           <>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Button, Modal, Textarea } from '../../../shared/components/ui';
 import type { BrandStatus } from '../types/brand-types';
 
 type ReasonAction = 'request_info' | 'reject' | 'suspend';
@@ -41,64 +42,44 @@ export const BrandReviewActions = ({ brandId, status, onAction }: BrandReviewAct
     <div className="review-actions">
       {status === 'pending_review' ? (
         <>
-          <button
-            type="button"
-            className="button button--primary"
-            onClick={() => onAction({ brandId, action: 'approve' })}
-          >
+          <Button variant="primary" onClick={() => onAction({ brandId, action: 'approve' })}>
             Duyệt
-          </button>
-          <button
-            type="button"
-            className="button button--secondary"
-            onClick={() => openModal('request_info')}
-          >
-            Yêu cầu bổ sung
-          </button>
-          <button type="button" className="button button--danger" onClick={() => openModal('reject')}>
+          </Button>
+          <Button onClick={() => openModal('request_info')}>Yêu cầu bổ sung</Button>
+          <Button variant="danger" onClick={() => openModal('reject')}>
             Từ chối
-          </button>
+          </Button>
         </>
       ) : null}
       {status === 'verified' ? (
-        <button type="button" className="button button--danger" onClick={() => openModal('suspend')}>
+        <Button variant="danger" onClick={() => openModal('suspend')}>
           Tạm khóa
-        </button>
+        </Button>
       ) : null}
 
       {openAction !== null ? (
-        <div className="modal" role="dialog" aria-modal="true">
-          <div className="modal__card">
-            <h2>{REASON_ACTION_LABELS[openAction]}</h2>
-            <label className="form-field">
-              <span>Lý do (bắt buộc)</span>
-              <textarea
-                className="input"
-                value={reason}
-                onChange={(event) => setReason(event.target.value)}
-                rows={3}
-                minLength={5}
-              />
-            </label>
-            <div className="form-actions">
-              <button
-                type="button"
-                className="button button--primary"
-                disabled={reason.trim().length < 5}
-                onClick={confirm}
-              >
-                Xác nhận
-              </button>
-              <button
-                type="button"
-                className="button button--ghost"
-                onClick={() => setOpenAction(null)}
-              >
+        <Modal
+          title={REASON_ACTION_LABELS[openAction]}
+          onClose={() => setOpenAction(null)}
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => setOpenAction(null)}>
                 Hủy
-              </button>
-            </div>
-          </div>
-        </div>
+              </Button>
+              <Button variant="primary" disabled={reason.trim().length < 5} onClick={confirm}>
+                Xác nhận
+              </Button>
+            </>
+          }
+        >
+          <Textarea
+            label="Lý do (bắt buộc)"
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            rows={3}
+            minLength={5}
+          />
+        </Modal>
       ) : null}
     </div>
   );

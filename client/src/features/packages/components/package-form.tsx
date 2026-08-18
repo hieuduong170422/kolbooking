@@ -1,4 +1,14 @@
 import { useState, type FormEvent } from 'react';
+import {
+  Button,
+  Checkbox,
+  ChipGroup,
+  IconButton,
+  Input,
+  Select,
+  Textarea,
+} from '../../../shared/components/ui';
+import { IconPlus, IconTrash } from '../../../shared/components/icons';
 import { SOCIAL_PLATFORMS, type SocialPlatform } from '../../creators/types/creator-types';
 import { AuthError } from '../../auth/components/auth-error';
 import {
@@ -67,14 +77,6 @@ export const PackageForm = ({ initial, onSubmit, onCancel }: PackageFormProps) =
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<unknown>(null);
 
-  const togglePlatform = (platform: SocialPlatform): void => {
-    setPlatforms((current) =>
-      current.includes(platform)
-        ? current.filter((item) => item !== platform)
-        : [...current, platform],
-    );
-  };
-
   const patchDeliverable = (index: number, patch: Partial<DeliverableDraft>): void => {
     setDeliverables((current) =>
       current.map((item, i) => (i === index ? { ...item, ...patch } : item)),
@@ -124,121 +126,92 @@ export const PackageForm = ({ initial, onSubmit, onCancel }: PackageFormProps) =
       <AuthError error={error} />
 
       <div className="form-grid">
-        <label className="form-field">
-          <span>Tên package</span>
-          <input
-            type="text"
-            className="input"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            minLength={5}
-            maxLength={100}
-            required
-          />
-        </label>
-        <label className="form-field">
-          <span>Category</span>
-          <input
-            type="text"
-            className="input"
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-            placeholder="f&b, lifestyle, tech..."
-            minLength={2}
-            maxLength={50}
-            required
-          />
-        </label>
-      </div>
-
-      <fieldset className="checkbox-group">
-        <legend>Nền tảng</legend>
-        {SOCIAL_PLATFORMS.map((platform) => (
-          <label key={platform} className="checkbox-option">
-            <input
-              type="checkbox"
-              checked={platforms.includes(platform)}
-              onChange={() => togglePlatform(platform)}
-            />
-            <span>{platform}</span>
-          </label>
-        ))}
-      </fieldset>
-
-      <label className="form-field">
-        <span>Mô tả</span>
-        <textarea
-          className="input"
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-          rows={4}
-          minLength={20}
-          maxLength={2000}
+        <Input
+          label="Tên package"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          minLength={5}
+          maxLength={100}
           required
         />
-        <small>Tối thiểu 20 ký tự — nói rõ brand nhận được gì.</small>
-      </label>
+        <Input
+          label="Category"
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+          placeholder="f&b, lifestyle, tech..."
+          minLength={2}
+          maxLength={50}
+          required
+        />
+      </div>
+
+      <ChipGroup
+        legend="Nền tảng"
+        value={platforms}
+        options={SOCIAL_PLATFORMS.map((platform) => ({ value: platform, label: platform }))}
+        onChange={(next) => setPlatforms(next as readonly SocialPlatform[])}
+      />
+
+      <Textarea
+        label="Mô tả"
+        value={description}
+        onChange={(event) => setDescription(event.target.value)}
+        rows={4}
+        minLength={20}
+        maxLength={2000}
+        showCounter
+        hint="Tối thiểu 20 ký tự — nói rõ brand nhận được gì."
+        required
+      />
 
       <div className="form-grid form-grid--3">
-        <label className="form-field">
-          <span>Giá (VND)</span>
-          <input
-            type="number"
-            className="input"
-            value={priceVnd}
-            onChange={(event) => setPriceVnd(Number(event.target.value))}
-            min={50_000}
-            step={10_000}
-            required
-          />
-        </label>
-        <label className="form-field">
-          <span>Thời gian hoàn thành (ngày)</span>
-          <input
-            type="number"
-            className="input"
-            value={turnaroundDays}
-            onChange={(event) => setTurnaroundDays(Number(event.target.value))}
-            min={1}
-            max={60}
-            required
-          />
-        </label>
-        <label className="form-field">
-          <span>Số lần sửa</span>
-          <input
-            type="number"
-            className="input"
-            value={revisionsIncluded}
-            onChange={(event) => setRevisionsIncluded(Number(event.target.value))}
-            min={0}
-            max={10}
-            required
-          />
-        </label>
+        <Input
+          label="Giá (VND)"
+          type="number"
+          value={priceVnd}
+          onChange={(event) => setPriceVnd(Number(event.target.value))}
+          min={50_000}
+          step={10_000}
+          required
+        />
+        <Input
+          label="Thời gian hoàn thành (ngày)"
+          type="number"
+          value={turnaroundDays}
+          onChange={(event) => setTurnaroundDays(Number(event.target.value))}
+          min={1}
+          max={60}
+          required
+        />
+        <Input
+          label="Số lần sửa"
+          type="number"
+          value={revisionsIncluded}
+          onChange={(event) => setRevisionsIncluded(Number(event.target.value))}
+          min={0}
+          max={10}
+          required
+        />
       </div>
 
       <fieldset className="form-section">
         <legend>Deliverables — brand nhận được gì (PKG-002)</legend>
         {deliverables.map((deliverable, index) => (
           <div key={index} className="deliverable-row">
-            <select
-              className="input"
+            <Select
               aria-label={`Loại deliverable ${index + 1}`}
+              options={DELIVERABLE_TYPES.map((type) => ({
+                value: type,
+                label: DELIVERABLE_TYPE_LABELS[type],
+              }))}
               value={deliverable.type}
               onChange={(event) =>
                 patchDeliverable(index, { type: event.target.value as DeliverableType })
               }
-            >
-              {DELIVERABLE_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {DELIVERABLE_TYPE_LABELS[type]}
-                </option>
-              ))}
-            </select>
-            <input
+            />
+            <Input
               type="number"
-              className="input input--narrow"
+              narrow
               aria-label={`Số lượng deliverable ${index + 1}`}
               value={deliverable.quantity}
               onChange={(event) => patchDeliverable(index, { quantity: Number(event.target.value) })}
@@ -246,9 +219,7 @@ export const PackageForm = ({ initial, onSubmit, onCancel }: PackageFormProps) =
               max={50}
               required
             />
-            <input
-              type="text"
-              className="input"
+            <Input
               aria-label={`Mô tả deliverable ${index + 1}`}
               placeholder="vd: Video 30-60s dọc 9:16"
               value={deliverable.description}
@@ -257,118 +228,89 @@ export const PackageForm = ({ initial, onSubmit, onCancel }: PackageFormProps) =
               maxLength={200}
               required
             />
-            <label className="checkbox-option">
-              <input
-                type="checkbox"
-                checked={deliverable.postedOnCreatorChannel}
-                onChange={(event) =>
-                  patchDeliverable(index, { postedOnCreatorChannel: event.target.checked })
-                }
-              />
-              <span>Đăng kênh creator</span>
-            </label>
+            <Checkbox
+              label="Đăng kênh creator"
+              checked={deliverable.postedOnCreatorChannel}
+              onChange={(event) =>
+                patchDeliverable(index, { postedOnCreatorChannel: event.target.checked })
+              }
+            />
             {deliverables.length > 1 ? (
-              <button
-                type="button"
-                className="button button--ghost"
-                aria-label={`Xóa deliverable ${index + 1}`}
-                onClick={() =>
-                  setDeliverables((current) => current.filter((_, i) => i !== index))
-                }
-              >
-                ✕
-              </button>
+              <IconButton
+                label={`Xóa deliverable ${index + 1}`}
+                tone="danger"
+                icon={<IconTrash />}
+                onClick={() => setDeliverables((current) => current.filter((_, i) => i !== index))}
+              />
             ) : null}
           </div>
         ))}
-        <button
-          type="button"
-          className="button button--secondary"
+        <Button
+          icon={<IconPlus />}
           onClick={() => setDeliverables((current) => [...current, { ...EMPTY_DELIVERABLE }])}
         >
-          + Thêm deliverable
-        </button>
+          Thêm deliverable
+        </Button>
       </fieldset>
 
       <fieldset className="form-section">
         <legend>Quyền sử dụng nội dung (PKG-004)</legend>
         <div className="form-grid">
-          <label className="checkbox-option">
-            <input
-              type="checkbox"
-              checked={repost}
-              onChange={(event) => setRepost(event.target.checked)}
-            />
-            <span>Brand được đăng lại (repost)</span>
-          </label>
-          <label className="checkbox-option">
-            <input
-              type="checkbox"
-              checked={paidAds}
-              onChange={(event) => setPaidAds(event.target.checked)}
-            />
-            <span>Brand được chạy quảng cáo</span>
-          </label>
+          <Checkbox
+            label="Brand được đăng lại (repost)"
+            checked={repost}
+            onChange={(event) => setRepost(event.target.checked)}
+          />
+          <Checkbox
+            label="Brand được chạy quảng cáo"
+            checked={paidAds}
+            onChange={(event) => setPaidAds(event.target.checked)}
+          />
         </div>
         <div className="form-grid">
-          <label className="form-field">
-            <span>Thời hạn sử dụng (tháng, trống = không giới hạn)</span>
-            <input
-              type="number"
-              className="input"
-              value={durationMonths ?? ''}
-              onChange={(event) =>
-                setDurationMonths(event.target.value === '' ? null : Number(event.target.value))
-              }
-              min={1}
-              max={120}
-            />
-          </label>
-          <label className="form-field">
-            <span>Kênh brand được dùng (phân cách dấu phẩy)</span>
-            <input
-              type="text"
-              className="input"
-              value={channels}
-              onChange={(event) => setChannels(event.target.value)}
-              placeholder="facebook, website"
-            />
-          </label>
-        </div>
-        <label className="form-field">
-          <span>Bài đăng duy trì công khai tối thiểu (ngày, trống = không cam kết)</span>
-          <input
+          <Input
+            label="Thời hạn sử dụng (tháng, trống = không giới hạn)"
             type="number"
-            className="input"
-            value={postDurationDays ?? ''}
+            value={durationMonths ?? ''}
             onChange={(event) =>
-              setPostDurationDays(event.target.value === '' ? null : Number(event.target.value))
+              setDurationMonths(event.target.value === '' ? null : Number(event.target.value))
             }
             min={1}
-            max={365}
+            max={120}
           />
-        </label>
+          <Input
+            label="Kênh brand được dùng (phân cách dấu phẩy)"
+            value={channels}
+            onChange={(event) => setChannels(event.target.value)}
+            placeholder="facebook, website"
+          />
+        </div>
+        <Input
+          label="Bài đăng duy trì công khai tối thiểu (ngày, trống = không cam kết)"
+          type="number"
+          value={postDurationDays ?? ''}
+          onChange={(event) =>
+            setPostDurationDays(event.target.value === '' ? null : Number(event.target.value))
+          }
+          min={1}
+          max={365}
+        />
       </fieldset>
 
       <fieldset className="form-section">
         <legend>Add-on (PKG-006)</legend>
         {addOns.map((addOn, index) => (
           <div key={index} className="deliverable-row">
-            <select
-              className="input"
+            <Select
               aria-label={`Loại add-on ${index + 1}`}
+              options={ADD_ON_TYPES.map((type) => ({
+                value: type,
+                label: ADD_ON_TYPE_LABELS[type],
+              }))}
               value={addOn.type}
               onChange={(event) => patchAddOn(index, { type: event.target.value as AddOnType })}
-            >
-              {ADD_ON_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {ADD_ON_TYPE_LABELS[type]}
-                </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              className="input"
+            />
+            <Input
               aria-label={`Tên add-on ${index + 1}`}
               placeholder="vd: Giao nhanh 48h"
               value={addOn.label}
@@ -377,9 +319,9 @@ export const PackageForm = ({ initial, onSubmit, onCancel }: PackageFormProps) =
               maxLength={100}
               required
             />
-            <input
+            <Input
               type="number"
-              className="input input--narrow"
+              narrow
               aria-label={`Giá add-on ${index + 1}`}
               value={addOn.priceVnd}
               onChange={(event) => patchAddOn(index, { priceVnd: Number(event.target.value) })}
@@ -387,19 +329,16 @@ export const PackageForm = ({ initial, onSubmit, onCancel }: PackageFormProps) =
               step={10_000}
               required
             />
-            <button
-              type="button"
-              className="button button--ghost"
-              aria-label={`Xóa add-on ${index + 1}`}
+            <IconButton
+              label={`Xóa add-on ${index + 1}`}
+              tone="danger"
+              icon={<IconTrash />}
               onClick={() => setAddOns((current) => current.filter((_, i) => i !== index))}
-            >
-              ✕
-            </button>
+            />
           </div>
         ))}
-        <button
-          type="button"
-          className="button button--secondary"
+        <Button
+          icon={<IconPlus />}
           onClick={() =>
             setAddOns((current) => [
               ...current,
@@ -407,21 +346,22 @@ export const PackageForm = ({ initial, onSubmit, onCancel }: PackageFormProps) =
             ])
           }
         >
-          + Thêm add-on
-        </button>
+          Thêm add-on
+        </Button>
       </fieldset>
 
       <div className="form-actions">
-        <button
+        <Button
           type="submit"
-          className="button button--primary"
-          disabled={pending || platforms.length === 0}
+          variant="primary"
+          loading={pending}
+          disabled={platforms.length === 0}
         >
           {pending ? 'Đang lưu...' : initial ? 'Lưu thay đổi' : 'Tạo package'}
-        </button>
-        <button type="button" className="button button--ghost" onClick={onCancel} disabled={pending}>
+        </Button>
+        <Button variant="ghost" onClick={onCancel} disabled={pending}>
           Hủy
-        </button>
+        </Button>
       </div>
     </form>
   );

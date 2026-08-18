@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Button, Modal, Textarea } from '../../../shared/components/ui';
 import type { ReviewCreatorInput } from '../hooks/use-review-queue';
 import type { CreatorStatus } from '../types/creator-types';
 
@@ -49,74 +50,43 @@ export const ReviewActions = ({ creatorId, status, onAction }: ReviewActionsProp
     <div className="review-actions">
       {isPending ? (
         <>
-          <button
-            type="button"
-            className="button button--primary"
-            onClick={() => onAction({ creatorId, action: 'approve' })}
-          >
+          <Button variant="primary" onClick={() => onAction({ creatorId, action: 'approve' })}>
             Duyệt
-          </button>
-          <button
-            type="button"
-            className="button button--warning"
-            onClick={() => openModal('request_info')}
-          >
+          </Button>
+          <Button variant="warning" onClick={() => openModal('request_info')}>
             Yêu cầu bổ sung
-          </button>
-          <button
-            type="button"
-            className="button button--danger"
-            onClick={() => openModal('reject')}
-          >
+          </Button>
+          <Button variant="danger" onClick={() => openModal('reject')}>
             Từ chối
-          </button>
+          </Button>
         </>
       ) : null}
       {isVerified ? (
-        <button type="button" className="button button--danger" onClick={() => openModal('suspend')}>
+        <Button variant="danger" onClick={() => openModal('suspend')}>
           Tạm khóa
-        </button>
+        </Button>
       ) : null}
 
       {openAction !== null ? (
-        <div className="modal" role="dialog" aria-modal="true">
-          <div className="modal__card">
-            <div className="modal__header">
-              <h2>{REASON_ACTION_LABELS[openAction]}</h2>
-              <button
-                type="button"
-                className="modal__close"
-                aria-label="Đóng"
-                onClick={closeModal}
-              >
-                ×
-              </button>
-            </div>
-            <div className="form-field">
-              <label htmlFor={`review-reason-${creatorId}`}>Lý do</label>
-              <textarea
-                id={`review-reason-${creatorId}`}
-                className="textarea"
-                value={reason}
-                onChange={(event) => setReason(event.target.value)}
-                placeholder="Nhập lý do cho creator..."
-              />
-            </div>
-            <div className="modal__actions">
-              <button type="button" className="button button--secondary" onClick={closeModal}>
-                Hủy
-              </button>
-              <button
-                type="button"
-                className="button button--primary"
-                disabled={reason.trim() === ''}
-                onClick={confirm}
-              >
+        <Modal
+          title={REASON_ACTION_LABELS[openAction]}
+          onClose={closeModal}
+          footer={
+            <>
+              <Button onClick={closeModal}>Hủy</Button>
+              <Button variant="primary" disabled={reason.trim() === ''} onClick={confirm}>
                 Xác nhận
-              </button>
-            </div>
-          </div>
-        </div>
+              </Button>
+            </>
+          }
+        >
+          <Textarea
+            label="Lý do"
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            placeholder="Nhập lý do cho creator..."
+          />
+        </Modal>
       ) : null}
     </div>
   );

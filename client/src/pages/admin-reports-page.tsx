@@ -13,6 +13,7 @@ import { ApiClientError } from '../shared/api/api-types';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { Pagination } from '../shared/components/pagination/pagination';
+import { Button, Modal, Tabs, Textarea } from '../shared/components/ui';
 
 const PAGE_LIMIT = 20;
 
@@ -58,21 +59,19 @@ export const AdminReportsPage = () => {
         </p>
       </div>
 
-      <div className="review-tabs" role="tablist" aria-label="Lọc theo trạng thái">
-        {REPORT_STATUSES.map((item) => (
-          <button
-            key={item}
-            type="button"
-            className={`review-tabs__tab${item === status ? ' review-tabs__tab--active' : ''}`}
-            onClick={() => {
-              setStatus(item);
-              setPage(1);
-            }}
-          >
-            {REPORT_STATUS_LABELS[item]}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        label="Lọc theo trạng thái"
+        value={status}
+        options={REPORT_STATUSES.map((item) => ({
+          key: item,
+          value: item,
+          label: REPORT_STATUS_LABELS[item],
+        }))}
+        onChange={(next) => {
+          setStatus(next);
+          setPage(1);
+        }}
+      />
 
       {actionError instanceof ApiClientError ? (
         <div className="notice notice--warning" role="alert">
@@ -128,26 +127,23 @@ export const AdminReportsPage = () => {
                     </div>
                     {report.status === 'open' ? (
                       <div className="review-actions">
-                        <button
-                          type="button"
-                          className="button button--primary"
+                        <Button
+                          variant="primary"
                           onClick={() => {
                             setTarget({ report, action: 'resolved' });
                             setNote('');
                           }}
                         >
                           Đánh dấu đã xử lý
-                        </button>
-                        <button
-                          type="button"
-                          className="button button--secondary"
+                        </Button>
+                        <Button
                           onClick={() => {
                             setTarget({ report, action: 'dismissed' });
                             setNote('');
                           }}
                         >
                           Bỏ qua
-                        </button>
+                        </Button>
                       </div>
                     ) : null}
                   </li>
@@ -162,40 +158,35 @@ export const AdminReportsPage = () => {
       ) : null}
 
       {target !== null ? (
-        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="resolve-title">
-          <div className="modal__card">
-            <h2 id="resolve-title">
-              {target.action === 'resolved' ? 'Đánh dấu đã xử lý' : 'Bỏ qua báo cáo'}
-            </h2>
-            <p className="page__subtitle">
-              {REPORT_REASON_LABELS[target.report.reason]} · {target.report.targetId}
-            </p>
-            <label className="form-field">
-              <span>Ghi chú xử lý (bắt buộc)</span>
-              <textarea
-                className="textarea"
-                value={note}
-                onChange={(event) => setNote(event.target.value)}
-                rows={3}
-                minLength={5}
-                placeholder="Đã làm gì với báo cáo này?"
-              />
-            </label>
-            <div className="form-actions">
-              <button
-                type="button"
-                className="button button--primary"
-                disabled={note.trim().length < 5 || resolve.isPending}
+        <Modal
+          title={target.action === 'resolved' ? 'Đánh dấu đã xử lý' : 'Bỏ qua báo cáo'}
+          description={`${REPORT_REASON_LABELS[target.report.reason]} · ${target.report.targetId}`}
+          onClose={() => setTarget(null)}
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => setTarget(null)}>
+                Hủy
+              </Button>
+              <Button
+                variant="primary"
+                loading={resolve.isPending}
+                disabled={note.trim().length < 5}
                 onClick={confirm}
               >
                 {resolve.isPending ? 'Đang lưu...' : 'Xác nhận'}
-              </button>
-              <button type="button" className="button button--ghost" onClick={() => setTarget(null)}>
-                Hủy
-              </button>
-            </div>
-          </div>
-        </div>
+              </Button>
+            </>
+          }
+        >
+          <Textarea
+            label="Ghi chú xử lý (bắt buộc)"
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            rows={3}
+            minLength={5}
+            placeholder="Đã làm gì với báo cáo này?"
+          />
+        </Modal>
       ) : null}
     </section>
   );

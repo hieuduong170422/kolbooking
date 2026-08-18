@@ -1,4 +1,5 @@
 import { IconTrash } from '../../../shared/components/icons';
+import { IconButton, Input, Select } from '../../../shared/components/ui';
 import { SOCIAL_PLATFORMS, type SocialPlatform } from '../types/creator-types';
 
 export interface SocialDraft {
@@ -26,66 +27,50 @@ export const SocialAccountFields = ({
 }: SocialAccountFieldsProps) => (
   <div className="social-item">
     <div className="social-item__head">
-      <label className="social-item__platform">
-        <span className="visually-hidden">Nền tảng tài khoản {index + 1}</span>
-        <select
-          className="select"
-          value={account.platform}
-          onChange={(event) => onChange({ platform: event.target.value as SocialPlatform })}
-          disabled={readOnly}
-        >
-          {SOCIAL_PLATFORMS.map((platform) => (
-            <option key={platform} value={platform}>
-              {platform}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button
-        type="button"
-        className="icon-button icon-button--danger"
+      <Select
+        aria-label={`Nền tảng tài khoản ${index + 1}`}
+        fieldClassName="social-item__platform"
+        options={SOCIAL_PLATFORMS.map((platform) => ({ value: platform, label: platform }))}
+        value={account.platform}
+        onChange={(event) => onChange({ platform: event.target.value as SocialPlatform })}
+        disabled={readOnly}
+      />
+      <IconButton
+        label={`Xóa tài khoản ${index + 1}`}
+        title="Xóa tài khoản"
+        tone="danger"
+        icon={<IconTrash />}
         onClick={onRemove}
         disabled={readOnly}
-        aria-label={`Xóa tài khoản ${index + 1}`}
-        title="Xóa tài khoản"
-      >
-        <IconTrash />
-      </button>
+      />
     </div>
     <div className="field-grid">
-      <label className="form-field field--half">
-        <span>Handle</span>
-        <input
-          type="text"
-          className="input"
-          value={account.handle}
-          onChange={(event) => onChange({ handle: event.target.value })}
-          placeholder="@username"
-          disabled={readOnly}
-        />
-      </label>
-      <label className="form-field field--half">
-        <span>Followers</span>
-        <input
-          type="number"
-          className="input"
-          value={account.followerCount}
-          onChange={(event) => onChange({ followerCount: Number(event.target.value) })}
-          min={0}
-          disabled={readOnly}
-        />
-      </label>
-      <label className="form-field field--full">
-        <span>URL kênh</span>
-        <input
-          type="url"
-          className="input"
-          value={account.url}
-          onChange={(event) => onChange({ url: event.target.value })}
-          placeholder="https://..."
-          disabled={readOnly}
-        />
-      </label>
+      <Input
+        label="Handle"
+        span="half"
+        value={account.handle}
+        onChange={(event) => onChange({ handle: event.target.value })}
+        placeholder="@username"
+        disabled={readOnly}
+      />
+      <Input
+        label="Followers"
+        span="half"
+        type="number"
+        value={account.followerCount}
+        onChange={(event) => onChange({ followerCount: Number(event.target.value) })}
+        min={0}
+        disabled={readOnly}
+      />
+      <Input
+        label="URL kênh"
+        span="full"
+        type="url"
+        value={account.url}
+        onChange={(event) => onChange({ url: event.target.value })}
+        placeholder="https://..."
+        disabled={readOnly}
+      />
     </div>
   </div>
 );

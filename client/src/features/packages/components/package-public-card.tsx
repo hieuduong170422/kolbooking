@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Link } from 'react-router';
+import { LinkButton } from '../../../shared/components/ui';
 import { formatVnd } from '../../../shared/utils/format';
 import {
   DELIVERABLE_TYPE_LABELS,
@@ -51,12 +51,7 @@ export const PackagePublicCard = ({
       {pkg.addOns.length > 0 ? (
         <p className="pkg-card__addons">+{pkg.addOns.length} add-on</p>
       ) : null}
-      <Link
-        to={`/creators/${pkg.creatorId}/book?package=${pkg.id}`}
-        className="button button--primary"
-      >
-        Đặt gói này
-      </Link>
+      <LinkButton to={`/creators/${pkg.creatorId}/book?package=${pkg.id}`}>Đặt gói này</LinkButton>
       {action}
     </div>
   </article>

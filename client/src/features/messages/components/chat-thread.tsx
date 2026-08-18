@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { useAuth } from '../../auth/store/use-auth';
 import { ApiClientError } from '../../../shared/api/api-types';
+import { Button, Input } from '../../../shared/components/ui';
 import { useMessageActions, useMessages } from '../hooks/use-messages';
 
 const formatTime = (iso: string): string =>
@@ -100,22 +101,21 @@ export const ChatThread = ({ conversationId, bookingId }: ChatThreadProps) => {
         <label className="visually-hidden" htmlFor={inputId}>
           Nội dung tin nhắn
         </label>
-        <input
+        <Input
           id={inputId}
-          type="text"
-          className="input"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           placeholder="Nhập tin nhắn..."
           maxLength={2000}
         />
-        <button
+        <Button
           type="submit"
-          className="button button--primary"
-          disabled={draft.trim().length === 0 || send.isPending}
+          variant="primary"
+          loading={send.isPending}
+          disabled={draft.trim().length === 0}
         >
           {send.isPending ? 'Đang gửi...' : 'Gửi'}
-        </button>
+        </Button>
       </form>
     </div>
   );

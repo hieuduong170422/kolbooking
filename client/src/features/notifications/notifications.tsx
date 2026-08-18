@@ -1,7 +1,8 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router';
 import { apiGet, apiPost } from '../../shared/api/http-client';
+import { Button, Popover } from '../../shared/components/ui';
 import { AuthContext } from '../auth/store/auth-context';
 
 /** Mirror Notification phía server (NTF-001). */
@@ -40,9 +41,6 @@ const NotificationMenu = () => {
   const { data } = useNotifications();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
   const markRead = useMutation({
     mutationFn: (id: string) => apiPost(`/notifications/${id}/read`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
@@ -52,61 +50,40 @@ const NotificationMenu = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
   });
 
-  // Đóng menu khi bấm ra ngoài hoặc nhấn Escape (a11y) — mirror menu user.
-  useEffect(() => {
-    if (!open) return;
-    const handleMouseDown = (event: MouseEvent): void => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    const handleKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [open]);
-
   const items = data?.items ?? [];
   const unreadCount = data?.unreadCount ?? 0;
 
-  const openItem = (notification: Notification): void => {
+  const openItem = (notification: Notification, close: () => void): void => {
     if (notification.readAt === null) markRead.mutate(notification.id);
-    setOpen(false);
+    close();
     navigate(notification.link);
   };
 
   return (
-    <div className="notif" ref={containerRef}>
-      <button
-        type="button"
-        className="notif__bell"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label={unreadCount > 0 ? `Thông báo (${unreadCount} chưa đọc)` : 'Thông báo'}
-        onClick={() => setOpen((value) => !value)}
-      >
-        <span aria-hidden="true">🔔</span>
-        {unreadCount > 0 ? <span className="notif__badge">{unreadCount}</span> : null}
-      </button>
-
-      {open ? (
-        <div className="notif__panel" role="menu">
+    <Popover
+      className="notif"
+      triggerClassName="notif__bell"
+      triggerLabel={unreadCount > 0 ? `Thông báo (${unreadCount} chưa đọc)` : 'Thông báo'}
+      panelClassName="notif__panel"
+      trigger={
+        <>
+          <span aria-hidden="true">🔔</span>
+          {unreadCount > 0 ? <span className="notif__badge">{unreadCount}</span> : null}
+        </>
+      }
+    >
+      {(close) => (
+        <>
           <div className="notif__head">
             <span>Thông báo</span>
             {unreadCount > 0 ? (
-              <button
-                type="button"
-                className="button-link"
+              <Button
+                variant="link"
                 onClick={() => markAllRead.mutate()}
                 disabled={markAllRead.isPending}
               >
                 Đánh dấu đã đọc hết
-              </button>
+              </Button>
             ) : null}
           </div>
 
@@ -120,7 +97,7 @@ const NotificationMenu = () => {
                     type="button"
                     role="menuitem"
                     className={`notif__item${notification.readAt === null ? ' notif__item--unread' : ''}`}
-                    onClick={() => openItem(notification)}
+                    onClick={() => openItem(notification, close)}
                   >
                     <span className="notif__title">{notification.title}</span>
                     <span className="notif__body">{notification.body}</span>
@@ -132,9 +109,9 @@ const NotificationMenu = () => {
               ))}
             </ul>
           )}
-        </div>
-      ) : null}
-    </div>
+        </>
+      )}
+    </Popover>
   );
 };
 

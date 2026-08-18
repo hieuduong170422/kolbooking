@@ -1,5 +1,5 @@
-import { Link } from 'react-router';
 import { useAuth } from '../features/auth/store/use-auth';
+import { LinkButton } from '../shared/components/ui';
 import { ROLE_LABELS } from '../features/auth/types/auth-types';
 import { StatusBanner } from '../features/creators/components/status-banner';
 import { useCreatorProfile } from '../features/creators/hooks/use-creator-profile';
@@ -28,17 +28,17 @@ const CreatorProfileCard = () => {
       ) : isError ? (
         <>
           <p>Bạn chưa có hồ sơ creator — tạo ngay để bắt đầu nhận booking.</p>
-          <Link to="/onboarding" className="button button--primary">
+          <LinkButton to="/onboarding">
             Tạo hồ sơ ngay
-          </Link>
+          </LinkButton>
         </>
       ) : profile ? (
         <>
           <span className="badge">{CREATOR_STATUS_LABELS[profile.status]}</span>
           <StatusBanner status={profile.status} statusReason={profile.statusReason} />
-          <Link to="/onboarding" className="button button--secondary">
+          <LinkButton to="/onboarding" variant="secondary">
             Quản lý hồ sơ
-          </Link>
+          </LinkButton>
         </>
       ) : null}
     </div>
@@ -66,9 +66,9 @@ export const DashboardPage = () => {
           <p>
             Tài khoản chưa xác minh email — bạn chưa thể gửi hồ sơ duyệt hay tạo booking.
           </p>
-          <Link to="/verify-email" className="button button--primary">
+          <LinkButton to="/verify-email">
             Xác minh ngay
-          </Link>
+          </LinkButton>
         </div>
       ) : null}
 
@@ -80,9 +80,9 @@ export const DashboardPage = () => {
           </span>
           <h2>Khám phá creator</h2>
           <p>Tìm creator theo lĩnh vực, khu vực và ngân sách.</p>
-          <Link to="/creators" className="button button--primary">
+          <LinkButton to="/creators">
             Bắt đầu tìm
-          </Link>
+          </LinkButton>
         </div>
         {user.role !== 'admin' ? (
           <div className="dashboard-card">
@@ -91,9 +91,9 @@ export const DashboardPage = () => {
             </span>
             <h2>Booking của tôi</h2>
             <p>Theo dõi yêu cầu, brief đã chốt và việc cần làm tiếp.</p>
-            <Link to="/bookings" className="button button--primary">
+            <LinkButton to="/bookings">
               Xem booking
-            </Link>
+            </LinkButton>
           </div>
         ) : null}
         {user.role === 'creator' ? (
@@ -103,9 +103,9 @@ export const DashboardPage = () => {
             </span>
             <h2>Gói dịch vụ của tôi</h2>
             <p>Tạo package chuẩn hóa: đầu ra, giá, deadline, quyền sử dụng.</p>
-            <Link to="/my-packages" className="button button--primary">
+            <LinkButton to="/my-packages">
               Quản lý package
-            </Link>
+            </LinkButton>
           </div>
         ) : null}
         {user.role === 'brand' ? (
@@ -115,9 +115,9 @@ export const DashboardPage = () => {
             </span>
             <h2>Hồ sơ brand</h2>
             <p>Hoàn thiện hồ sơ và xác minh để bắt đầu booking creator.</p>
-            <Link to="/brand-onboarding" className="button button--primary">
+            <LinkButton to="/brand-onboarding">
               Quản lý hồ sơ
-            </Link>
+            </LinkButton>
           </div>
         ) : null}
         {user.role === 'admin' ? (
@@ -127,9 +127,9 @@ export const DashboardPage = () => {
             </span>
             <h2>Khu vực quản trị</h2>
             <p>Quản lý tài khoản, duyệt hồ sơ creator/brand và xem nhật ký hoạt động.</p>
-            <Link to="/admin/users" className="button button--primary">
+            <LinkButton to="/admin/users">
               Mở khu quản trị
-            </Link>
+            </LinkButton>
           </div>
         ) : null}
       </div>

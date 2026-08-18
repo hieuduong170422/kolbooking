@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { LinkButton } from '../shared/components/ui';
 import { CreatorList } from '../features/creators/components/creator-list';
 import { useFavorites } from '../features/favorites/hooks/use-favorites';
 import { ErrorState } from '../shared/components/feedback/error-state';
@@ -27,9 +27,9 @@ export const SavedCreatorsPage = () => {
           <div className="feedback">
             <p className="feedback__title">Chưa lưu creator nào</p>
             <p>Bấm biểu tượng trái tim trên thẻ creator để lưu lại xem sau.</p>
-            <Link to="/creators" className="button button--primary">
+            <LinkButton to="/creators">
               Khám phá creator
-            </Link>
+            </LinkButton>
           </div>
         ) : (
           <CreatorList creators={data} />

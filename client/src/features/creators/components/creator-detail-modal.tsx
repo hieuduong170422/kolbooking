@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { Button, Modal } from '../../../shared/components/ui';
 import {
   CREATOR_DAY_OF_WEEK_LABELS,
   CREATOR_LANGUAGE_LABELS,
@@ -37,24 +37,13 @@ interface CreatorDetailModalProps {
  * public detail (server chỉ trả creator verified — BR-001).
  */
 export const CreatorDetailModal = ({ creator, onClose }: CreatorDetailModalProps) => {
-  // Đóng modal bằng phím Escape — a11y (CRE-008).
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
-
   return (
-    <div className="modal" role="dialog" aria-modal="true">
-      <div className="modal__card creator-modal__card">
-        <div className="modal__header">
-          <h2>Chi tiết hồ sơ</h2>
-          <button type="button" className="modal__close" aria-label="Đóng" onClick={onClose}>
-            ×
-          </button>
-        </div>
+    <Modal
+      title="Chi tiết hồ sơ"
+      cardClassName="creator-modal__card"
+      onClose={onClose}
+      footer={<Button onClick={onClose}>Đóng</Button>}
+    >
 
         <div className="creator-modal__identity">
           {creator.avatarUrl !== null ? (
@@ -212,12 +201,6 @@ export const CreatorDetailModal = ({ creator, onClose }: CreatorDetailModalProps
           )}
         </div>
 
-        <div className="modal__actions">
-          <button type="button" className="button button--secondary" onClick={onClose}>
-            Đóng
-          </button>
-        </div>
-      </div>
-    </div>
+    </Modal>
   );
 };

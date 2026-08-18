@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 import { forgotPassword, resetPassword } from '../features/auth/api/auth-api';
 import { AuthError } from '../features/auth/components/auth-error';
+import { Button, Input, LinkButton } from '../shared/components/ui';
 
 type Step = 'request' | 'reset' | 'done';
 
@@ -59,20 +60,17 @@ export const ForgotPasswordPage = () => {
             </p>
             <form className="auth-form" onSubmit={(event) => void handleRequest(event)}>
               <AuthError error={error} />
-              <label className="form-field">
-                <span>Email</span>
-                <input
-                  type="email"
-                  className="input"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  autoComplete="email"
-                  required
-                />
-              </label>
-              <button type="submit" className="button button--primary" disabled={pending}>
+              <Input
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                autoComplete="email"
+                required
+              />
+              <Button type="submit" variant="primary" loading={pending}>
                 {pending ? 'Đang gửi mã...' : 'Gửi mã đặt lại'}
-              </button>
+              </Button>
             </form>
           </>
         ) : null}
@@ -84,53 +82,43 @@ export const ForgotPasswordPage = () => {
             </p>
             <form className="auth-form" onSubmit={(event) => void handleReset(event)}>
               <AuthError error={error} />
-              <label className="form-field">
-                <span>Mã xác nhận</span>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  className="input input--otp"
-                  value={code}
-                  onChange={(event) => setCode(event.target.value.replace(/\D/g, ''))}
-                  minLength={OTP_LENGTH}
-                  maxLength={OTP_LENGTH}
-                  pattern="\d{6}"
-                  placeholder="000000"
-                  required
-                />
-              </label>
-              <label className="form-field">
-                <span>Mật khẩu mới</span>
-                <input
-                  type="password"
-                  className="input"
-                  value={newPassword}
-                  onChange={(event) => setNewPassword(event.target.value)}
-                  autoComplete="new-password"
-                  minLength={8}
-                  required
-                />
-                <small>Tối thiểu 8 ký tự, gồm chữ và số.</small>
-              </label>
-              <button
+              <Input
+                label="Mã xác nhận"
+                className="input--otp"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                value={code}
+                onChange={(event) => setCode(event.target.value.replace(/\D/g, ''))}
+                minLength={OTP_LENGTH}
+                maxLength={OTP_LENGTH}
+                pattern="\d{6}"
+                placeholder="000000"
+                required
+              />
+              <Input
+                label="Mật khẩu mới"
+                type="password"
+                value={newPassword}
+                onChange={(event) => setNewPassword(event.target.value)}
+                autoComplete="new-password"
+                minLength={8}
+                hint="Tối thiểu 8 ký tự, gồm chữ và số."
+                required
+              />
+              <Button
                 type="submit"
-                className="button button--primary"
-                disabled={pending || code.length !== OTP_LENGTH}
+                variant="primary"
+                loading={pending}
+                disabled={code.length !== OTP_LENGTH}
               >
                 {pending ? 'Đang đặt lại...' : 'Đặt lại mật khẩu'}
-              </button>
+              </Button>
             </form>
             <p className="auth-card__switch">
               Chưa nhận được mã?{' '}
-              <button
-                type="button"
-                className="button-link"
-                onClick={() => setStep('request')}
-                disabled={pending}
-              >
+              <Button variant="link" onClick={() => setStep('request')} disabled={pending}>
                 Gửi lại
-              </button>
+              </Button>
             </p>
           </>
         ) : null}
@@ -140,9 +128,7 @@ export const ForgotPasswordPage = () => {
             <p className="form-success">
               Mật khẩu đã được đặt lại thành công. Đăng nhập bằng mật khẩu mới để tiếp tục.
             </p>
-            <Link to="/login" className="button button--primary">
-              Về trang đăng nhập
-            </Link>
+            <LinkButton to="/login">Về trang đăng nhập</LinkButton>
           </>
         ) : null}
 

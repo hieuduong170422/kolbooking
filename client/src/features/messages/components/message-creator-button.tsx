@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { useNavigate } from 'react-router';
 import { AuthContext } from '../../auth/store/auth-context';
+import { Button } from '../../../shared/components/ui';
 import { useStartConversation } from '../hooks/use-messages';
 
 /** Phần bấm được — chỉ mount khi chắc chắn là brand đã đăng nhập. */
@@ -9,10 +10,9 @@ const StartButton = ({ creatorId }: { creatorId: string }) => {
   const start = useStartConversation();
 
   return (
-    <button
-      type="button"
-      className="button button--secondary booking-panel__cta chatbox"
-      disabled={start.isPending}
+    <Button
+      className="booking-panel__cta chatbox"
+      loading={start.isPending}
       onClick={() =>
         start.mutate(creatorId, {
           onSuccess: (conversation) => navigate(`/messages?c=${conversation.id}`),
@@ -20,7 +20,7 @@ const StartButton = ({ creatorId }: { creatorId: string }) => {
       }
     >
       {start.isPending ? 'Đang mở...' : 'Nhắn tin cho creator'}
-    </button>
+    </Button>
   );
 };
 

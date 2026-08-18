@@ -9,6 +9,7 @@ import {
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { Pagination } from '../shared/components/pagination/pagination';
+import { Select } from '../shared/components/ui';
 
 const PAGE_LIMIT = 25;
 
@@ -39,22 +40,19 @@ export const AdminAuditPage = () => {
       </div>
 
       <div className="creator-filters">
-        <select
-          className="select"
-          value={targetType}
+        <Select
           aria-label="Lọc theo đối tượng"
+          placeholder="Tất cả đối tượng"
+          options={AUDIT_TARGET_TYPES.map((option) => ({
+            value: option,
+            label: AUDIT_TARGET_LABELS[option],
+          }))}
+          value={targetType}
           onChange={(event) => {
             setTargetType(event.target.value as AuditTargetType | '');
             setPage(1);
           }}
-        >
-          <option value="">Tất cả đối tượng</option>
-          {AUDIT_TARGET_TYPES.map((option) => (
-            <option key={option} value={option}>
-              {AUDIT_TARGET_LABELS[option]}
-            </option>
-          ))}
-        </select>
+        />
       </div>
 
       {isLoading ? <LoadingState message="Đang tải nhật ký..." /> : null}

@@ -14,6 +14,7 @@ import {
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { Pagination } from '../shared/components/pagination/pagination';
+import { Select } from '../shared/components/ui';
 
 /** Đọc số từ URL; bỏ qua giá trị rác để filter không sinh NaN. */
 const numberParam = (params: URLSearchParams, key: string): number | undefined => {
@@ -83,23 +84,18 @@ export const CreatorsPage = () => {
             <p className="results-bar__count">
               {total !== undefined ? `${total} creator phù hợp` : 'Đang tìm...'}
             </p>
-            <label className="results-bar__sort">
-              <span>Sắp xếp</span>
-              <select
-                className="select"
-                aria-label="Sắp xếp"
-                value={filter.sort ?? 'rating'}
-                onChange={(event) =>
-                  applyFilter({ ...filter, sort: event.target.value as CreatorSortOption, page: 1 })
-                }
-              >
-                {CREATOR_SORT_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {SORT_LABELS[option]}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <Select
+              fieldClassName="results-bar__sort"
+              label="Sắp xếp"
+              options={CREATOR_SORT_OPTIONS.map((option) => ({
+                value: option,
+                label: SORT_LABELS[option],
+              }))}
+              value={filter.sort ?? 'rating'}
+              onChange={(event) =>
+                applyFilter({ ...filter, sort: event.target.value as CreatorSortOption, page: 1 })
+              }
+            />
           </div>
 
           {isPending ? <LoadingState /> : null}

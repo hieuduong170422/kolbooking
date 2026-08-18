@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
+import { NavLink } from 'react-router';
 import { useAuth } from '../../../features/auth/store/use-auth';
 import { NotificationBell } from '../../../features/notifications/notifications';
 import { UnreadMessagesDot } from '../../../features/messages/components/unread-messages-dot';
+import { Dropdown, LinkButton } from '../ui';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }): string =>
   isActive ? 'app-header__link app-header__link--active' : 'app-header__link';
@@ -10,34 +11,8 @@ const navLinkClass = ({ isActive }: { isActive: boolean }): string =>
 export const AppHeader = () => {
   const { status, user, logout } = useAuth();
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
-
-  // Đóng menu khi click ra ngoài vùng tên user hoặc bấm Escape (a11y).
-  useEffect(() => {
-    if (!menuOpen) return;
-
-    const handleMouseDown = (event: MouseEvent): void => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    const handleKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
-        setMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [menuOpen]);
 
   const handleLogout = async (): Promise<void> => {
-    setMenuOpen(false);
     await logout();
     navigate('/creators');
   };
@@ -82,45 +57,37 @@ export const AppHeader = () => {
                 </NavLink>
               )}
               <NotificationBell />
-              <div className="app-header__user-menu" ref={userMenuRef}>
-                <button
-                  type="button"
-                  className="app-header__user"
-                  title={user.email}
-                  aria-haspopup="menu"
-                  aria-expanded={menuOpen}
-                  onClick={() => setMenuOpen((open) => !open)}
-                >
-                  <span className="app-header__user-avatar" aria-hidden="true">
-                    {user.displayName.charAt(0).toUpperCase()}
-                  </span>
-                  <span>{user.displayName}</span>
-                  <span className="app-header__caret" aria-hidden="true">
-                    ▾
-                  </span>
-                </button>
-                {menuOpen && (
-                  <div className="app-header__menu" role="menu">
-                    <button
-                      type="button"
-                      role="menuitem"
-                      className="app-header__menu-item"
-                      onClick={() => void handleLogout()}
-                    >
-                      Đăng xuất
-                    </button>
-                  </div>
-                )}
-              </div>
+              <Dropdown
+                className="app-header__user-menu"
+                triggerClassName="app-header__user"
+                triggerTitle={user.email}
+                trigger={
+                  <>
+                    <span className="app-header__user-avatar" aria-hidden="true">
+                      {user.displayName.charAt(0).toUpperCase()}
+                    </span>
+                    <span>{user.displayName}</span>
+                    <span className="app-header__caret" aria-hidden="true">
+                      ▾
+                    </span>
+                  </>
+                }
+                items={[
+                  {
+                    key: 'logout',
+                    label: 'Đăng xuất',
+                    tone: 'danger',
+                    onSelect: () => void handleLogout(),
+                  },
+                ]}
+              />
             </>
           ) : (
             <>
               <NavLink to="/login" className={navLinkClass}>
                 Đăng nhập
               </NavLink>
-              <NavLink to="/register" className="button button--primary">
-                Đăng ký
-              </NavLink>
+              <LinkButton to="/register">Đăng ký</LinkButton>
             </>
           )}
         </nav>

@@ -1,4 +1,5 @@
 import { Link, useSearchParams } from 'react-router';
+import { LinkButton } from '../shared/components/ui';
 import { useAuth } from '../features/auth/store/use-auth';
 import { ChatThread } from '../features/messages/components/chat-thread';
 import { useConversations } from '../features/messages/hooks/use-messages';
@@ -51,9 +52,9 @@ export const MessagesPage = () => {
               : 'Mở hồ sơ một creator và bấm “Nhắn tin” để bắt đầu.'}
           </p>
           {!isCreator ? (
-            <Link to="/creators" className="button button--primary">
+            <LinkButton to="/creators">
               Khám phá creator
-            </Link>
+            </LinkButton>
           ) : null}
         </div>
       ) : (
@@ -103,12 +104,9 @@ export const MessagesPage = () => {
                     ) : null}
                   </div>
                   {!isCreator ? (
-                    <Link
-                      to={`/creators/${active.creatorId}/book`}
-                      className="button button--primary"
-                    >
+                    <LinkButton to={`/creators/${active.creatorId}/book`}>
                       Đặt booking
-                    </Link>
+                    </LinkButton>
                   ) : null}
                 </div>
                 <ChatThread conversationId={active.id} />

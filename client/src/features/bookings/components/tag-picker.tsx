@@ -1,4 +1,6 @@
 import { useId, useState, type KeyboardEvent } from 'react';
+import { IconPlus } from '../../../shared/components/icons';
+import { Button, Input } from '../../../shared/components/ui';
 
 interface TagPickerProps {
   readonly label: string;
@@ -78,24 +80,17 @@ export const TagPicker = ({
       </div>
 
       <div className="link-row">
-        <input
+        <Input
           id={inputId}
-          type="text"
-          className="input"
           value={draft}
           placeholder={addPlaceholder}
           aria-label={`Thêm mục cho ${label.toLowerCase()}`}
           onChange={(event) => setDraft(event.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <button
-          type="button"
-          className="button button--secondary"
-          disabled={draft.trim().length === 0}
-          onClick={addDraft}
-        >
-          + Thêm
-        </button>
+        <Button icon={<IconPlus />} disabled={draft.trim().length === 0} onClick={addDraft}>
+          Thêm
+        </Button>
       </div>
     </fieldset>
   );

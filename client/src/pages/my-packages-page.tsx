@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
 import { PackageForm } from '../features/packages/components/package-form';
 import { useMyPackages, usePackageActions } from '../features/packages/hooks/use-my-packages';
 import {
@@ -12,6 +11,8 @@ import { ApiClientError } from '../shared/api/api-types';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { formatVnd } from '../shared/utils/format';
+import { IconPlus } from '../shared/components/icons';
+import { Button, LinkButton } from '../shared/components/ui';
 
 type EditorState = { mode: 'closed' } | { mode: 'create' } | { mode: 'edit'; pkg: PackageOwner };
 
@@ -44,9 +45,7 @@ export const MyPackagesPage = () => {
       <section className="page page--center">
         <h1>Chưa có hồ sơ creator</h1>
         <p className="page__subtitle">Bạn cần tạo hồ sơ creator trước khi tạo package.</p>
-        <Link to="/onboarding" className="button button--primary">
-          Tạo hồ sơ ngay
-        </Link>
+        <LinkButton to="/onboarding">Tạo hồ sơ ngay</LinkButton>
       </section>
     );
   }
@@ -87,13 +86,9 @@ export const MyPackagesPage = () => {
           </p>
         </div>
         {editor.mode === 'closed' ? (
-          <button
-            type="button"
-            className="button button--primary"
-            onClick={() => setEditor({ mode: 'create' })}
-          >
-            + Tạo package
-          </button>
+          <Button variant="primary" icon={<IconPlus />} onClick={() => setEditor({ mode: 'create' })}>
+            Tạo package
+          </Button>
         ) : null}
       </div>
 
@@ -159,44 +154,39 @@ export const MyPackagesPage = () => {
             </div>
             <div className="package-row__actions">
               {pkg.status !== 'hidden' ? (
-                <button
-                  type="button"
-                  className="button button--secondary"
-                  onClick={() => setEditor({ mode: 'edit', pkg })}
-                >
+                <Button size="sm" onClick={() => setEditor({ mode: 'edit', pkg })}>
                   Sửa
-                </button>
+                </Button>
               ) : null}
               {(pkg.status === 'draft' || pkg.status === 'unpublished') ? (
-                <button
-                  type="button"
-                  className="button button--primary"
+                <Button
+                  size="sm"
+                  variant="primary"
                   disabled={!isVerified || actions.publish.isPending}
                   title={!isVerified ? 'Chỉ creator Verified mới publish (BR-001)' : undefined}
                   onClick={() => runAction(actions.publish.mutateAsync(pkg.id))}
                 >
                   Publish
-                </button>
+                </Button>
               ) : null}
               {pkg.status === 'published' ? (
-                <button
-                  type="button"
-                  className="button button--secondary"
+                <Button
+                  size="sm"
                   disabled={actions.unpublish.isPending}
                   onClick={() => runAction(actions.unpublish.mutateAsync(pkg.id))}
                 >
                   Gỡ bán
-                </button>
+                </Button>
               ) : null}
               {pkg.status === 'draft' ? (
-                <button
-                  type="button"
-                  className="button button--danger"
+                <Button
+                  size="sm"
+                  variant="danger"
                   disabled={actions.removeDraft.isPending}
                   onClick={() => runAction(actions.removeDraft.mutateAsync(pkg.id))}
                 >
                   Xóa
-                </button>
+                </Button>
               ) : null}
             </div>
           </li>

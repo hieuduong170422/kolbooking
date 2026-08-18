@@ -1,0 +1,699 @@
+/* =====================================================================
+ * ui.css — style của bộ component dùng chung (src/shared/components/ui).
+ *
+ * Mọi ô nhập, dropdown, nút bấm trong app đều đi qua các component đó, nên
+ * đây là nơi DUY NHẤT định nghĩa hình dạng của chúng. Sửa ở đây là toàn bộ
+ * app đổi theo; đừng khai lại .input/.button ở file khác.
+ *
+ * File này nạp TRƯỚC index.css để các rule theo ngữ cảnh trong index.css
+ * (vd .creator-filters .input) vẫn đè lên được.
+ * ===================================================================== */
+
+/* ===== Nền chung của control ===== */
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.form-field small {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+/* Nhãn dùng cho fieldset/div không phải <label> — đồng bộ với .form-field span */
+.form-field__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.onb-hint {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.onb-counter {
+  align-self: flex-end;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Ghi chú một dòng ngay dưới một trường nhập. Khác .feedback: cái đó là khối
+   trạng thái rỗng cỡ lớn cho cả màn hình, dùng cho lỗi inline sẽ chiếm một
+   mảng trống to đùng giữa form. */
+.field-note {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.field-note--error {
+  color: var(--color-danger);
+}
+
+
+/* ===== Ô nhập một dòng ===== */
+
+.input {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--color-text);
+}
+
+.input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.input--otp {
+  font-size: 1.4rem;
+  letter-spacing: 0.4em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ===== Ô nhập nhiều dòng ===== */
+
+.textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--color-text);
+  min-height: 96px;
+  resize: vertical;
+}
+
+.textarea:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+
+/* ===== Dropdown list (select gốc) ===== */
+
+.select {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--color-text);
+}
+
+.select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+
+/* ===== Nút bấm ===== */
+
+.button {
+  /* inline-flex + căn giữa: nút giữ đúng chiều cao theo nội dung kể cả khi là
+     thẻ <a>, và không bị flex container kéo giãn làm chữ dồn lên đỉnh. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  /* Viền trong suốt thay vì none: biến thể có viền (secondary, ghost) không
+     cao hơn 2px so với biến thể không viền khi đứng cạnh nhau. */
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button--primary {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.button--primary:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+
+.button--secondary {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.button--ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+  border: none;
+}
+
+.button--ghost:hover {
+  color: var(--color-text);
+}
+
+.button--danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.button--danger:hover:not(:disabled) {
+  background: var(--color-danger-dark);
+}
+
+.button--warning {
+  background: var(--color-warning);
+  color: #fff;
+}
+
+.button--warning:hover:not(:disabled) {
+  background: #7a4806;
+}
+
+.button-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.button-link:hover {
+  text-decoration: underline;
+}
+
+.button-link:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+
+/* ===== Nút chỉ có icon ===== */
+
+/* ---------- Nút icon ---------- */
+.icon-button {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.icon-button svg {
+  width: 17px;
+  height: 17px;
+}
+
+.icon-button--danger:hover:not(:disabled) {
+  color: var(--color-danger);
+  border-color: var(--color-danger-border);
+  background: var(--color-danger-soft);
+}
+
+.icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+
+/* ===== Ô tích và nhóm chọn-nhiều ===== */
+
+.checkbox-group {
+  border: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.checkbox-group legend {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.checkbox-option input:disabled {
+  cursor: not-allowed;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.checkbox-field input[type='checkbox'] {
+  margin-top: 4px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.checkbox-field a {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+
+/* ===== Nhóm chọn-một dạng radio ===== */
+
+.radio-group {
+  border: none;
+  display: flex;
+  gap: 16px;
+  font-size: 0.95rem;
+}
+
+.radio-group legend {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+
+/* ===== Nhóm chọn-một dạng thanh phân đoạn ===== */
+
+/* display:block để khối pill co theo nội dung — .form-field là flex nên
+   mặc định sẽ kéo giãn con ra hết chiều ngang. */
+.segmented {
+  display: block;
+  border: none;
+  padding: 0;
+}
+
+.segmented__options {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 11px;
+  padding: 4px;
+}
+
+.segmented__option input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.segmented__option span {
+  display: block;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.segmented__option input:checked + span {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-card);
+}
+
+.segmented__option input:focus-visible + span {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.segmented__option input:disabled + span {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+
+/* ===== Chip chọn-nhiều ===== */
+
+/* ---------- Chip toggle (ngày trong tuần) ---------- */
+.chip-group {
+  border: none;
+  padding: 0;
+}
+
+.chip-group__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.chip-toggle span {
+  display: block;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.chip-toggle input:checked + span {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary-border);
+  color: var(--color-primary);
+}
+
+.chip-toggle input:focus-visible + span {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.chip-toggle input:disabled + span {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+
+/* ===== Chip lọc bật/tắt (aria-pressed) ===== */
+
+.chip-btn {
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.chip-btn:hover {
+  border-color: var(--color-primary-border);
+  color: var(--color-primary);
+}
+
+.chip-btn[aria-pressed='true'] {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary-border);
+  color: var(--color-primary);
+}
+
+
+/* ===== Bổ sung cho bộ component ===== */
+
+/* Nhãn + bộ đếm trên cùng một hàng. Nhãn nối với control bằng htmlFor/id nên
+   gợi ý và lỗi bên dưới không lọt vào tên khả truy cập của control. */
+.form-field__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.form-field__title--bare {
+  justify-content: flex-end;
+}
+
+/* Trong .form-field đã có gap 6px rồi, không cộng thêm khoảng cách nữa. */
+.form-field .field-note {
+  margin-top: 0;
+}
+
+/* --- Trạng thái lỗi: viền đỏ để thấy ngay ô nào sai, không cần dò chữ --- */
+.input--error,
+.textarea--error,
+.select--error {
+  border-color: var(--color-danger);
+}
+
+.input--error:focus,
+.textarea--error:focus,
+.select--error:focus {
+  outline-color: var(--color-danger);
+}
+
+.input:disabled,
+.textarea:disabled,
+.select:disabled {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.75;
+}
+
+.input--narrow {
+  width: 96px;
+  flex: 0 0 96px;
+}
+
+/* --- Caret riêng cho select: mũi tên mặc định của hệ điều hành mỗi nơi một
+       kiểu, vẽ lại bằng SVG inline để 3 hệ nhìn như nhau --- */
+.select {
+  appearance: none;
+  padding-right: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%23655c7a' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+
+.select:disabled {
+  cursor: not-allowed;
+}
+
+/* --- Ô nhập có phần dán trước/sau (icon tìm kiếm, đơn vị tiền) --- */
+.input-affix {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.input-affix .input {
+  width: 100%;
+}
+
+.input-affix__slot {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.input-affix__slot--end {
+  left: auto;
+  right: 12px;
+}
+
+.input-affix:has(.input-affix__slot:not(.input-affix__slot--end)) .input {
+  padding-left: 36px;
+}
+
+.input-affix:has(.input-affix__slot--end) .input {
+  padding-right: 44px;
+}
+
+/* --- Biến thể nút --- */
+.button--sm {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+.button--block {
+  width: 100%;
+}
+
+/* Vòng xoay trong nút: chữ giữ nguyên khi đang chạy nên nút không đổi bề ngang
+   giữa chừng, tránh layout nhảy dưới ngón tay người bấm. */
+.button__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+/* --- Lớp nổi: menu tài khoản, bảng thông báo, menu hành động --- */
+.popover {
+  position: relative;
+}
+
+.popover__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 30;
+  min-width: 180px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(34, 26, 51, 0.16);
+  overflow: hidden;
+}
+
+.dropdown-menu {
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  gap: 2px;
+}
+
+.dropdown-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-menu__item:hover:not(:disabled),
+.dropdown-menu__item:focus-visible {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.dropdown-menu__item--danger {
+  color: var(--color-danger);
+}
+
+.dropdown-menu__item--danger:hover:not(:disabled),
+.dropdown-menu__item--danger:focus-visible {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.dropdown-menu__item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== Hộp thoại chắn nền ===== */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(34, 26, 51, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 100;
+}
+
+.modal__card {
+  /* Modal có thể được render bên trong khối căn giữa (vd .booking-panel__report);
+     text-align kế thừa sẽ làm tiêu đề và câu dẫn lệch, nên chốt lại ở đây. */
+  text-align: left;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 32px rgba(34, 26, 51, 0.2);
+  padding: 24px;
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal__header h2 {
+  font-size: 1.1rem;
+}
+
+.modal__close {
+  border: none;
+  background: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+
+.modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

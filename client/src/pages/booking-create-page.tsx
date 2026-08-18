@@ -1,4 +1,4 @@
-import { useId, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
 import { LinkList } from '../features/bookings/components/link-list';
 import { TagPicker } from '../features/bookings/components/tag-picker';
@@ -12,6 +12,7 @@ import { useCreateBooking } from '../features/bookings/hooks/use-bookings';
 import { usePackagesByCreator } from '../features/packages/hooks/use-public-packages';
 import { ApiClientError } from '../shared/api/api-types';
 import { ErrorState } from '../shared/components/feedback/error-state';
+import { Button, Input, LinkButton, Textarea } from '../shared/components/ui';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { formatVnd } from '../shared/utils/format';
 
@@ -49,7 +50,6 @@ export const BookingCreatePage = () => {
   const [prohibited, setProhibited] = useState<readonly string[]>([]);
   const [references, setReferences] = useState<readonly string[]>([]);
   const [desiredDeadline, setDesiredDeadline] = useState('');
-  const deadlineHintId = useId();
 
   if (isPending) return <LoadingState message="Đang tải gói dịch vụ..." />;
   if (isError || data === undefined) {
@@ -62,9 +62,7 @@ export const BookingCreatePage = () => {
       <section className="page page--center">
         <h1>Creator chưa có gói dịch vụ</h1>
         <p className="page__subtitle">Chưa thể đặt booking với creator này.</p>
-        <Link to="/creators" className="button button--primary">
-          Tìm creator khác
-        </Link>
+        <LinkButton to="/creators">Tìm creator khác</LinkButton>
       </section>
     );
   }
@@ -208,30 +206,27 @@ export const BookingCreatePage = () => {
                   ))}
                 </div>
               </fieldset>
-              <label className="form-field field--full">
-                <span>Mô tả mục tiêu</span>
-                <textarea
-                  className="textarea"
-                  value={objective}
-                  onChange={(event) => setObjective(event.target.value)}
-                  rows={3}
-                  minLength={10}
-                  placeholder="Bạn muốn đạt được gì với nội dung này?"
-                  required
-                />
-              </label>
-              <label className="form-field field--full">
-                <span>Key message</span>
-                <input
-                  type="text"
-                  className="input"
-                  value={keyMessage}
-                  onChange={(event) => setKeyMessage(event.target.value)}
-                  minLength={5}
-                  placeholder={selectedObjective?.keyMessageHint ?? 'Thông điệp bắt buộc phải xuất hiện'}
-                  required
-                />
-              </label>
+              <Textarea
+                label="Mô tả mục tiêu"
+                span="full"
+                value={objective}
+                onChange={(event) => setObjective(event.target.value)}
+                rows={3}
+                minLength={10}
+                placeholder="Bạn muốn đạt được gì với nội dung này?"
+                required
+              />
+              <Input
+                label="Key message"
+                span="full"
+                value={keyMessage}
+                onChange={(event) => setKeyMessage(event.target.value)}
+                minLength={5}
+                placeholder={
+                  selectedObjective?.keyMessageHint ?? 'Thông điệp bắt buộc phải xuất hiện'
+                }
+                required
+              />
               <TagPicker
                 label="Cảnh bắt buộc"
                 description="Những gì nhất định phải xuất hiện trong bài. Chọn từ gợi ý hoặc tự thêm."
@@ -249,25 +244,18 @@ export const BookingCreatePage = () => {
                 addPlaceholder="Điều cấm khác..."
               />
               <LinkList links={references} onChange={setReferences} />
-              <label className="form-field field--half">
-                <span>Deadline mong muốn</span>
-                <input
-                  type="date"
-                  className="input"
-                  value={desiredDeadline}
-                  min={minDeadline}
-                  onChange={(event) => setDesiredDeadline(event.target.value)}
-                  // Tên trường phải gọn: gợi ý bên dưới đi qua aria-describedby
-                  // để trình đọc màn hình không đọc cả câu dài làm nhãn.
-                  aria-label="Deadline mong muốn"
-                  aria-describedby={deadlineHintId}
-                  required
-                />
-                <p className="onb-hint" id={deadlineHintId}>
-                  Gói này cần {pkg.turnaroundDays} ngày sản xuất, nên sớm nhất là{' '}
-                  {new Date(minDeadline).toLocaleDateString('vi-VN')}.
-                </p>
-              </label>
+              {/* Nhãn gọn, câu giải thích dài đi qua `hint` — Field nối nó bằng
+                  aria-describedby nên trình đọc màn hình không đọc cả câu làm nhãn. */}
+              <Input
+                label="Deadline mong muốn"
+                span="half"
+                type="date"
+                value={desiredDeadline}
+                min={minDeadline}
+                onChange={(event) => setDesiredDeadline(event.target.value)}
+                hint={`Gói này cần ${pkg.turnaroundDays} ngày sản xuất, nên sớm nhất là ${new Date(minDeadline).toLocaleDateString('vi-VN')}.`}
+                required
+              />
             </div>
           </section>
         </div>
@@ -294,13 +282,14 @@ export const BookingCreatePage = () => {
             <p className="booking-panel__note">
               Phí nền tảng được cộng khi server chốt đơn và hiển thị đầy đủ ở màn booking.
             </p>
-            <button
+            <Button
               type="submit"
-              className="button button--primary booking-panel__cta"
+              variant="primary"
+              className="booking-panel__cta"
               disabled={!canSubmit}
             >
               {createBooking.isPending ? 'Đang tạo...' : 'Tạo yêu cầu booking'}
-            </button>
+            </Button>
             <p className="booking-panel__note">
               Yêu cầu được lưu ở dạng nháp — bạn xem lại rồi mới gửi cho creator.
             </p>
