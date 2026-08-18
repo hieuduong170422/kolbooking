@@ -68,8 +68,38 @@ await brand.getByRole('link', { name: 'Đặt gói này' }).first().click();
 await brand.waitForURL('**/book**');
 check('brand mở được trang đặt booking', brand.url().includes('/book'));
 
-await brand.getByLabel('Mục tiêu chiến dịch').fill('Giới thiệu món mới cho quán cà phê tại Hoàn Kiếm.');
+// Brief có gợi ý dựng sẵn: chọn mục tiêu là điền luôn bản nháp + cảnh + điều cấm.
+await brand.getByLabel('Ra mắt sản phẩm mới').click();
+check(
+  'chọn mục tiêu thì điền sẵn bản nháp mục tiêu',
+  (await brand.getByLabel('Mô tả mục tiêu').inputValue()).length > 20,
+);
+check(
+  'chọn mục tiêu thì tick sẵn cảnh bắt buộc',
+  (await brand.locator('.chip-toggle input:checked').count()) > 1,
+);
+await brand.getByLabel('Mô tả mục tiêu').fill('Giới thiệu món mới cho quán cà phê tại Hoàn Kiếm.');
 await brand.getByLabel('Key message').fill('Cà phê muối vị mới, giá sinh viên.');
+
+// Tự thêm một cảnh ngoài danh sách gợi ý.
+const sceneInput = brand.getByLabel(/Thêm mục cho cảnh bắt buộc/i);
+await sceneInput.fill('Quay cảnh pha chế tại quầy');
+await sceneInput.press('Enter');
+check(
+  'tự thêm được cảnh ngoài gợi ý',
+  await brand.getByLabel('Quay cảnh pha chế tại quầy').isChecked(),
+);
+
+// Link sai định dạng bị chặn ngay tại chỗ nhập, không phải đợi server.
+await brand.getByLabel('Thêm link tham khảo').fill('khong-phai-link');
+await brand.getByRole('button', { name: '+ Thêm link' }).click();
+check(
+  'link sai định dạng bị chặn tại chỗ',
+  (await brand.locator('[role="alert"]').innerText()).includes('http'),
+);
+await brand.getByLabel('Thêm link tham khảo').fill('https://tiktok.com/@lanchi/video/1');
+await brand.getByRole('button', { name: '+ Thêm link' }).click();
+
 await brand.getByLabel('Deadline mong muốn').fill('2026-09-01');
 await brand.getByRole('button', { name: 'Tạo yêu cầu booking' }).click();
 await brand.waitForURL(/\/bookings\/bkg_/);

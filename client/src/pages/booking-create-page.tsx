@@ -1,5 +1,13 @@
-import { useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
+import { LinkList } from '../features/bookings/components/link-list';
+import { TagPicker } from '../features/bookings/components/tag-picker';
+import {
+  CAMPAIGN_OBJECTIVES,
+  PROHIBITED_PRESETS,
+  findObjective,
+  scenePresetsFor,
+} from '../features/bookings/data/brief-presets';
 import { useCreateBooking } from '../features/bookings/hooks/use-bookings';
 import { usePackagesByCreator } from '../features/packages/hooks/use-public-packages';
 import { ApiClientError } from '../shared/api/api-types';
@@ -7,12 +15,17 @@ import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { formatVnd } from '../shared/utils/format';
 
-/** Nhập danh sách nhiều dòng — tách theo xuống dòng, bỏ dòng trống. */
-const toLines = (value: string): readonly string[] =>
-  value
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Ngày sớm nhất brand được chọn = hôm nay + thời gian sản xuất của gói.
+ * Chọn sớm hơn thì creator nhận về chỉ có thể từ chối — chặn ngay ở đây đỡ
+ * mất một vòng gửi đi gửi lại.
+ */
+const earliestDeadline = (turnaroundDays: number): string => {
+  const date = new Date(Date.now() + turnaroundDays * DAY_MS);
+  return date.toISOString().slice(0, 10);
+};
 
 /**
  * Trang /creators/:id/book — brand chọn add-on, nhập brief và gửi yêu cầu
@@ -29,12 +42,14 @@ export const BookingCreatePage = () => {
   const createBooking = useCreateBooking();
 
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<readonly string[]>([]);
+  const [objectiveId, setObjectiveId] = useState<string | null>(null);
   const [objective, setObjective] = useState('');
   const [keyMessage, setKeyMessage] = useState('');
-  const [mustHaveScenes, setMustHaveScenes] = useState('');
-  const [prohibited, setProhibited] = useState('');
-  const [references, setReferences] = useState('');
+  const [mustHaveScenes, setMustHaveScenes] = useState<readonly string[]>([]);
+  const [prohibited, setProhibited] = useState<readonly string[]>([]);
+  const [references, setReferences] = useState<readonly string[]>([]);
   const [desiredDeadline, setDesiredDeadline] = useState('');
+  const deadlineHintId = useId();
 
   if (isPending) return <LoadingState message="Đang tải gói dịch vụ..." />;
   if (isError || data === undefined) {
@@ -57,6 +72,30 @@ export const BookingCreatePage = () => {
   const selectedAddOns = pkg.addOns.filter((addOn) => selectedAddOnIds.includes(addOn.id));
   const addOnsTotal = selectedAddOns.reduce((sum, addOn) => sum + addOn.priceVnd, 0);
   const subtotal = pkg.priceVnd + addOnsTotal;
+
+  const selectedObjective = objectiveId === null ? undefined : findObjective(objectiveId);
+  const minDeadline = earliestDeadline(pkg.turnaroundDays);
+
+  /**
+   * Chọn mục tiêu = nạp bản nháp brief. Chỉ điền vào ô mục tiêu khi nó còn
+   * trống hoặc đang giữ nguyên bản nháp của mục tiêu trước — người dùng đã tự
+   * viết thì không được ghi đè công sức của họ.
+   */
+  const applyObjective = (nextId: string): void => {
+    const next = findObjective(nextId);
+    if (next === undefined) {
+      return;
+    }
+    setObjectiveId(nextId);
+
+    const untouched = objective.trim().length === 0 || objective === selectedObjective?.objectiveDraft;
+    if (untouched) {
+      setObjective(next.objectiveDraft);
+    }
+    // Gợi ý chỉ THÊM vào lựa chọn sẵn có, không xoá thứ người dùng đã chọn.
+    setMustHaveScenes((current) => [...new Set([...current, ...next.suggestedScenes])]);
+    setProhibited((current) => [...new Set([...current, ...next.suggestedProhibited])]);
+  };
 
   const toggleAddOn = (addOnId: string): void => {
     setSelectedAddOnIds((current) =>
@@ -82,9 +121,9 @@ export const BookingCreatePage = () => {
         brief: {
           objective: objective.trim(),
           keyMessage: keyMessage.trim(),
-          mustHaveScenes: toLines(mustHaveScenes),
-          prohibited: toLines(prohibited),
-          references: toLines(references),
+          mustHaveScenes,
+          prohibited,
+          references,
           // input type=date cho YYYY-MM-DD; server cần ISO datetime đầy đủ.
           desiredDeadline: new Date(`${desiredDeadline}T00:00:00.000Z`).toISOString(),
         },
@@ -149,8 +188,28 @@ export const BookingCreatePage = () => {
           <section className="onb-section">
             <h2 className="onb-section__title">Brief</h2>
             <div className="field-grid">
+              <fieldset className="chip-group field--full">
+                <legend className="form-field__label">Mục tiêu chiến dịch</legend>
+                <p className="onb-hint">
+                  Chọn một mục tiêu để điền sẵn bản nháp brief — bạn sửa lại cho khớp sản phẩm
+                  của mình.
+                </p>
+                <div className="chip-group__options">
+                  {CAMPAIGN_OBJECTIVES.map((item) => (
+                    <label key={item.id} className="chip-toggle">
+                      <input
+                        type="radio"
+                        name="campaign-objective"
+                        checked={objectiveId === item.id}
+                        onChange={() => applyObjective(item.id)}
+                      />
+                      <span>{item.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
               <label className="form-field field--full">
-                <span>Mục tiêu chiến dịch</span>
+                <span>Mô tả mục tiêu</span>
                 <textarea
                   className="textarea"
                   value={objective}
@@ -169,48 +228,45 @@ export const BookingCreatePage = () => {
                   value={keyMessage}
                   onChange={(event) => setKeyMessage(event.target.value)}
                   minLength={5}
-                  placeholder="Thông điệp bắt buộc phải xuất hiện"
+                  placeholder={selectedObjective?.keyMessageHint ?? 'Thông điệp bắt buộc phải xuất hiện'}
                   required
                 />
               </label>
-              <label className="form-field field--half">
-                <span>Cảnh bắt buộc (mỗi dòng một ý)</span>
-                <textarea
-                  className="textarea"
-                  value={mustHaveScenes}
-                  onChange={(event) => setMustHaveScenes(event.target.value)}
-                  rows={3}
-                  placeholder={'Cảnh quay không gian quán\nCận cảnh sản phẩm'}
-                />
-              </label>
-              <label className="form-field field--half">
-                <span>Điều cấm (mỗi dòng một ý)</span>
-                <textarea
-                  className="textarea"
-                  value={prohibited}
-                  onChange={(event) => setProhibited(event.target.value)}
-                  rows={3}
-                  placeholder={'Không nhắc tên đối thủ'}
-                />
-              </label>
-              <label className="form-field field--half">
-                <span>Link tham khảo (mỗi dòng một link)</span>
-                <textarea
-                  className="textarea"
-                  value={references}
-                  onChange={(event) => setReferences(event.target.value)}
-                  rows={2}
-                />
-              </label>
+              <TagPicker
+                label="Cảnh bắt buộc"
+                description="Những gì nhất định phải xuất hiện trong bài. Chọn từ gợi ý hoặc tự thêm."
+                presets={scenePresetsFor(pkg.category)}
+                selected={mustHaveScenes}
+                onChange={setMustHaveScenes}
+                addPlaceholder="Cảnh khác bạn muốn có..."
+              />
+              <TagPicker
+                label="Điều cấm"
+                description="Giới hạn creator phải tuân thủ. Nêu trước đỡ phải sửa bài về sau."
+                presets={PROHIBITED_PRESETS}
+                selected={prohibited}
+                onChange={setProhibited}
+                addPlaceholder="Điều cấm khác..."
+              />
+              <LinkList links={references} onChange={setReferences} />
               <label className="form-field field--half">
                 <span>Deadline mong muốn</span>
                 <input
                   type="date"
                   className="input"
                   value={desiredDeadline}
+                  min={minDeadline}
                   onChange={(event) => setDesiredDeadline(event.target.value)}
+                  // Tên trường phải gọn: gợi ý bên dưới đi qua aria-describedby
+                  // để trình đọc màn hình không đọc cả câu dài làm nhãn.
+                  aria-label="Deadline mong muốn"
+                  aria-describedby={deadlineHintId}
                   required
                 />
+                <p className="onb-hint" id={deadlineHintId}>
+                  Gói này cần {pkg.turnaroundDays} ngày sản xuất, nên sớm nhất là{' '}
+                  {new Date(minDeadline).toLocaleDateString('vi-VN')}.
+                </p>
               </label>
             </div>
           </section>

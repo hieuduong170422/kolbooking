@@ -935,6 +935,19 @@ a {
   color: var(--color-danger);
 }
 
+/* Ghi chú một dòng ngay dưới một trường nhập. Khác .feedback: cái đó là khối
+   trạng thái rỗng cỡ lớn cho cả màn hình, dùng cho lỗi inline sẽ chiếm một
+   mảng trống to đùng giữa form. */
+.field-note {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.field-note--error {
+  color: var(--color-danger);
+}
+
 .feedback__title {
   font-weight: 700;
   color: var(--color-text);
