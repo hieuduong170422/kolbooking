@@ -205,9 +205,7 @@ export const PackageForm = ({ initial, onSubmit, onCancel }: PackageFormProps) =
                 label: DELIVERABLE_TYPE_LABELS[type],
               }))}
               value={deliverable.type}
-              onChange={(event) =>
-                patchDeliverable(index, { type: event.target.value as DeliverableType })
-              }
+              onChange={(type) => patchDeliverable(index, { type: type as DeliverableType })}
             />
             <Input
               type="number"
@@ -308,7 +306,7 @@ export const PackageForm = ({ initial, onSubmit, onCancel }: PackageFormProps) =
                 label: ADD_ON_TYPE_LABELS[type],
               }))}
               value={addOn.type}
-              onChange={(event) => patchAddOn(index, { type: event.target.value as AddOnType })}
+              onChange={(type) => patchAddOn(index, { type: type as AddOnType })}
             />
             <Input
               aria-label={`Tên add-on ${index + 1}`}

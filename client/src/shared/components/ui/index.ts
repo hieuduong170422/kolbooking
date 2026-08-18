@@ -1,4 +1,5 @@
 export { Field, type FieldShellProps, type FieldSpan } from './field';
+export { fieldLabelId } from './field-ids';
 export { Input, type InputProps } from './input';
 export { Textarea, type TextareaProps } from './textarea';
 export { Select, type SelectOption, type SelectProps } from './select';
@@ -17,3 +18,4 @@ export { Popover, type PopoverProps } from './popover';
 export { Tabs, type TabOption, type TabsProps } from './tabs';
 export { Dropdown, type DropdownItem, type DropdownProps } from './dropdown';
 export { useDismiss } from './use-dismiss';
+export { useListbox, type Listbox } from './use-listbox';

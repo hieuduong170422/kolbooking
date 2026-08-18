@@ -1,3 +1,4 @@
+import { IconStar } from '../../../shared/components/icons';
 import { Button, Input, Select, ToggleChips } from '../../../shared/components/ui';
 import {
   CREATOR_TYPES,
@@ -115,7 +116,11 @@ export const CreatorFilters = ({ filter, onChange }: CreatorFiltersProps) => {
         options={RATING_BANDS.map((rating) => ({
           key: String(rating),
           value: rating,
-          label: `${rating.toFixed(1)} ★ trở lên`,
+          label: (
+            <>
+              {rating.toFixed(1)} <IconStar className="icon-star" /> trở lên
+            </>
+          ),
         }))}
         isActive={(rating) => filter.minRating === rating}
         onToggle={(rating) => patch({ minRating: filter.minRating === rating ? undefined : rating })}
@@ -126,7 +131,7 @@ export const CreatorFilters = ({ filter, onChange }: CreatorFiltersProps) => {
         placeholder="Tất cả thành phố"
         options={COMMON_CITIES.map((city) => ({ value: city, label: city }))}
         value={filter.city ?? ''}
-        onChange={(event) => patch({ city: event.target.value || undefined })}
+        onChange={(city) => patch({ city: city || undefined })}
       />
 
       <Select
@@ -134,9 +139,7 @@ export const CreatorFilters = ({ filter, onChange }: CreatorFiltersProps) => {
         placeholder="Tất cả hình thức"
         options={SERVICE_MODES.map((mode) => ({ value: mode, label: SERVICE_MODE_LABELS[mode] }))}
         value={filter.serviceMode ?? ''}
-        onChange={(event) =>
-          patch({ serviceMode: (event.target.value || undefined) as ServiceMode | undefined })
-        }
+        onChange={(mode) => patch({ serviceMode: (mode || undefined) as ServiceMode | undefined })}
       />
     </form>
   );

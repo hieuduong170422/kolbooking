@@ -43,7 +43,10 @@ describe('CreatorCard', () => {
 
     expect(screen.getByRole('heading', { name: 'Lan Chi Foodie' })).toBeInTheDocument();
     expect(screen.getByText('KOC')).toBeInTheDocument();
-    expect(screen.getByText('Hà Nội · ⭐ 4.8 · 32 booking')).toBeInTheDocument();
+    // Sao là icon SVG nên chuỗi bị cắt khúc — so cả dòng meta sau khi gộp.
+    expect(screen.getByText(/32 booking/, { selector: 'p' })).toHaveTextContent(
+      'Hà Nội · 4.8 · 32 booking',
+    );
     expect(screen.getByText(/48K/)).toBeInTheDocument();
   });
 

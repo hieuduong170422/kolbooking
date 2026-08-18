@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router';
 import { LinkButton } from '../shared/components/ui';
+import { IconStar } from '../shared/components/icons';
 import { useCreator } from '../features/creators/hooks/use-creator';
 import {
   CREATOR_LANGUAGE_LABELS,
@@ -112,7 +113,8 @@ export const CreatorDetailPage = () => {
                 <span className="badge">{CREATOR_TYPE_LABELS[creator.creatorType]}</span>
               </div>
               <p className="creator-detail__meta">
-                {creator.city} · ⭐ {creator.rating.toFixed(1)} · {creator.completedBookings} booking
+                {creator.city} · <IconStar className="icon-star" /> {creator.rating.toFixed(1)} ·{' '}
+                {creator.completedBookings} booking
                 hoàn thành · {SERVICE_MODE_LABELS[creator.serviceMode]} ·{' '}
                 {CREATOR_LANGUAGE_LABELS[creator.language]}
               </p>
@@ -155,7 +157,9 @@ export const CreatorDetailPage = () => {
             <ul className="booking-panel__facts">
               <li>
                 <span>Đánh giá</span>
-                <strong>⭐ {creator.rating.toFixed(1)}</strong>
+                <strong>
+                  <IconStar className="icon-star" /> {creator.rating.toFixed(1)}
+                </strong>
               </li>
               <li>
                 <span>Booking hoàn thành</span>

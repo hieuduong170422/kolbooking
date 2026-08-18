@@ -96,7 +96,7 @@ const ReportControl = ({ targetType, targetId, targetName }: ReportButtonProps) 
               label: REPORT_REASON_LABELS[option],
             }))}
             value={reason}
-            onChange={(event) => setReason(event.target.value as ReportReason)}
+            onChange={(next) => setReason(next as ReportReason)}
           />
 
           <Textarea

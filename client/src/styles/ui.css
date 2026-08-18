@@ -698,26 +698,35 @@
   gap: 10px;
 }
 
-/* ===== Chọn nhiều mục từ dropdown ===== */
+/* ===== Dropdown dạng danh sách (Select, MultiSelect) ===== */
 
-.multiselect__control {
+/* Mốc định vị cho lớp nổi. Trong .form-field thì trải hết bề ngang như một ô
+   nhập; đứng lẻ trong thanh lọc thì co theo nội dung như select gốc vẫn làm. */
+.listbox {
   position: relative;
+  display: inline-block;
+  max-width: 100%;
 }
 
-/* Trông y hệt một dropdown list: cùng viền, cùng caret của .select. */
-.multiselect__trigger {
+.form-field .listbox {
+  display: block;
+}
+
+/* Nút luôn lấp đầy khung bọc. Khung inline-block thì "đầy" nghĩa là vừa nội
+   dung; khung bị kéo giãn (form-field, flex:1) thì nút giãn theo. */
+.listbox__trigger {
   width: 100%;
   text-align: left;
   cursor: pointer;
+  min-height: 41px;
 }
 
-.multiselect__trigger--empty {
+.listbox__trigger--empty {
   color: var(--color-text-muted);
 }
 
-.multiselect__panel {
+.listbox__panel {
   position: absolute;
-  top: calc(100% + 6px);
   left: 0;
   right: 0;
   z-index: 30;
@@ -731,7 +740,15 @@
   box-shadow: 0 10px 30px rgba(34, 26, 51, 0.16);
 }
 
-.multiselect__option {
+.listbox__panel--below {
+  top: calc(100% + 6px);
+}
+
+.listbox__panel--above {
+  bottom: calc(100% + 6px);
+}
+
+.listbox__option {
   display: flex;
   align-items: flex-start;
   gap: 8px;
@@ -743,23 +760,28 @@
   cursor: pointer;
 }
 
-.multiselect__option--active {
+.listbox__option--active {
   background: var(--color-bg);
 }
 
-.multiselect__option[aria-selected='true'] {
+.listbox__option[aria-selected='true'] {
   color: var(--color-primary);
   font-weight: 600;
 }
 
+.listbox__option--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Ô dấu tick giữ chỗ cố định để chữ không nhảy ngang khi chọn/bỏ chọn. */
-.multiselect__check {
+.listbox__check {
   flex: 0 0 14px;
   text-align: center;
   line-height: 1.45;
 }
 
-.multiselect__empty {
+.listbox__empty {
   padding: 10px;
   font-size: 0.88rem;
   color: var(--color-text-muted);
@@ -773,4 +795,15 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
+}
+
+/* ===== Sao đánh giá ===== */
+
+/* Vàng nghệ chỉ dành cho rating — dùng chung cho thẻ creator, hồ sơ và bộ lọc
+   để cùng một điểm số không hiện ra ba màu ở ba nơi. */
+.icon-star {
+  width: 14px;
+  height: 14px;
+  color: var(--color-accent);
+  vertical-align: -2px;
 }

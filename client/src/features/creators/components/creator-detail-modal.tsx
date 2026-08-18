@@ -1,4 +1,5 @@
 import { Button, Modal } from '../../../shared/components/ui';
+import { IconStar } from '../../../shared/components/icons';
 import {
   CREATOR_DAY_OF_WEEK_LABELS,
   CREATOR_LANGUAGE_LABELS,
@@ -91,7 +92,9 @@ export const CreatorDetailModal = ({ creator, onClose }: CreatorDetailModalProps
           </div>
           <div className="creator-modal__grid-item">
             <dt>Đánh giá</dt>
-            <dd>⭐ {creator.rating.toFixed(1)}</dd>
+            <dd>
+              <IconStar className="icon-star" /> {creator.rating.toFixed(1)}
+            </dd>
           </div>
           <div className="creator-modal__grid-item">
             <dt>Booking hoàn thành</dt>

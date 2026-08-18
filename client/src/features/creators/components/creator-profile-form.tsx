@@ -424,7 +424,7 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
                 label: SERVICE_MODE_LABELS[option],
               }))}
               value={serviceMode}
-              onChange={(event) => setServiceMode(event.target.value as ServiceMode)}
+              onChange={(mode) => setServiceMode(mode as ServiceMode)}
               disabled={readOnly}
             />
             <Select
@@ -435,7 +435,7 @@ export const CreatorProfileForm = ({ profile, readOnly }: CreatorProfileFormProp
                 label: CREATOR_LANGUAGE_LABELS[option],
               }))}
               value={language}
-              onChange={(event) => setLanguage(event.target.value as CreatorLanguage)}
+              onChange={(next) => setLanguage(next as CreatorLanguage)}
               disabled={readOnly}
             />
           </div>

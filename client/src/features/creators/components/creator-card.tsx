@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { formatCompactNumber, formatVnd } from '../../../shared/utils/format';
+import { IconStar } from '../../../shared/components/icons';
 import { CREATOR_TYPE_LABELS, type Creator } from '../types/creator-types';
 
 const creatorInitials = (displayName: string): string =>
@@ -62,7 +63,8 @@ export const CreatorCard = ({ creator, action }: CreatorCardProps) => {
           <h3 className="creator-card__name">{creator.displayName}</h3>
         </div>
         <p className="creator-card__meta">
-          {creator.city} · ⭐ {creator.rating.toFixed(1)} · {creator.completedBookings} booking
+          {creator.city} · <IconStar className="icon-star" /> {creator.rating.toFixed(1)} ·{' '}
+          {creator.completedBookings} booking
         </p>
         <p className="creator-card__bio">{creator.bio}</p>
         <ul className="creator-card__socials">

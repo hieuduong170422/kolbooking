@@ -1,5 +1,6 @@
 import { useId, type ReactNode } from 'react';
 import { cx } from '../../utils/cx';
+import { fieldLabelId } from './field-ids';
 
 /** Bề ngang của trường trong `.field-grid` 12 cột. */
 export type FieldSpan = 'half' | 'full';
@@ -28,6 +29,7 @@ export interface FieldAria {
   readonly 'aria-describedby': string | undefined;
   readonly 'aria-invalid': true | undefined;
 }
+
 
 interface FieldProps extends FieldShellProps {
   /** Id do người dùng chỉ định; mặc định sinh tự động bằng `useId`. */
@@ -77,7 +79,11 @@ export const Field = ({
     <div className={cx('form-field', span && `field--${span}`, fieldClassName)}>
       {isFilled(label) || isFilled(counter) ? (
         <div className={cx('form-field__title', !isFilled(label) && 'form-field__title--bare')}>
-          {isFilled(label) ? <label htmlFor={id}>{label}</label> : null}
+          {isFilled(label) ? (
+            <label id={fieldLabelId(id)} htmlFor={id}>
+              {label}
+            </label>
+          ) : null}
           {isFilled(counter) ? <span className="onb-counter">{counter}</span> : null}
         </div>
       ) : null}

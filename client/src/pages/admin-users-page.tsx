@@ -85,8 +85,8 @@ export const AdminUsersPage = () => {
           placeholder="Tất cả vai trò"
           options={AUTH_ROLES.map((option) => ({ value: option, label: ROLE_LABELS[option] }))}
           value={role}
-          onChange={(event) => {
-            setRole(event.target.value as AuthRole | '');
+          onChange={(next) => {
+            setRole(next as AuthRole | '');
             setPage(1);
           }}
         />
@@ -98,8 +98,8 @@ export const AdminUsersPage = () => {
             { value: 'locked', label: USER_STATUS_LABELS.locked },
           ]}
           value={status}
-          onChange={(event) => {
-            setStatus(event.target.value as UserStatus | '');
+          onChange={(next) => {
+            setStatus(next as UserStatus | '');
             setPage(1);
           }}
         />

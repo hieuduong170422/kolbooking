@@ -92,8 +92,8 @@ export const CreatorsPage = () => {
                 label: SORT_LABELS[option],
               }))}
               value={filter.sort ?? 'rating'}
-              onChange={(event) =>
-                applyFilter({ ...filter, sort: event.target.value as CreatorSortOption, page: 1 })
+              onChange={(sort) =>
+                applyFilter({ ...filter, sort: sort as CreatorSortOption, page: 1 })
               }
             />
           </div>

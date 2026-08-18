@@ -31,6 +31,26 @@ export const IconStar = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+/**
+ * Trái tim rỗng và trái tim đặc dùng CHUNG một path — chỉ khác fill.
+ * Trước đây dùng ký tự ♡ và ♥: hai glyph này thuộc hai vùng Unicode khác nhau
+ * nên font vẽ ra hai hình dáng và hai cỡ khác hẳn, bật/tắt là thấy nhảy.
+ */
+const HEART_PATH =
+  'M12 20.3 4.4 12.9a4.6 4.6 0 0 1 0-6.6 4.9 4.9 0 0 1 6.8 0l.8.8.8-.8a4.9 4.9 0 0 1 6.8 0 4.6 4.6 0 0 1 0 6.6z';
+
+export const IconHeart = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...base(props)}>
+    <path d={HEART_PATH} />
+  </svg>
+);
+
+export const IconHeartFilled = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...base(props)} fill="currentColor">
+    <path d={HEART_PATH} />
+  </svg>
+);
+
 export const IconMapPin = (props: SVGProps<SVGSVGElement>) => (
   <svg {...base(props)}>
     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />

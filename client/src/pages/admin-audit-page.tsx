@@ -48,8 +48,8 @@ export const AdminAuditPage = () => {
             label: AUDIT_TARGET_LABELS[option],
           }))}
           value={targetType}
-          onChange={(event) => {
-            setTargetType(event.target.value as AuditTargetType | '');
+          onChange={(next) => {
+            setTargetType(next as AuditTargetType | '');
             setPage(1);
           }}
         />

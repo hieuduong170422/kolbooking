@@ -64,9 +64,10 @@ describe('CreatorsPage (SRCH-003)', () => {
   it('chọn thành phố trong filter → cập nhật URL có city (SRCH-003)', () => {
     renderPage();
 
-    fireEvent.change(screen.getByLabelText('Thành phố'), { target: { value: 'Hà Nội' } });
+    fireEvent.click(screen.getByRole('combobox', { name: 'Thành phố' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Hà Nội' }));
 
-    expect(screen.getByLabelText('Thành phố')).toHaveValue('Hà Nội');
+    expect(screen.getByRole('combobox', { name: 'Thành phố' })).toHaveTextContent('Hà Nội');
     // searchParamsFromFilter ghi city lên URL — shareable link (SRCH-003)
     expect(mockUseCreators).toHaveBeenLastCalledWith(
       expect.objectContaining({ city: 'Hà Nội', page: 1 }),
@@ -76,9 +77,12 @@ describe('CreatorsPage (SRCH-003)', () => {
   it('xóa city khỏi URL khi chọn "Tất cả thành phố" (SRCH-003)', () => {
     renderPage('/creators?city=H%C3%A0%20N%E1%BB%99i');
 
-    fireEvent.change(screen.getByLabelText('Thành phố'), { target: { value: '' } });
+    fireEvent.click(screen.getByRole('combobox', { name: 'Thành phố' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Tất cả thành phố' }));
 
-    expect(screen.getByLabelText('Thành phố')).toHaveValue('');
+    expect(screen.getByRole('combobox', { name: 'Thành phố' })).toHaveTextContent(
+      'Tất cả thành phố',
+    );
     expect(mockUseCreators).toHaveBeenLastCalledWith(
       expect.objectContaining({ city: undefined, page: 1 }),
     );

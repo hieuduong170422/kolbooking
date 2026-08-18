@@ -65,9 +65,8 @@ describe('AdminAuditPage (ADM-009)', () => {
   it('lọc theo đối tượng → truyền targetType vào hook', () => {
     setup([entryFixture]);
 
-    fireEvent.change(screen.getByLabelText('Lọc theo đối tượng'), {
-      target: { value: 'package' },
-    });
+    fireEvent.click(screen.getByRole('combobox', { name: 'Lọc theo đối tượng' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Package' }));
 
     expect(mockUseAudit).toHaveBeenLastCalledWith(
       expect.objectContaining({ targetType: 'package', page: 1 }),

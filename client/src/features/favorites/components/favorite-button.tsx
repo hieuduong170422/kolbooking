@@ -1,4 +1,5 @@
 import { useContext, type MouseEvent } from 'react';
+import { IconHeart, IconHeartFilled } from '../../../shared/components/icons';
 import { AuthContext } from '../../auth/store/auth-context';
 import { useFavorites, useToggleFavorite } from '../hooks/use-favorites';
 
@@ -26,7 +27,7 @@ const ToggleButton = ({ creatorId }: { creatorId: string }) => {
       aria-label={saved ? 'Bỏ lưu creator' : 'Lưu creator'}
       title={saved ? 'Bỏ lưu' : 'Lưu creator'}
     >
-      {saved ? '♥' : '♡'}
+      {saved ? <IconHeartFilled /> : <IconHeart />}
     </button>
   );
 };

@@ -1360,7 +1360,7 @@ a {
 }
 
 .deliverable-row .input,
-.deliverable-row .select {
+.deliverable-row .listbox {
   flex: 1;
   min-width: 120px;
 }
@@ -1841,8 +1841,11 @@ a {
   gap: 12px;
 }
 
-.social-item__platform .select {
+.social-item__platform .listbox {
   min-width: 150px;
+}
+
+.social-item__platform .select {
   text-transform: capitalize;
 }
 
@@ -2558,6 +2561,13 @@ a {
 
 .favorite-button--on {
   color: var(--color-danger);
+}
+
+/* Chốt cỡ icon: trái tim rỗng và trái tim đặc phải chiếm đúng một chỗ, đổi
+   trạng thái không được làm nút giật. */
+.favorite-button svg {
+  width: 17px;
+  height: 17px;
 }
 
 .favorite-button:disabled {

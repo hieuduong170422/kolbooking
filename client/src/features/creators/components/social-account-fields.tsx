@@ -32,7 +32,7 @@ export const SocialAccountFields = ({
         fieldClassName="social-item__platform"
         options={SOCIAL_PLATFORMS.map((platform) => ({ value: platform, label: platform }))}
         value={account.platform}
-        onChange={(event) => onChange({ platform: event.target.value as SocialPlatform })}
+        onChange={(platform) => onChange({ platform: platform as SocialPlatform })}
         disabled={readOnly}
       />
       <IconButton
