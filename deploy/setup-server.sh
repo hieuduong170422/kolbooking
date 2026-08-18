@@ -1,23 +1,27 @@
 #!/usr/bin/env bash
 #
-# Chuẩn bị server lần đầu (Ubuntu/Debian) cho kolbooking.
-# Chạy TRÊN SERVER với quyền root:  bash setup-server.sh
+# Chuẩn bị server lần đầu (Ubuntu) cho kolbooking.
+# Chạy TRÊN SERVER với quyền root:  bash /var/www/kolbooking-src/deploy/setup-server.sh
 #
-# Idempotent: chạy lại nhiều lần không hỏng gì. KHÔNG đụng tới web đang chạy
-# sẵn trên server — chỉ thêm cấu hình nginx ở cổng 8080 và một database mới.
+# Idempotent: chạy lại nhiều lần không hỏng gì.
+#
+# KHÔNG cài nginx. Máy này đã có một web khác (audivy) chạy nginx trong Docker
+# giữ cổng 80; cài thêm nginx hệ thống là xung đột cổng ngay, và cũng không cần
+# nữa vì API tự phục vụ luôn bản build của client (SERVE_CLIENT_DIR).
 set -euo pipefail
 
-APP_DIR=/var/www/kolbooking-src     # mã nguồn + bản build của server
-WEB_DIR=/var/www/kolbooking         # file tĩnh của client
+APP_DIR=/var/www/kolbooking-src
 LOG_DIR=/var/log/kolbooking
 DB_NAME=kolbooking
 DB_USER=kolbooking
+APP_PORT=8090
 
 log() { printf '\n=== %s\n' "$1"; }
 
-log "Cài gói hệ thống (nginx, postgresql, curl)"
+log "Cài PostgreSQL"
+export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq nginx postgresql postgresql-contrib curl rsync
+apt-get install -y -qq postgresql postgresql-contrib curl
 
 log "Cài Node.js 22 nếu chưa có"
 if ! command -v node >/dev/null 2>&1 || [ "$(node -v | cut -d. -f1 | tr -d 'v')" -lt 20 ]; then
@@ -30,7 +34,7 @@ log "Cài PM2 nếu chưa có"
 command -v pm2 >/dev/null 2>&1 || npm install -g pm2
 
 log "Tạo thư mục"
-mkdir -p "$APP_DIR" "$WEB_DIR" "$LOG_DIR"
+mkdir -p "$APP_DIR" "$LOG_DIR"
 
 log "Tạo database và tài khoản PostgreSQL"
 systemctl enable --now postgresql
@@ -59,13 +63,17 @@ else
   fi
   cat > "$ENV_FILE" <<EOF
 NODE_ENV=production
-PORT=4100
+PORT=$APP_PORT
 LOG_LEVEL=info
 
-# Truy cập qua IP + cổng 8080 (chưa có tên miền).
-CORS_ORIGIN=http://34.126.124.249:8080
+# API phục vụ luôn bản build của client — một tiến trình, không cần nginx.
+SERVE_CLIENT_DIR=../client/dist
 
-# HTTP trần: trình duyệt loại bỏ cookie Secure trên http:// nên phải tắt.
+# Cùng origin nên CORS không thực sự dùng tới; để đúng cho rõ ràng.
+CORS_ORIGIN=http://34.126.124.249:$APP_PORT
+
+# HTTP trần: trình duyệt loại bỏ cookie Secure trên http://, không tắt thì
+# phiên đăng nhập chết ngay khi access token hết hạn.
 # CÓ HTTPS RỒI THÌ XÓA DÒNG NÀY.
 COOKIE_SECURE=false
 
@@ -88,22 +96,16 @@ EOF
   echo "Đã tạo $ENV_FILE"
 fi
 
-log "Cấu hình nginx (cổng 8080)"
-if [ -f "$APP_DIR/deploy/nginx-kolbooking.conf" ]; then
-  cp "$APP_DIR/deploy/nginx-kolbooking.conf" /etc/nginx/sites-available/kolbooking
-  ln -sf /etc/nginx/sites-available/kolbooking /etc/nginx/sites-enabled/kolbooking
-  nginx -t
-  systemctl reload nginx
-else
-  echo "Chưa có mã nguồn ở $APP_DIR — chạy deploy.sh trước rồi chạy lại script này."
-fi
-
 log "Xong"
 cat <<EOF
+Kiểm tra không đụng web đang chạy:
+  docker ps            # audivy vẫn phải Up, vẫn giữ cổng 80
+  ss -ltnp | grep :80  # vẫn là docker-proxy
+
 Còn lại:
-  1. Mở cổng 8080 trên firewall GCP:
-     gcloud compute firewall-rules create kolbooking-8080 \\
-       --allow tcp:8080 --source-ranges 0.0.0.0/0
-  2. Từ máy dev chạy: bash deploy/deploy.sh
-  3. Mở http://34.126.124.249:8080
+  1. Từ máy dev chạy: bash deploy/deploy.sh
+  2. Mở cổng $APP_PORT trên firewall GCP (cần quyền trên project):
+     gcloud compute firewall-rules create kolbooking-$APP_PORT \\
+       --project=oceanic-granite-503715-j2 --allow tcp:$APP_PORT \\
+       --target-tags=http-server --source-ranges=0.0.0.0/0
 EOF

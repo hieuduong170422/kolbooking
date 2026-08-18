@@ -1,50 +1,58 @@
-# Deploy kolbooking lên server dùng chung
+# Deploy kolbooking
 
-Server đích: `34.126.124.249` (đang chạy sẵn một web khác).
-Cách bố trí này **không đụng** tới web đang có: kolbooking nghe ở **cổng 8080**,
-API chạy nội bộ ở cổng 4100, database riêng tên `kolbooking`.
+Server: `34.126.124.249` (Ubuntu 26.04, project GCP `oceanic-granite-503715-j2`,
+instance `affiliate`, zone `asia-southeast1-b`).
+
+Máy này **đã chạy sẵn một web khác** — audivy, gồm bốn container Docker, trong đó
+`audivy-nginx-1` giữ cổng 80. Cách bố trí dưới đây không đụng một dòng nào tới
+audivy: kolbooking là một tiến trình Node riêng nghe cổng 8090, database riêng.
 
 ```
-http://34.126.124.249:8080  →  nginx (cổng 8080)
-    /            →  /var/www/kolbooking          (client build, file tĩnh)
-    /api/        →  127.0.0.1:4100               (PM2: kolbooking-api)
-    /uploads/    →  127.0.0.1:4100
-                     └─ PostgreSQL 127.0.0.1:5432/kolbooking
+http://34.126.124.249:8090  →  Node (PM2: kolbooking) ─ phục vụ cả giao diện lẫn API
+                                 └─ PostgreSQL 127.0.0.1:5432/kolbooking
+
+http://34.126.124.249       →  audivy (Docker) — không liên quan
 ```
+
+**Không cài nginx cho kolbooking.** Cổng 80 đã có chủ, và từ khi API tự phục vụ
+bản build của client (`SERVE_CLIENT_DIR`) thì một tiến trình là đủ. Cài thêm
+nginx hệ thống chỉ tạo xung đột cổng.
 
 ## Lần đầu
 
-1. **Mở firewall GCP** cho cổng 8080 (và cổng 22 cho IP của bạn nếu chưa vào được SSH):
+1. **Đẩy mã nguồn lên** (từ máy dev, ở thư mục gốc repo):
 
    ```bash
-   gcloud compute firewall-rules create kolbooking-8080 \
-     --allow tcp:8080 --source-ranges 0.0.0.0/0
-   ```
-
-2. **Đẩy mã nguồn lên** (từ máy dev, ở thư mục gốc repo):
-
-   ```bash
+   ssh root@34.126.124.249 'mkdir -p /var/www/kolbooking-src'
    bash deploy/deploy.sh
    ```
 
-   Lần đầu bước build sẽ báo thiếu `.env` — bình thường, làm tiếp bước 3.
+   Lần đầu bước build sẽ báo thiếu `.env` — bình thường, làm tiếp bước 2.
 
-3. **Chuẩn bị server** (trên server, quyền root):
+2. **Chuẩn bị server** (trên server, quyền root):
 
    ```bash
    bash /var/www/kolbooking-src/deploy/setup-server.sh
    ```
 
-   Script cài nginx + PostgreSQL + Node 22 + PM2, tạo database, sinh
-   `server/.env` với `JWT_SECRET` ngẫu nhiên và mật khẩu database ngẫu nhiên.
+   Cài Node 22 + PostgreSQL + PM2, tạo database, sinh `server/.env` với
+   `JWT_SECRET` ngẫu nhiên và mật khẩu database ngẫu nhiên.
 
-4. **Chạy lại deploy** để khởi động API:
+3. **Chạy lại deploy** để build và khởi động:
 
    ```bash
    bash deploy/deploy.sh
    ```
 
-5. Mở `http://34.126.124.249:8080`.
+4. **Mở cổng 8090 trên firewall GCP** — cần tài khoản có quyền trên project:
+
+   ```bash
+   gcloud compute firewall-rules create kolbooking-8090 \
+     --project=oceanic-granite-503715-j2 --allow tcp:8090 \
+     --target-tags=http-server --source-ranges=0.0.0.0/0
+   ```
+
+   Chưa mở thì web chỉ truy cập được từ trong máy chủ (`curl localhost:8090`).
 
 ## Các lần sau
 
@@ -52,43 +60,34 @@ http://34.126.124.249:8080  →  nginx (cổng 8080)
 bash deploy/deploy.sh
 ```
 
-Script rsync mã nguồn, build trên server, cập nhật file tĩnh và `pm2 reload`.
-Dữ liệu trong PostgreSQL **không** bị đụng tới khi deploy lại.
+rsync mã nguồn → build trên server → `pm2 reload`. Dữ liệu trong PostgreSQL
+**không** bị đụng tới. Script tự kiểm tra sau khi deploy rằng audivy vẫn trả 200.
 
 ## Tài khoản demo
 
-`SEED_DEMO_DATA=true` trong `.env` nạp sẵn dữ liệu mẫu khi database còn rỗng:
+`SEED_DEMO_DATA=true` nạp sẵn dữ liệu mẫu khi database còn rỗng:
+`admin@demo.vn`, `brand@demo.vn`, `creator2@demo.vn`, `creator@demo.vn` —
+mật khẩu chung `Demo@1234`.
 
-| Email | Vai trò |
-|---|---|
-| `admin@demo.vn` | Quản trị |
-| `brand@demo.vn` | Nhãn hàng |
-| `creator2@demo.vn` | Creator đã duyệt (có package bán) |
-| `creator@demo.vn` | Creator hồ sơ nháp |
-
-Mật khẩu chung: `Demo@1234`.
-
-**Đặt `SEED_DEMO_DATA=false` trước khi cho người ngoài dùng** — mật khẩu này
-nằm trong mã nguồn công khai.
+**Đặt `SEED_DEMO_DATA=false` trước khi cho người ngoài dùng** — mật khẩu này nằm
+trong mã nguồn công khai.
 
 ## Những điều cần biết
 
-- **Chưa có HTTPS.** `.env` đang đặt `COOKIE_SECURE=false` vì trình duyệt loại
-  bỏ cookie `Secure` trên `http://`, không có nó thì đăng nhập chết sau 15 phút.
-  Mật khẩu và token đi qua mạng ở dạng không mã hóa — chấp nhận được để chạy
-  thử, **không** để mời người thật vào dùng.
-  Khi có tên miền: trỏ A record về IP, đổi nginx sang `listen 80` +
-  `server_name`, chạy `certbot --nginx`, rồi **xóa** dòng `COOKIE_SECURE` trong
-  `.env` và `pm2 reload`.
-- **OTP không gửi email.** Mailer hiện in mã ra log. Xem bằng:
-  `pm2 logs kolbooking-api`. Xác minh email và đặt lại mật khẩu vẫn chạy được,
-  chỉ là phải đọc log để lấy mã.
+- **Chưa có HTTPS.** `.env` đang để `COOKIE_SECURE=false` vì trình duyệt loại bỏ
+  cookie `Secure` trên `http://`, không tắt thì đăng nhập chết sau 15 phút. Mật
+  khẩu và token đi qua mạng không mã hóa — chạy thử thì được, **đừng** mời người
+  thật vào dùng.
+  Khi có tên miền: trỏ A record về IP, cho audivy-nginx proxy sang cổng 8090 theo
+  `server_name`, chạy certbot, rồi **xóa** dòng `COOKIE_SECURE` và `pm2 reload`.
+- **OTP không gửi email.** Mailer in mã ra log: `pm2 logs kolbooking`. Hoặc đặt
+  `DEV_OTP_CODE` — nhưng server sẽ **từ chối khởi động** nếu bật ở production,
+  nên trên máy này phải đọc log.
 - **File upload nằm trên đĩa server** tại `server/uploads` và
   `server/private-uploads`. `deploy.sh` cố tình loại hai thư mục này khỏi rsync
   nên deploy lại không xóa mất file đã tải lên.
-- **Một tiến trình API.** Muốn chạy cluster nhiều tiến trình thì phải chuyển
-  rate limiter sang store dùng chung (Redis) trước — bộ đếm hiện nằm trong bộ
-  nhớ của từng tiến trình.
+- **Một tiến trình.** Muốn chạy cluster phải chuyển rate limiter sang store dùng
+  chung (Redis) trước — bộ đếm hiện nằm trong bộ nhớ từng tiến trình.
 
 ## Chạy test đối chiếu với PostgreSQL
 
@@ -109,11 +108,14 @@ Mỗi tiến trình test làm việc trong một schema riêng nên chạy song 
 ## Xử lý sự cố
 
 ```bash
-pm2 logs kolbooking-api --lines 100    # log API
-pm2 restart kolbooking-api             # khởi động lại
-tail -50 /var/log/nginx/kolbooking.error.log
-sudo -u postgres psql kolbooking -c '\dt'   # xem các bảng đã tạo
+pm2 logs kolbooking --lines 100     # log ứng dụng
+pm2 restart kolbooking              # khởi động lại
+pm2 list                            # trạng thái
+sudo -u postgres psql kolbooking -c '\dt'   # xem các bảng
+
+docker ps                           # audivy phải vẫn Up
+ss -ltnp | grep -E ':80|:8090'      # ai đang giữ cổng nào
 ```
 
-Server tự áp schema mỗi lần khởi động (`CREATE TABLE IF NOT EXISTS`), nên không
-cần chạy migration thủ công.
+Server tự áp schema mỗi lần khởi động (`CREATE TABLE IF NOT EXISTS`), không cần
+chạy migration thủ công.
