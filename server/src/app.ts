@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
 import { UPLOADS_DIR, env } from './config/env.js';
 import { createV1Router, type AppDependencies } from './routes/v1.js';
+import { buildHelmetOptions } from './shared/http/security-headers.js';
 import { mountClient } from './shared/http/serve-client.js';
 import { logger } from './shared/logger/logger.js';
 import { errorHandler } from './shared/middlewares/error-handler.js';
@@ -20,7 +21,7 @@ export const createApp = (deps: AppDependencies): Express => {
   app.disable('x-powered-by');
   app.set('trust proxy', 1);
 
-  app.use(helmet());
+  app.use(helmet(buildHelmetOptions(env.COOKIE_SECURE)));
   app.use(cors({ origin: env.CORS_ORIGIN.split(','), credentials: true }));
   app.use(express.json({ limit: JSON_BODY_LIMIT }));
   app.use(express.urlencoded({ extended: true, limit: JSON_BODY_LIMIT }));
