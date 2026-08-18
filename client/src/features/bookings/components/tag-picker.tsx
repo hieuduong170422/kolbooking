@@ -1,11 +1,11 @@
 import { useId, useState, type KeyboardEvent } from 'react';
 import { IconPlus } from '../../../shared/components/icons';
-import { Button, Input } from '../../../shared/components/ui';
+import { Button, Input, MultiSelect } from '../../../shared/components/ui';
 
 interface TagPickerProps {
   readonly label: string;
   readonly description: string;
-  /** Gợi ý bấm chọn nhanh; mục đã chọn nhưng không nằm trong đây vẫn hiện. */
+  /** Gợi ý chọn nhanh; mục đã chọn nhưng không nằm trong đây vẫn hiện. */
   readonly presets: readonly string[];
   readonly selected: readonly string[];
   readonly onChange: (next: readonly string[]) => void;
@@ -13,7 +13,8 @@ interface TagPickerProps {
 }
 
 /**
- * Chọn nhiều mục từ gợi ý, kèm đường thoát tự nhập.
+ * Chọn nhiều mục cho brief: danh sách đầy đủ nằm gọn trong một dropdown, mục đã
+ * chọn hiện thành thẻ có dấu × ngay dưới, kèm đường thoát tự nhập.
  *
  * Thay cho textarea "mỗi dòng một ý": quy ước đó bắt người dùng nhớ luật định
  * dạng và rất nhiều người sẽ viết bằng dấu phẩy hoặc gạch đầu dòng, để lại một
@@ -29,14 +30,6 @@ export const TagPicker = ({
 }: TagPickerProps) => {
   const [draft, setDraft] = useState('');
   const inputId = useId();
-
-  const toggle = (value: string): void => {
-    onChange(
-      selected.includes(value)
-        ? selected.filter((item) => item !== value)
-        : [...selected, value],
-    );
-  };
 
   const addDraft = (): void => {
     const value = draft.trim();
@@ -58,26 +51,20 @@ export const TagPicker = ({
     }
   };
 
-  // Mục tự nhập (hoặc do mẫu điền vào) không nằm trong presets vẫn phải hiện ra.
-  const extras = selected.filter((item) => !presets.includes(item));
+  // Mục tự nhập (hoặc do mẫu điền vào) không nằm trong presets vẫn phải có mặt
+  // trong dropdown, nếu không bỏ chọn xong là mất luôn khỏi danh sách.
+  const options = [...presets, ...selected.filter((item) => !presets.includes(item))];
 
   return (
-    <fieldset className="chip-group field--full">
-      <legend className="form-field__label">{label}</legend>
-      <p className="onb-hint">{description}</p>
-
-      <div className="chip-group__options">
-        {[...presets, ...extras].map((preset) => (
-          <label key={preset} className="chip-toggle">
-            <input
-              type="checkbox"
-              checked={selected.includes(preset)}
-              onChange={() => toggle(preset)}
-            />
-            <span>{preset}</span>
-          </label>
-        ))}
-      </div>
+    <div className="tag-picker field--full">
+      <MultiSelect
+        label={label}
+        hint={description}
+        options={options}
+        value={selected}
+        onChange={onChange}
+        placeholder={`Chọn ${label.toLowerCase()}...`}
+      />
 
       <div className="link-row">
         <Input
@@ -92,6 +79,6 @@ export const TagPicker = ({
           Thêm
         </Button>
       </div>
-    </fieldset>
+    </div>
   );
 };

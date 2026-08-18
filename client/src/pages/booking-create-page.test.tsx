@@ -62,8 +62,11 @@ describe('BookingCreatePage — brief có gợi ý dựng sẵn (BKG-002)', () =
     expect((screen.getByLabelText('Mô tả mục tiêu') as HTMLTextAreaElement).value).toContain(
       'Giới thiệu sản phẩm mới',
     );
-    expect(screen.getByLabelText('Cận cảnh sản phẩm')).toBeChecked();
-    expect(screen.getByLabelText('Không so sánh trực tiếp với đối thủ')).toBeChecked();
+    // Mục được điền sẵn hiện thành thẻ có dấu × ngay dưới dropdown.
+    expect(screen.getByRole('button', { name: 'Bỏ Cận cảnh sản phẩm' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Bỏ Không so sánh trực tiếp với đối thủ' }),
+    ).toBeInTheDocument();
   });
 
   it('không ghi đè mục tiêu người dùng đã tự viết', () => {
@@ -82,14 +85,18 @@ describe('BookingCreatePage — brief có gợi ý dựng sẵn (BKG-002)', () =
     fireEvent.click(screen.getByLabelText('Ra mắt sản phẩm mới'));
     fireEvent.click(screen.getByLabelText('Tăng nhận diện thương hiệu'));
 
-    expect(screen.getByLabelText('Cận cảnh sản phẩm')).toBeChecked();
-    expect(screen.getByLabelText('Logo hoặc biển hiệu xuất hiện rõ')).toBeChecked();
+    expect(screen.getByRole('button', { name: 'Bỏ Cận cảnh sản phẩm' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Bỏ Logo hoặc biển hiệu xuất hiện rõ' }),
+    ).toBeInTheDocument();
   });
 
   it('gợi ý cảnh bám theo lĩnh vực của gói', () => {
     renderPage();
 
-    expect(screen.getByLabelText('Cận cảnh món ăn/đồ uống')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('combobox', { name: 'Cảnh bắt buộc' }));
+
+    expect(screen.getByRole('option', { name: 'Cận cảnh món ăn/đồ uống' })).toBeInTheDocument();
   });
 
   it('chặn deadline sớm hơn thời gian sản xuất của gói', () => {

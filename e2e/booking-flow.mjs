@@ -75,9 +75,20 @@ check(
   (await brand.getByLabel('Mô tả mục tiêu').inputValue()).length > 20,
 );
 check(
-  'chọn mục tiêu thì tick sẵn cảnh bắt buộc',
-  (await brand.locator('.chip-toggle input:checked').count()) > 1,
+  'chọn mục tiêu thì điền sẵn cảnh bắt buộc thành thẻ đã chọn',
+  (await brand.locator('.multiselect__tags .tag').count()) > 1,
 );
+// Dropdown mở ra phải liệt kê đầy đủ gợi ý, mục đã chọn có dấu tick.
+await brand.getByRole('combobox', { name: 'Cảnh bắt buộc' }).click();
+check(
+  'dropdown liệt kê đầy đủ gợi ý cảnh',
+  (await brand.getByRole('option').count()) > 4,
+);
+check(
+  'mục đã chọn được đánh dấu trong dropdown',
+  (await brand.locator('[role="option"][aria-selected="true"]').count()) > 1,
+);
+await brand.keyboard.press('Escape');
 await brand.getByLabel('Mô tả mục tiêu').fill('Giới thiệu món mới cho quán cà phê tại Hoàn Kiếm.');
 await brand.getByLabel('Key message').fill('Cà phê muối vị mới, giá sinh viên.');
 
@@ -87,7 +98,7 @@ await sceneInput.fill('Quay cảnh pha chế tại quầy');
 await sceneInput.press('Enter');
 check(
   'tự thêm được cảnh ngoài gợi ý',
-  await brand.getByLabel('Quay cảnh pha chế tại quầy').isChecked(),
+  await brand.getByRole('button', { name: 'Bỏ Quay cảnh pha chế tại quầy' }).isVisible(),
 );
 
 // Link sai định dạng bị chặn ngay tại chỗ nhập, không phải đợi server.

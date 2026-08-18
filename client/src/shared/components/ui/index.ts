@@ -12,6 +12,7 @@ export { SegmentedControl, type SegmentedControlProps } from './segmented-contro
 export { ChipGroup, type ChipGroupProps } from './chip-group';
 export { ToggleChips, type ToggleChipOption, type ToggleChipsProps } from './toggle-chips';
 export { Modal, type ModalProps } from './modal';
+export { MultiSelect, type MultiSelectProps } from './multi-select';
 export { Popover, type PopoverProps } from './popover';
 export { Tabs, type TabOption, type TabsProps } from './tabs';
 export { Dropdown, type DropdownItem, type DropdownProps } from './dropdown';

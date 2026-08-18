@@ -1895,6 +1895,13 @@ a {
   font-weight: 400;
 }
 
+/* Trường brief: dropdown chọn mục + hàng tự nhập nằm dưới. */
+.tag-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .link-row {
   display: flex;
   gap: 8px;
