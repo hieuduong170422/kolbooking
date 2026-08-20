@@ -1,14 +1,14 @@
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { Express } from 'express';
+import type { Server } from 'node:http';
 import { InMemorySessionRepository } from '../src/modules/auth/session.repository.memory.js';
 import { InMemoryVerificationTokenRepository } from '../src/modules/auth/verification.repository.memory.js';
 import { hashOtp } from '../src/modules/auth/verification.service.js';
 import { InMemoryUserRepository } from '../src/modules/users/user.repository.memory.js';
 import { CapturingMailer } from './helpers/capturing-mailer.js';
-import { buildTestApp } from './helpers/build-test-app.js';
+import { buildTestServer } from './helpers/test-server.js';
 
-let app: Express;
+let app: Server;
 let mailer: CapturingMailer;
 let users: InMemoryUserRepository;
 let sessions: InMemorySessionRepository;
@@ -36,7 +36,7 @@ beforeEach(() => {
   users = new InMemoryUserRepository();
   sessions = new InMemorySessionRepository();
   verificationTokens = new InMemoryVerificationTokenRepository();
-  app = buildTestApp({
+  app = buildTestServer({
     userRepository: users,
     sessionRepository: sessions,
     verificationTokenRepository: verificationTokens,

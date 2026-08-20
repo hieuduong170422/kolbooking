@@ -1,9 +1,9 @@
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
-import type { Express } from 'express';
+import type { Server } from 'node:http';
 import { DEMO_PASSWORD, buildUserSeed } from '../src/modules/users/user.seed.js';
 import { CapturingMailer } from './helpers/capturing-mailer.js';
-import { buildTestApp } from './helpers/build-test-app.js';
+import { buildTestServer } from './helpers/test-server.js';
 
 /**
  * T8 — Endpoint creator-owned (CRE-001..003, 005, 006, 007, 010).
@@ -12,12 +12,12 @@ import { buildTestApp } from './helpers/build-test-app.js';
  * regex creatorIdParamsSchema → 400 thay vì handler owner).
  */
 
-let app: Express;
+let app: Server;
 let mailer: CapturingMailer;
 
 beforeAll(async () => {
   mailer = new CapturingMailer();
-  app = buildTestApp({ users: await buildUserSeed(), mailer });
+  app = buildTestServer({ users: await buildUserSeed(), mailer });
 });
 
 let ownerSeq = 0;

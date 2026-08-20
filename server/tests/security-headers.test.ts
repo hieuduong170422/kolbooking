@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { buildHelmetOptions } from '../src/shared/http/security-headers.js';
+import { listenTestApp } from './helpers/test-server.js';
 
 /**
  * Header bảo mật phải bám theo giao thức thật đang phục vụ. Sai chiều này làm
@@ -15,7 +16,7 @@ const appWith = (overHttps: boolean) => {
   app.get('/', (_req, res) => {
     res.send('ok');
   });
-  return app;
+  return listenTestApp(app);
 };
 
 describe('buildHelmetOptions', () => {

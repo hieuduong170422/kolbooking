@@ -1,13 +1,13 @@
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
-import type { Express } from 'express';
+import type { Server } from 'node:http';
 import { DEMO_PASSWORD } from '../src/modules/users/user.seed.js';
-import { buildTestAppWithUsers } from './helpers/build-test-app.js';
+import { buildTestServerWithUsers } from './helpers/test-server.js';
 
-let app: Express;
+let app: Server;
 
 beforeAll(async () => {
-  app = await buildTestAppWithUsers();
+  app = await buildTestServerWithUsers();
 });
 
 const extractRefreshCookie = (response: request.Response): string => {

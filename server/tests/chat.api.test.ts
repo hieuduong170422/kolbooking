@@ -1,11 +1,11 @@
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { Express } from 'express';
+import type { Server } from 'node:http';
 import { InMemoryAuditRepository } from '../src/modules/audit/audit.repository.memory.js';
 import { InMemoryNotificationRepository } from '../src/modules/notifications/notification.repository.memory.js';
 import { CREATOR_SEED } from '../src/modules/creators/creator.seed.js';
 import { DEMO_PASSWORD, buildUserSeed } from '../src/modules/users/user.seed.js';
-import { buildTestApp } from './helpers/build-test-app.js';
+import { buildTestServer } from './helpers/test-server.js';
 import { futureDeadline } from './helpers/future-deadline.js';
 
 /**
@@ -14,14 +14,14 @@ import { futureDeadline } from './helpers/future-deadline.js';
  * trong booking dùng chung một thread.
  */
 
-let app: Express;
+let app: Server;
 let audit: InMemoryAuditRepository;
 let notifications: InMemoryNotificationRepository;
 
 beforeEach(async () => {
   audit = new InMemoryAuditRepository();
   notifications = new InMemoryNotificationRepository();
-  app = buildTestApp({
+  app = buildTestServer({
     users: await buildUserSeed(),
     creators: CREATOR_SEED,
     audit,

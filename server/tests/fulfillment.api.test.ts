@@ -1,17 +1,17 @@
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { Express } from 'express';
+import type { Server } from 'node:http';
 import { CREATOR_SEED } from '../src/modules/creators/creator.seed.js';
 import { DEMO_PASSWORD, buildUserSeed } from '../src/modules/users/user.seed.js';
-import { buildTestApp } from './helpers/build-test-app.js';
+import { buildTestServer } from './helpers/test-server.js';
 import { futureDeadline } from './helpers/future-deadline.js';
 
 /** T-P5 — Nộp bài, revision có kiểm soát, nghiệm thu (DLV-001..DLV-006). */
 
-let app: Express;
+let app: Server;
 
 beforeEach(async () => {
-  app = buildTestApp({ users: await buildUserSeed(), creators: CREATOR_SEED });
+  app = buildTestServer({ users: await buildUserSeed(), creators: CREATOR_SEED });
 });
 
 const loginAs = async (email: string): Promise<string> => {

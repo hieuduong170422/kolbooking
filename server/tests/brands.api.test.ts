@@ -1,10 +1,10 @@
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { Express } from 'express';
+import type { Server } from 'node:http';
 import { InMemoryAuditRepository } from '../src/modules/audit/audit.repository.memory.js';
 import { DEMO_PASSWORD, buildUserSeed } from '../src/modules/users/user.seed.js';
 import { CapturingMailer } from './helpers/capturing-mailer.js';
-import { buildTestApp } from './helpers/build-test-app.js';
+import { buildTestServer } from './helpers/test-server.js';
 
 /**
  * T-P1 — Hồ sơ brand (BRD-001..BRD-005, BRD-007).
@@ -12,7 +12,7 @@ import { buildTestApp } from './helpers/build-test-app.js';
  * → gửi duyệt → admin approve → sửa hồ sơ → quay lại pending_review.
  */
 
-let app: Express;
+let app: Server;
 let mailer: CapturingMailer;
 let audit: InMemoryAuditRepository;
 
@@ -25,7 +25,7 @@ const PNG_BUFFER = Buffer.from(
 beforeEach(async () => {
   mailer = new CapturingMailer();
   audit = new InMemoryAuditRepository();
-  app = buildTestApp({ users: await buildUserSeed(), mailer, audit, brands: [] });
+  app = buildTestServer({ users: await buildUserSeed(), mailer, audit, brands: [] });
 });
 
 const loginAs = async (email: string): Promise<string> => {

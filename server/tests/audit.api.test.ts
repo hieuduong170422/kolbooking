@@ -1,18 +1,18 @@
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { Express } from 'express';
+import type { Server } from 'node:http';
 import { InMemoryAuditRepository } from '../src/modules/audit/audit.repository.memory.js';
 import { DEMO_PASSWORD, buildUserSeed } from '../src/modules/users/user.seed.js';
-import { buildTestApp } from './helpers/build-test-app.js';
+import { buildTestServer } from './helpers/test-server.js';
 
 /** T-ADM — Xem audit log (ADM-009). Chỉ đọc: không có endpoint sửa/xóa (BR-015). */
 
-let app: Express;
+let app: Server;
 let audit: InMemoryAuditRepository;
 
 beforeEach(async () => {
   audit = new InMemoryAuditRepository();
-  app = buildTestApp({ users: await buildUserSeed(), audit });
+  app = buildTestServer({ users: await buildUserSeed(), audit });
 });
 
 const loginAsAdmin = async (): Promise<string> => {
@@ -98,7 +98,7 @@ describe('GET /api/v1/audit (ADM-009)', () => {
  */
 describe('Audit phủ được sự kiện ngoài thao tác của admin', () => {
   it('đăng ký tài khoản ghi lại phiên bản điều khoản đã đồng ý', async () => {
-    const app = buildTestApp({ users: await buildUserSeed(), audit });
+    const app = buildTestServer({ users: await buildUserSeed(), audit });
 
     const registered = await request(app).post('/api/v1/auth/register').send({
       email: 'nguoimoi@demo.vn',
@@ -117,7 +117,7 @@ describe('Audit phủ được sự kiện ngoài thao tác của admin', () => 
   });
 
   it('lọc audit theo targetType=booking không còn trả 400', async () => {
-    const app = buildTestApp({ users: await buildUserSeed(), audit });
+    const app = buildTestServer({ users: await buildUserSeed(), audit });
     const login = await request(app)
       .post('/api/v1/auth/login')
       .send({ email: 'admin@demo.vn', password: DEMO_PASSWORD });

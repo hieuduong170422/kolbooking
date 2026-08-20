@@ -1,16 +1,16 @@
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { Express } from 'express';
-import { buildTestApp } from './helpers/build-test-app.js';
+import type { Server } from 'node:http';
+import { buildTestServer } from './helpers/test-server.js';
 
 /**
  * Cấu hình công khai — client cần để hiện trước phí nền tảng và ngày sớm nhất
  * thay vì hardcode lại, còn server vẫn là bên tính tiền cuối cùng (PAY-001).
  */
-let app: Express;
+let app: Server;
 
 beforeEach(() => {
-  app = buildTestApp();
+  app = buildTestServer();
 });
 
 describe('GET /api/v1/config', () => {

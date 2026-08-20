@@ -1,4 +1,4 @@
-import type { Express } from 'express';
+import type { Server } from 'node:http';
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { InMemoryAuditRepository } from '../src/modules/audit/audit.repository.memory.js';
@@ -6,7 +6,7 @@ import type { AuditRepository } from '../src/modules/audit/audit.repository.js';
 import { CREATOR_SEED } from '../src/modules/creators/creator.seed.js';
 import type { Creator } from '../src/modules/creators/creator.types.js';
 import { buildUserSeed, DEMO_PASSWORD } from '../src/modules/users/user.seed.js';
-import { buildTestApp } from './helpers/build-test-app.js';
+import { buildTestServer } from './helpers/test-server.js';
 
 /** Tạo creator pending_review phụ (clone crt_0005) để test phân trang queue. */
 const clonePendingCreator = (id: string): Creator => {
@@ -15,13 +15,13 @@ const clonePendingCreator = (id: string): Creator => {
   return { ...structuredClone(base), id, displayName: `Creator ${id}` };
 };
 
-let app: Express;
+let app: Server;
 let auditRepository: AuditRepository;
 
 // Mỗi test dựng app mới (state máy trạng thái + audit không rò rỉ giữa test).
 beforeEach(async () => {
   auditRepository = new InMemoryAuditRepository();
-  app = buildTestApp({
+  app = buildTestServer({
     users: await buildUserSeed(),
     creators: [
       ...CREATOR_SEED,

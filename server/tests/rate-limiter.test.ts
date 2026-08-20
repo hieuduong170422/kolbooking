@@ -2,6 +2,7 @@ import express from 'express';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { createApiRateLimiter } from '../src/shared/middlewares/rate-limiter.js';
+import { listenTestApp } from './helpers/test-server.js';
 
 /**
  * App tối giản: limiter bị tắt ở NODE_ENV=test nên phải dựng riêng, nếu
@@ -14,7 +15,7 @@ const appWith = (options: { enabled: boolean; limit?: number }) => {
   app.get('/ping', (_req, res) => {
     res.json({ success: true });
   });
-  return app;
+  return listenTestApp(app);
 };
 
 describe('apiRateLimiter', () => {

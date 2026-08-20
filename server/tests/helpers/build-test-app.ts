@@ -24,7 +24,6 @@ import { PACKAGE_SEED } from '../../src/modules/packages/package.seed.js';
 import type { ServicePackage } from '../../src/modules/packages/package.types.js';
 import { InMemoryUserRepository } from '../../src/modules/users/user.repository.memory.js';
 import type { UserRepository } from '../../src/modules/users/user.repository.js';
-import { buildUserSeed } from '../../src/modules/users/user.seed.js';
 import type { User } from '../../src/modules/users/user.types.js';
 import type { BookingRepository } from '../../src/modules/bookings/booking.repository.js';
 import type { NotificationRepository } from '../../src/modules/notifications/notification.repository.js';
@@ -71,7 +70,3 @@ export const buildTestApp = (options: TestAppOptions = {}): Express =>
     privateFileStorage: options.privateFileStorage ?? new InMemoryFileStorage(),
     mailer: options.mailer ?? new CapturingMailer(),
   });
-
-/** App có sẵn tài khoản demo (creator/brand/admin/locked @demo.vn, mật khẩu Demo@1234). */
-export const buildTestAppWithUsers = async (): Promise<Express> =>
-  buildTestApp({ users: await buildUserSeed() });

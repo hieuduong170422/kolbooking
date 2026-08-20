@@ -1,10 +1,10 @@
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
-import { buildTestApp } from './helpers/build-test-app.js';
+import { buildTestServer } from './helpers/test-server.js';
 import { CREATOR_SEED } from '../src/modules/creators/creator.seed.js';
 import type { Creator } from '../src/modules/creators/creator.types.js';
 
-const app = buildTestApp();
+const app = buildTestServer();
 
 // Bộ dữ liệu có đủ 3 serviceMode để test filter (CRE-006) — bản sao từ seed verified,
 // chỉ đổi id/serviceMode. Default sort là rating → crt_sm_both (4.9) đứng đầu.
@@ -13,7 +13,7 @@ const serviceModeSeed: readonly Creator[] = [
   { ...structuredClone(CREATOR_SEED[1]!), id: 'crt_sm_offline', serviceMode: 'offline' },
   { ...structuredClone(CREATOR_SEED[2]!), id: 'crt_sm_both', serviceMode: 'both' },
 ];
-const serviceModeApp = buildTestApp({ creators: serviceModeSeed });
+const serviceModeApp = buildTestServer({ creators: serviceModeSeed });
 
 describe('GET /api/v1/creators', () => {
   it('chỉ trả về creator verified kèm pagination meta', async () => {

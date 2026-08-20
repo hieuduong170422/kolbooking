@@ -1,11 +1,13 @@
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import express, { type Express } from 'express';
+import type { Server } from 'node:http';
+import express from 'express';
 import request from 'supertest';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { mountClient } from '../src/shared/http/serve-client.js';
 import { notFoundHandler } from '../src/shared/middlewares/not-found.js';
+import { listenTestApp } from './helpers/test-server.js';
 
 /**
  * API phục vụ luôn bản build của client (một tiến trình chạy được cả giao diện
@@ -16,7 +18,7 @@ import { notFoundHandler } from '../src/shared/middlewares/not-found.js';
 const INDEX_HTML = '<!doctype html><title>KOL Booking</title><div id="root"></div>';
 
 let clientDir: string;
-let app: Express;
+let app: Server;
 
 beforeAll(async () => {
   clientDir = await mkdtemp(path.join(tmpdir(), 'kb-client-'));
@@ -24,13 +26,14 @@ beforeAll(async () => {
   await mkdir(path.join(clientDir, 'assets'));
   await writeFile(path.join(clientDir, 'assets', 'index-abc123.js'), 'console.log(1)');
 
-  app = express();
+  const expressApp = express();
   // Mô phỏng thứ tự thật: API đứng trước, client đứng sau, 404 JSON chốt cuối.
-  app.get('/api/v1/health', (_req, res) => {
+  expressApp.get('/api/v1/health', (_req, res) => {
     res.json({ success: true });
   });
-  mountClient(app, clientDir);
-  app.use(notFoundHandler);
+  mountClient(expressApp, clientDir);
+  expressApp.use(notFoundHandler);
+  app = listenTestApp(expressApp);
 });
 
 afterAll(async () => {

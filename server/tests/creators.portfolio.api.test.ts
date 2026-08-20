@@ -1,10 +1,10 @@
-import type { Express } from 'express';
+import type { Server } from 'node:http';
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { CREATOR_SEED } from '../src/modules/creators/creator.seed.js';
 import { DEMO_PASSWORD, buildUserSeed } from '../src/modules/users/user.seed.js';
 import { InMemoryFileStorage } from '../src/shared/storage/file-storage.memory.js';
-import { buildTestApp } from './helpers/build-test-app.js';
+import { buildTestServer } from './helpers/test-server.js';
 
 /**
  * T10 — Portfolio + avatar upload API (CRE-004, SEC-005).
@@ -12,13 +12,13 @@ import { buildTestApp } from './helpers/build-test-app.js';
  * upload multipart (image/video), JSON link, xóa item, avatar; RBAC (AUTH-005).
  */
 
-let app: Express;
+let app: Server;
 let fileStorage: InMemoryFileStorage;
 
 // Mỗi test dựng app mới để file storage + repo không rò rỉ state giữa test.
 beforeEach(async () => {
   fileStorage = new InMemoryFileStorage();
-  app = buildTestApp({
+  app = buildTestServer({
     users: await buildUserSeed(),
     creators: CREATOR_SEED,
     fileStorage,

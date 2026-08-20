@@ -1,9 +1,9 @@
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { Express } from 'express';
+import type { Server } from 'node:http';
 import { InMemoryAuditRepository } from '../src/modules/audit/audit.repository.memory.js';
 import { DEMO_PASSWORD, buildUserSeed } from '../src/modules/users/user.seed.js';
-import { buildTestApp } from './helpers/build-test-app.js';
+import { buildTestServer } from './helpers/test-server.js';
 
 /**
  * T-ADM — Quản lý tài khoản người dùng (ADM-002, ADM-004, AUTH-006).
@@ -11,12 +11,12 @@ import { buildTestApp } from './helpers/build-test-app.js';
  * khóa tài khoản chặn đăng nhập và thu hồi toàn bộ phiên đang mở.
  */
 
-let app: Express;
+let app: Server;
 let audit: InMemoryAuditRepository;
 
 beforeEach(async () => {
   audit = new InMemoryAuditRepository();
-  app = buildTestApp({ users: await buildUserSeed(), audit });
+  app = buildTestServer({ users: await buildUserSeed(), audit });
 });
 
 const loginAs = async (email: string): Promise<string> => {

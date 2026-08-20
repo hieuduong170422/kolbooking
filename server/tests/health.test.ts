@@ -1,10 +1,10 @@
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
-import { buildTestApp } from './helpers/build-test-app.js';
+import { buildTestServer } from './helpers/test-server.js';
 
 describe('GET /api/v1/health', () => {
   it('trả về envelope success với status ok', async () => {
-    const response = await request(buildTestApp()).get('/api/v1/health');
+    const response = await request(buildTestServer()).get('/api/v1/health');
 
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
@@ -14,7 +14,7 @@ describe('GET /api/v1/health', () => {
   });
 
   it('trả về 404 envelope cho đường dẫn không tồn tại', async () => {
-    const response = await request(buildTestApp()).get('/api/v1/unknown');
+    const response = await request(buildTestServer()).get('/api/v1/unknown');
 
     expect(response.status).toBe(404);
     expect(response.body.success).toBe(false);

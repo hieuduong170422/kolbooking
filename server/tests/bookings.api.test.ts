@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { Express } from 'express';
+import type { Server } from 'node:http';
 import { InMemoryAuditRepository } from '../src/modules/audit/audit.repository.memory.js';
 import { InMemoryBookingRepository } from '../src/modules/bookings/booking.repository.memory.js';
 import { BookingService } from '../src/modules/bookings/booking.service.js';
@@ -9,7 +9,7 @@ import { CREATOR_SEED } from '../src/modules/creators/creator.seed.js';
 import { InMemoryPackageRepository } from '../src/modules/packages/package.repository.memory.js';
 import { PACKAGE_SEED } from '../src/modules/packages/package.seed.js';
 import { DEMO_PASSWORD, buildUserSeed } from '../src/modules/users/user.seed.js';
-import { buildTestApp } from './helpers/build-test-app.js';
+import { buildTestServer } from './helpers/test-server.js';
 import { futureDeadline } from './helpers/future-deadline.js';
 
 /**
@@ -23,14 +23,14 @@ const creatorsWithOwner = CREATOR_SEED.map((creator) =>
   creator.id === 'crt_0001' ? { ...creator, userId: 'usr_demo_creator' } : creator,
 );
 
-let app: Express;
+let app: Server;
 let audit: InMemoryAuditRepository;
 let bookings: InMemoryBookingRepository;
 
 beforeEach(async () => {
   audit = new InMemoryAuditRepository();
   bookings = new InMemoryBookingRepository();
-  app = buildTestApp({
+  app = buildTestServer({
     users: await buildUserSeed(),
     creators: creatorsWithOwner,
     audit,

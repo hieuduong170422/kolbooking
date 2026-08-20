@@ -1,9 +1,9 @@
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
-import type { Express } from 'express';
+import type { Server } from 'node:http';
 import { CREATOR_SEED } from '../src/modules/creators/creator.seed.js';
 import { DEMO_PASSWORD, buildUserSeed } from '../src/modules/users/user.seed.js';
-import { buildTestApp } from './helpers/build-test-app.js';
+import { buildTestServer } from './helpers/test-server.js';
 
 /**
  * T-P1 — Service package (PKG-001..PKG-008).
@@ -15,10 +15,10 @@ const verifiedCreators = CREATOR_SEED.map((creator) =>
   creator.id === 'crt_demo' ? { ...creator, status: 'verified' as const } : creator,
 );
 
-let app: Express;
+let app: Server;
 
 beforeAll(async () => {
-  app = buildTestApp({ users: await buildUserSeed(), creators: verifiedCreators });
+  app = buildTestServer({ users: await buildUserSeed(), creators: verifiedCreators });
 });
 
 const loginAs = async (email: string): Promise<string> => {
@@ -219,7 +219,7 @@ describe('Owner CRUD + publish flow (PKG-001, PKG-007, PKG-008)', () => {
 describe('BR-001 — creator chưa verified không publish được', () => {
   it('tạo draft OK nhưng publish trả 409', async () => {
     // App riêng: crt_demo giữ nguyên status draft như seed gốc.
-    const draftApp = buildTestApp({ users: await buildUserSeed() });
+    const draftApp = buildTestServer({ users: await buildUserSeed() });
     const login = await request(draftApp)
       .post('/api/v1/auth/login')
       .send({ email: 'creator@demo.vn', password: DEMO_PASSWORD });
