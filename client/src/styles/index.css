@@ -129,7 +129,10 @@ a {
   width: 100%;
   max-width: 1080px;
   margin: 0 auto;
-  padding: 24px 16px 48px;
+  /* Đáy chừa 96px: bong bóng chat nổi cao 56px + lề 20px nằm đè lên góc phải
+     dưới. Không chừa thì nút cuối form dài (vd "Tạo yêu cầu booking") nằm
+     ngay dưới nó và bấm trúng bong bóng — rõ nhất ở màn hẹp. */
+  padding: 24px 16px 96px;
 }
 
 .app-footer {
@@ -268,6 +271,16 @@ a {
 
 .page__subtitle {
   color: var(--color-text-muted);
+}
+
+/* Hàng nút của trang trạng thái (404...) — xuống dòng gọn ở màn hẹp. */
+.page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
 }
 
 .page--center {
@@ -485,6 +498,40 @@ a {
 }
 
 /* ===== Creator detail ===== */
+/* Đường dẫn trang — thay cho link "← Quay lại" ở các màn con. */
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 0.86rem;
+}
+
+.breadcrumb__link {
+  color: var(--color-text-muted);
+}
+
+.breadcrumb__link:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.breadcrumb__sep {
+  color: var(--color-border);
+}
+
+/* Tên trang hiện tại: dài thì cắt bớt chứ không đẩy vỡ hàng. */
+.breadcrumb__current {
+  color: var(--color-text);
+  font-weight: 600;
+  max-width: 46ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .back-link {
   display: inline-block;
   margin-bottom: 16px;

@@ -9,6 +9,7 @@ import {
 } from '../features/messages/utils/conversation-peer';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
+import { EmptyState } from '../shared/components/feedback/empty-state';
 
 const formatWhen = (iso: string | null): string =>
   iso === null ? '' : new Date(iso).toLocaleDateString('vi-VN');
@@ -44,19 +45,25 @@ export const MessagesPage = () => {
       </div>
 
       {data.length === 0 ? (
-        <div className="feedback">
-          <p className="feedback__title">Chưa có cuộc trò chuyện nào</p>
-          <p>
-            {isCreator
+        <EmptyState
+          title="Chưa có cuộc trò chuyện nào"
+          description={
+            isCreator
               ? 'Khi brand nhắn tin, cuộc trò chuyện sẽ xuất hiện ở đây.'
-              : 'Mở hồ sơ một creator và bấm “Nhắn tin” để bắt đầu.'}
-          </p>
-          {!isCreator ? (
-            <LinkButton to="/creators">
-              Khám phá creator
-            </LinkButton>
-          ) : null}
-        </div>
+              : 'Mở hồ sơ một creator và bấm “Nhắn tin” để bắt đầu.'
+          }
+          /* Creator không chủ động mở luồng được — CTA đúng của họ là hoàn
+             thiện gói dịch vụ để brand tìm ra, chứ không phải đi tìm creator. */
+          action={
+            isCreator ? (
+              <LinkButton to="/my-packages" variant="secondary">
+                Quản lý gói dịch vụ
+              </LinkButton>
+            ) : (
+              <LinkButton to="/creators">Khám phá creator</LinkButton>
+            )
+          }
+        />
       ) : (
         <div className="messages-layout">
           <aside className="conversation-list">

@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { LinkButton } from '../shared/components/ui';
 import { IconStar } from '../shared/components/icons';
 import { useCreator } from '../features/creators/hooks/use-creator';
@@ -15,6 +15,8 @@ import { ReportButton } from '../features/reports/components/report-button';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { formatCompactNumber, formatVnd } from '../shared/utils/format';
+import { Breadcrumb } from '../shared/components/navigation/breadcrumb';
+import { coverGradient, creatorInitials } from '../features/creators/avatar';
 
 /** Tên miền của link portfolio — tránh hiển thị URL dài (CRE-004). */
 const linkHostname = (url: string): string => {
@@ -88,9 +90,9 @@ export const CreatorDetailPage = () => {
 
   return (
     <section className="page">
-      <Link to="/creators" className="back-link">
-        ← Quay lại danh sách
-      </Link>
+      <Breadcrumb
+        items={[{ label: 'Khám phá creator', to: '/creators' }, { label: creator.displayName }]}
+      />
 
       <div className="creator-detail">
         {/* Cột chính */}
@@ -103,8 +105,12 @@ export const CreatorDetailPage = () => {
                 alt={`Ảnh đại diện ${creator.displayName}`}
               />
             ) : (
-              <span className="creator-detail__avatar creator-detail__avatar--fallback" aria-hidden="true">
-                {creator.displayName.charAt(0)}
+              <span
+                className="creator-detail__avatar creator-detail__avatar--fallback"
+                style={{ background: coverGradient(creator.displayName) }}
+                aria-hidden="true"
+              >
+                {creatorInitials(creator.displayName)}
               </span>
             )}
             <div>

@@ -3,34 +3,7 @@ import { Link } from 'react-router';
 import { formatCompactNumber, formatVnd } from '../../../shared/utils/format';
 import { IconStar } from '../../../shared/components/icons';
 import { CREATOR_TYPE_LABELS, type Creator } from '../types/creator-types';
-
-const creatorInitials = (displayName: string): string =>
-  displayName
-    .split(' ')
-    .slice(0, 2)
-    .map((word) => word.charAt(0).toUpperCase())
-    .join('');
-
-/**
- * Palette cover tuyển chọn quanh hệ Tím Măng Cụt — chọn ổn định theo tên
- * (không random) để mỗi creator giữ một màu nhất quán giữa các lần render.
- */
-const COVER_GRADIENTS = [
-  'linear-gradient(150deg, #8b4ddb, #43167a)', // tím măng cụt
-  'linear-gradient(150deg, #b65fa8, #6d2260)', // hồng mận
-  'linear-gradient(150deg, #e8a020, #9a5b08)', // vàng nghệ
-  'linear-gradient(150deg, #2f9e8f, #14574e)', // xanh ngọc
-  'linear-gradient(150deg, #5b7bd6, #2b3f8f)', // xanh chàm
-  'linear-gradient(150deg, #d96f4b, #8f3a1e)', // cam đất
-] as const;
-
-const coverGradient = (displayName: string): string => {
-  let hash = 0;
-  for (const char of displayName) {
-    hash = (hash * 31 + char.charCodeAt(0)) % 997;
-  }
-  return COVER_GRADIENTS[hash % COVER_GRADIENTS.length] as string;
-};
+import { coverGradient, creatorInitials } from '../avatar';
 
 /**
  * Card creator kiểu "cover-first" — ảnh/khối màu là hero, thông tin xếp dưới

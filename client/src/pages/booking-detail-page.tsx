@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { useAuth } from '../features/auth/store/use-auth';
 import { useBooking, useBookingActions } from '../features/bookings/hooks/use-bookings';
 import { availableActions, nextActionHint } from '../features/bookings/next-action';
@@ -17,6 +17,7 @@ import { ApiClientError } from '../shared/api/api-types';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { formatVnd } from '../shared/utils/format';
+import { Breadcrumb } from '../shared/components/navigation/breadcrumb';
 
 const formatDate = (iso: string): string => new Date(iso).toLocaleString('vi-VN');
 
@@ -65,9 +66,7 @@ export const BookingDetailPage = () => {
 
   return (
     <section className="page">
-      <Link to="/bookings" className="back-link">
-        ← Quay lại danh sách booking
-      </Link>
+      <Breadcrumb items={[{ label: 'Booking', to: '/bookings' }, { label: booking.code }]} />
 
       <div className="page__header page__header--row">
         <div>

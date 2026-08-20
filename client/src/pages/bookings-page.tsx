@@ -14,6 +14,7 @@ import { LoadingState } from '../shared/components/feedback/loading-state';
 import { Pagination } from '../shared/components/pagination/pagination';
 import { LinkButton, Tabs } from '../shared/components/ui';
 import { formatVnd } from '../shared/utils/format';
+import { EmptyState } from '../shared/components/feedback/empty-state';
 
 const PAGE_LIMIT = 20;
 
@@ -65,17 +66,19 @@ export const BookingsPage = () => {
 
       {data !== undefined ? (
         data.data.length === 0 ? (
-          <div className="feedback">
-            <p className="feedback__title">Chưa có booking nào</p>
-            <p>
-              {user.role === 'creator'
+          <EmptyState
+            title="Chưa có booking nào"
+            description={
+              user.role === 'creator'
                 ? 'Publish gói dịch vụ để brand tìm thấy và gửi yêu cầu.'
-                : 'Tìm creator phù hợp và gửi yêu cầu booking đầu tiên.'}
-            </p>
-            <LinkButton to={user.role === 'creator' ? '/my-packages' : '/creators'}>
-              {user.role === 'creator' ? 'Quản lý package' : 'Khám phá creator'}
-            </LinkButton>
-          </div>
+                : 'Tìm creator phù hợp và gửi yêu cầu booking đầu tiên.'
+            }
+            action={
+              <LinkButton to={user.role === 'creator' ? '/my-packages' : '/creators'}>
+                {user.role === 'creator' ? 'Quản lý gói dịch vụ' : 'Khám phá creator'}
+              </LinkButton>
+            }
+          />
         ) : (
           <>
             <ul className="booking-list">

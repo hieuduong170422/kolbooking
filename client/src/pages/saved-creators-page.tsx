@@ -3,6 +3,7 @@ import { CreatorList } from '../features/creators/components/creator-list';
 import { useFavorites } from '../features/favorites/hooks/use-favorites';
 import { ErrorState } from '../shared/components/feedback/error-state';
 import { LoadingState } from '../shared/components/feedback/loading-state';
+import { EmptyState } from '../shared/components/feedback/empty-state';
 
 /** Trang /saved — creator brand đã lưu (BRD-006). */
 export const SavedCreatorsPage = () => {
@@ -24,13 +25,11 @@ export const SavedCreatorsPage = () => {
 
       {data !== undefined ? (
         data.length === 0 ? (
-          <div className="feedback">
-            <p className="feedback__title">Chưa lưu creator nào</p>
-            <p>Bấm biểu tượng trái tim trên thẻ creator để lưu lại xem sau.</p>
-            <LinkButton to="/creators">
-              Khám phá creator
-            </LinkButton>
-          </div>
+          <EmptyState
+            title="Chưa lưu creator nào"
+            description="Bấm biểu tượng trái tim trên thẻ creator để lưu lại xem sau."
+            action={<LinkButton to="/creators">Khám phá creator</LinkButton>}
+          />
         ) : (
           <CreatorList creators={data} />
         )

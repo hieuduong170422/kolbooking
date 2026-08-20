@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { LinkList } from '../features/bookings/components/link-list';
 import { TagPicker } from '../features/bookings/components/tag-picker';
 import {
@@ -18,6 +18,7 @@ import { ErrorState } from '../shared/components/feedback/error-state';
 import { Button, Input, LinkButton, Textarea } from '../shared/components/ui';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { formatVnd } from '../shared/utils/format';
+import { Breadcrumb } from '../shared/components/navigation/breadcrumb';
 
 /** YYYY-MM-DD → dd/mm/yyyy. Tự tách chuỗi thay vì qua Date để không lệch múi giờ. */
 const formatDay = (isoDay: string): string => isoDay.split('-').reverse().join('/');
@@ -141,9 +142,13 @@ export const BookingCreatePage = () => {
 
   return (
     <section className="page">
-      <Link to={`/creators/${creatorId}`} className="back-link">
-        ← Quay lại hồ sơ creator
-      </Link>
+      <Breadcrumb
+        items={[
+          { label: 'Khám phá creator', to: '/creators' },
+          { label: pkg.name, to: `/creators/${creatorId}` },
+          { label: 'Gửi yêu cầu booking' },
+        ]}
+      />
 
       <div className="page__header">
         <h1>Gửi yêu cầu booking</h1>
