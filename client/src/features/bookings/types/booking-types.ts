@@ -101,7 +101,9 @@ export interface CreateBookingInput {
 }
 
 export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
-  draft: 'Nháp',
+  // "Bản nháp" — cùng chữ với package/creator/brand để một khái niệm không có
+  // hai tên tuỳ theo màn hình.
+  draft: 'Bản nháp',
   pending_creator: 'Chờ creator phản hồi',
   awaiting_payment: 'Chờ thanh toán',
   confirmed: 'Đã xác nhận',

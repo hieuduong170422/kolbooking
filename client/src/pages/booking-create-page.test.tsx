@@ -3,11 +3,17 @@ import { MemoryRouter, Route, Routes } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useCreateBooking } from '../features/bookings/hooks/use-bookings';
 import { usePackagesByCreator } from '../features/packages/hooks/use-public-packages';
+import { FALLBACK_CONFIG } from '../features/config/types/config-types';
 import { BookingCreatePage } from './booking-create-page';
 
 vi.mock('../features/bookings/hooks/use-bookings', () => ({ useCreateBooking: vi.fn() }));
 vi.mock('../features/packages/hooks/use-public-packages', () => ({
   usePackagesByCreator: vi.fn(),
+}));
+// Cấu hình công khai gọi API thật qua React Query — trang chỉ cần các con số,
+// mock thẳng về mặc định để test không phải dựng QueryClientProvider.
+vi.mock('../features/config/hooks/use-app-config', () => ({
+  useAppConfig: () => FALLBACK_CONFIG,
 }));
 
 const mockUsePackages = vi.mocked(usePackagesByCreator);
@@ -27,7 +33,9 @@ const packageFixture = {
   revisionsIncluded: 1,
   usageRights: { repost: true, paidAds: false, durationMonths: 3, channels: ['tiktok'] },
   postDurationDays: 30,
-  addOns: [],
+  addOns: [
+    { id: 'ado_1', type: 'fast_delivery', label: 'Giao nhanh 48h', priceVnd: 300_000 },
+  ],
 };
 
 const mutate = vi.fn();
@@ -107,6 +115,41 @@ describe('BookingCreatePage — brief có gợi ý dựng sẵn (BKG-002)', () =
 
     expect(deadline.min).toBe(earliest);
     expect(screen.getByText(/cần 5 ngày sản xuất/)).toBeInTheDocument();
+  });
+
+  it('khối Tạm tính hiện phí nền tảng và tổng brand phải trả', () => {
+    renderPage();
+
+    // 3.000.000 + 12% = 3.360.000 — brand thấy TRƯỚC khi bấm tạo, không phải
+    // sau khi đã có booking nháp.
+    expect(screen.getByText('Phí nền tảng (12%)')).toBeInTheDocument();
+    expect(screen.getByText(/^360\.000/)).toBeInTheDocument();
+    expect(screen.getByText('Bạn trả')).toBeInTheDocument();
+    expect(screen.getByText(/^3\.360\.000/)).toBeInTheDocument();
+  });
+
+  it('add-on giao nhanh kéo ngày sớm nhất từ 5 ngày xuống 2 ngày', () => {
+    renderPage();
+    const deadline = screen.getByLabelText('Deadline mong muốn') as HTMLInputElement;
+
+    fireEvent.click(screen.getByLabelText(/Giao nhanh 48h/));
+
+    const rushed = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    expect(deadline.min).toBe(rushed);
+    expect(screen.getByText(/add-on giao nhanh/i)).toBeInTheDocument();
+  });
+
+  it('bỏ add-on giao nhanh sau khi đã chọn ngày → báo lỗi thay vì để server từ chối', () => {
+    renderPage();
+    const rushLabel = screen.getByLabelText(/Giao nhanh 48h/);
+
+    fireEvent.click(rushLabel);
+    const rushed = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    fireEvent.change(screen.getByLabelText('Deadline mong muốn'), { target: { value: rushed } });
+    fireEvent.click(rushLabel);
+
+    expect(screen.getByText(/Chọn từ ngày .* trở đi/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Tạo yêu cầu booking' })).toBeDisabled();
   });
 
   it('gửi brief dưới dạng danh sách, không phải chuỗi nhiều dòng', () => {

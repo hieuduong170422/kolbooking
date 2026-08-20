@@ -153,6 +153,24 @@ a {
   color: var(--color-text);
 }
 
+.app-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 18px;
+  margin-top: 4px;
+}
+
+.app-footer__links a {
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.app-footer__links a:hover {
+  color: var(--color-primary);
+}
+
 .app-footer__logo {
   width: 22px;
   height: 22px;
@@ -228,6 +246,13 @@ a {
 /* Các tab + nút user luôn nằm trên một hàng (không wrap khi viewport hẹp). */
 .app-header__nav {
   display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Cụm chuông + nút menu: chỉ tồn tại ở màn hẹp (xem media query cuối file). */
+.app-header__compact {
+  display: none;
   align-items: center;
   gap: 4px;
 }
@@ -550,6 +575,25 @@ a {
 
 .booking-panel__facts span {
   color: var(--color-text-muted);
+}
+
+/* Dòng tổng cuối — brand phải đọc ra con số phải trả mà không cần dò. */
+.booking-panel__total {
+  border-top: 1px solid var(--color-border);
+  border-bottom: none;
+  margin-top: 4px;
+  padding-top: 12px;
+}
+
+.booking-panel__total span {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.booking-panel__total strong {
+  font-size: 1.15rem;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 .booking-panel__cta {
@@ -2079,6 +2123,61 @@ a {
   white-space: nowrap;
 }
 
+/* ===== Ngăn kéo điều hướng (mobile) =====
+   Trước đây màn hẹp chỉ cho thanh tab trượt ngang với scrollbar bị ẩn: các
+   mục ngoài rìa vẫn bấm tới được nhưng không có gì báo là chúng tồn tại, nên
+   người dùng mobile coi như mất Booking / Tin nhắn / Đã lưu. */
+.app-header__drawer {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px 16px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.app-header__drawer-link {
+  padding: 12px;
+  border-radius: var(--radius-md);
+  font-size: 0.98rem;
+}
+
+.app-header__drawer-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px 12px;
+  border-bottom: 1px dashed var(--color-border);
+  margin-bottom: 6px;
+}
+
+.app-header__drawer-identity {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.app-header__drawer-identity strong {
+  font-size: 0.95rem;
+}
+
+.app-header__drawer-identity em {
+  font-style: normal;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-header__drawer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
 @media (max-width: 640px) {
   .app-header__inner {
     gap: 10px;
@@ -2095,26 +2194,20 @@ a {
     display: none;
   }
 
+  /* Thanh ngang nhường chỗ cho nút menu. */
   .app-header__nav {
-    min-width: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .app-header__nav::-webkit-scrollbar {
     display: none;
   }
 
-  .app-header__link {
-    padding: 6px 9px;
-    font-size: 0.88rem;
+  .app-header__compact {
+    display: flex;
   }
+}
 
-  .app-header__user span:nth-child(2) {
-    max-width: 90px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+/* Màn rộng không cần ngăn kéo — mọi thứ đã nằm trên thanh ngang. */
+@media (min-width: 641px) {
+  .app-header__drawer {
+    display: none;
   }
 }
 
@@ -3772,5 +3865,73 @@ a {
   .chat-widget__panel {
     width: calc(100vw - 24px);
     height: min(70vh, calc(100vh - 90px));
+  }
+}
+
+/* ============================================================
+   Văn bản dài để đọc — điều khoản, chính sách quyền riêng tư
+   ============================================================ */
+
+/* Giới hạn bề ngang: dòng quá dài thì mắt trượt dòng khi xuống hàng. */
+.page--reading {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.legal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: var(--shadow-card);
+  line-height: 1.7;
+}
+
+.legal__header {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 20px;
+  margin-bottom: 8px;
+}
+
+.legal__header h1 {
+  font-size: 1.7rem;
+  margin-bottom: 6px;
+}
+
+.legal__meta {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.legal__summary {
+  margin-top: 12px;
+  color: var(--color-text-muted);
+}
+
+.legal__section {
+  margin-top: 24px;
+}
+
+.legal__section h2 {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}
+
+.legal__section p + p {
+  margin-top: 10px;
+}
+
+.legal__list {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .legal {
+    padding: 20px;
   }
 }

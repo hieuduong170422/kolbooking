@@ -8,7 +8,10 @@ import {
   findObjective,
   scenePresetsFor,
 } from '../features/bookings/data/brief-presets';
+import { earliestDeadlineDay, effectiveTurnaroundDays } from '../features/bookings/deadline';
+import { estimateTotals } from '../features/bookings/pricing';
 import { useCreateBooking } from '../features/bookings/hooks/use-bookings';
+import { useAppConfig } from '../features/config/hooks/use-app-config';
 import { usePackagesByCreator } from '../features/packages/hooks/use-public-packages';
 import { ApiClientError } from '../shared/api/api-types';
 import { ErrorState } from '../shared/components/feedback/error-state';
@@ -16,17 +19,8 @@ import { Button, Input, LinkButton, Textarea } from '../shared/components/ui';
 import { LoadingState } from '../shared/components/feedback/loading-state';
 import { formatVnd } from '../shared/utils/format';
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-/**
- * Ngày sớm nhất brand được chọn = hôm nay + thời gian sản xuất của gói.
- * Chọn sớm hơn thì creator nhận về chỉ có thể từ chối — chặn ngay ở đây đỡ
- * mất một vòng gửi đi gửi lại.
- */
-const earliestDeadline = (turnaroundDays: number): string => {
-  const date = new Date(Date.now() + turnaroundDays * DAY_MS);
-  return date.toISOString().slice(0, 10);
-};
+/** YYYY-MM-DD → dd/mm/yyyy. Tự tách chuỗi thay vì qua Date để không lệch múi giờ. */
+const formatDay = (isoDay: string): string => isoDay.split('-').reverse().join('/');
 
 /**
  * Trang /creators/:id/book — brand chọn add-on, nhập brief và gửi yêu cầu
@@ -40,6 +34,7 @@ export const BookingCreatePage = () => {
   const navigate = useNavigate();
 
   const { data, isPending, isError } = usePackagesByCreator(creatorId);
+  const config = useAppConfig();
   const createBooking = useCreateBooking();
 
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<readonly string[]>([]);
@@ -69,10 +64,16 @@ export const BookingCreatePage = () => {
 
   const selectedAddOns = pkg.addOns.filter((addOn) => selectedAddOnIds.includes(addOn.id));
   const addOnsTotal = selectedAddOns.reduce((sum, addOn) => sum + addOn.priceVnd, 0);
-  const subtotal = pkg.priceVnd + addOnsTotal;
+  const totals = estimateTotals(pkg.priceVnd + addOnsTotal, config);
 
   const selectedObjective = objectiveId === null ? undefined : findObjective(objectiveId);
-  const minDeadline = earliestDeadline(pkg.turnaroundDays);
+  const turnaroundDays = effectiveTurnaroundDays(
+    pkg.turnaroundDays,
+    selectedAddOns,
+    config.fastDeliveryTurnaroundDays,
+  );
+  const minDeadline = earliestDeadlineDay(turnaroundDays);
+  const isRushed = turnaroundDays < pkg.turnaroundDays;
 
   /**
    * Chọn mục tiêu = nạp bản nháp brief. Chỉ điền vào ô mục tiêu khi nó còn
@@ -103,10 +104,18 @@ export const BookingCreatePage = () => {
     );
   };
 
+  /**
+   * Bỏ tick add-on giao nhanh sau khi đã chọn ngày làm mốc sớm nhất lùi ra
+   * xa hơn ngày đang chọn. Không tự sửa lựa chọn của brand — báo lỗi ngay tại
+   * ô đó, vì server cũng sẽ từ chối đúng lý do này.
+   */
+  const deadlineTooEarly = desiredDeadline !== '' && desiredDeadline < minDeadline;
+
   const canSubmit =
     objective.trim().length >= 10 &&
     keyMessage.trim().length >= 5 &&
     desiredDeadline !== '' &&
+    !deadlineTooEarly &&
     !createBooking.isPending;
 
   const handleSubmit = (event: FormEvent): void => {
@@ -253,7 +262,12 @@ export const BookingCreatePage = () => {
                 value={desiredDeadline}
                 min={minDeadline}
                 onChange={(event) => setDesiredDeadline(event.target.value)}
-                hint={`Gói này cần ${pkg.turnaroundDays} ngày sản xuất, nên sớm nhất là ${new Date(minDeadline).toLocaleDateString('vi-VN')}.`}
+                hint={
+                  isRushed
+                    ? `Có add-on giao nhanh nên chỉ cần ${turnaroundDays} ngày sản xuất — sớm nhất là ${formatDay(minDeadline)}.`
+                    : `Gói này cần ${turnaroundDays} ngày sản xuất, nên sớm nhất là ${formatDay(minDeadline)}.`
+                }
+                error={deadlineTooEarly ? `Chọn từ ngày ${formatDay(minDeadline)} trở đi.` : undefined}
                 required
               />
             </div>
@@ -276,11 +290,20 @@ export const BookingCreatePage = () => {
               ))}
               <li>
                 <span>Tạm tính</span>
-                <strong>{formatVnd(subtotal)}</strong>
+                <strong>{formatVnd(totals.subtotalVnd)}</strong>
+              </li>
+              <li>
+                <span>Phí nền tảng ({config.platformFeePercent}%)</span>
+                <strong>{formatVnd(totals.platformFeeVnd)}</strong>
+              </li>
+              <li className="booking-panel__total">
+                <span>Bạn trả</span>
+                <strong>{formatVnd(totals.totalVnd)}</strong>
               </li>
             </ul>
             <p className="booking-panel__note">
-              Phí nền tảng được cộng khi server chốt đơn và hiển thị đầy đủ ở màn booking.
+              Đã gồm phí nền tảng — không có khoản nào cộng thêm sau. Server tính lại con số
+              này khi tạo booking.
             </p>
             <Button
               type="submit"
