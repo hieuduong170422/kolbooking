@@ -82,6 +82,9 @@ DATABASE_POOL_MAX=10
 
 # Dữ liệu demo để bấm thử ngay. TẮT khi có người dùng thật.
 SEED_DEMO_DATA=true
+# Mật khẩu của bộ tài khoản demo — sinh ngẫu nhiên cho từng máy, KHÔNG dùng
+# lại Demo@1234 trong mã nguồn công khai. Xem lại bằng: grep DEMO_SEED_PASSWORD $ENV_FILE
+DEMO_SEED_PASSWORD=$(openssl rand -base64 18 | tr -d '\n')
 
 JWT_SECRET=$(openssl rand -base64 48 | tr -d '\n')
 ACCESS_TOKEN_TTL_SECONDS=900

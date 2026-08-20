@@ -66,11 +66,21 @@ rsync mã nguồn → build trên server → `pm2 reload`. Dữ liệu trong Pos
 ## Tài khoản demo
 
 `SEED_DEMO_DATA=true` nạp sẵn dữ liệu mẫu khi database còn rỗng:
-`admin@demo.vn`, `brand@demo.vn`, `creator2@demo.vn`, `creator@demo.vn` —
-mật khẩu chung `Demo@1234`.
+`admin@demo.vn`, `brand@demo.vn`, `creator2@demo.vn`, `creator@demo.vn`.
 
-**Đặt `SEED_DEMO_DATA=false` trước khi cho người ngoài dùng** — mật khẩu này nằm
-trong mã nguồn công khai.
+Mật khẩu chung lấy từ `DEMO_SEED_PASSWORD` trong `.env` (setup-server.sh sinh
+ngẫu nhiên cho từng máy). Xem lại bằng:
+
+```bash
+grep DEMO_SEED_PASSWORD /opt/kolbooking/.env
+```
+
+Bỏ trống `DEMO_SEED_PASSWORD` thì rơi về `Demo@1234` — mật khẩu nằm trong mã
+nguồn công khai, nên `NODE_ENV=production` + `SEED_DEMO_DATA=true` mà thiếu nó
+sẽ **chặn server khởi động**. Đổi mật khẩu = sửa `.env`, xoá các user demo
+trong DB rồi khởi động lại (seed chỉ chạy khi bản ghi chưa tồn tại).
+
+**Đặt `SEED_DEMO_DATA=false` trước khi cho người ngoài dùng.**
 
 ## Những điều cần biết
 

@@ -95,6 +95,14 @@ const envSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((value) => value === 'true'),
+
+  /**
+   * Mật khẩu cho bộ tài khoản demo. Bỏ trống thì dùng mật khẩu dev công khai
+   * (Demo@1234) — chấp nhận được ở máy local, KHÔNG chấp nhận được trên máy
+   * ai cũng truy cập tới được: admin@demo.vn + mật khẩu công khai = cửa sau
+   * vào toàn bộ khu quản trị.
+   */
+  DEMO_SEED_PASSWORD: z.string().min(8).optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -108,6 +116,17 @@ if (!parsed.success) {
 
 if (parsed.data.NODE_ENV === 'production' && parsed.data.JWT_SECRET === DEV_ONLY_JWT_SECRET) {
   throw new Error('JWT_SECRET phải được cấu hình riêng khi chạy production.');
+}
+
+if (
+  parsed.data.NODE_ENV === 'production' &&
+  parsed.data.SEED_DEMO_DATA &&
+  parsed.data.DEMO_SEED_PASSWORD === undefined
+) {
+  throw new Error(
+    'SEED_DEMO_DATA=true ở production thì phải đặt DEMO_SEED_PASSWORD: mật khẩu ' +
+      'demo mặc định là công khai, để nguyên đồng nghĩa với việc mở sẵn tài khoản admin.',
+  );
 }
 
 if (parsed.data.NODE_ENV === 'production' && parsed.data.DEV_OTP_CODE !== undefined) {

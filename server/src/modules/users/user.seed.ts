@@ -1,14 +1,19 @@
+import { env } from '../../config/env.js';
 import { hashPassword } from '../auth/password.service.js';
 import type { User } from './user.types.js';
 
+/** Mật khẩu demo mặc định — CÔNG KHAI, chỉ dùng cho máy dev và test. */
 export const DEMO_PASSWORD = 'Demo@1234';
 
 /**
- * Tài khoản demo cho môi trường dev/test (mật khẩu chung: Demo@1234).
- * Hash tính lúc khởi động để không hardcode hash trong source.
+ * Tài khoản demo cho môi trường dev/test. Hash tính lúc khởi động để không
+ * hardcode hash trong source.
+ *
+ * Máy chạy thật (kể cả bản demo cho người ngoài xem) phải đặt
+ * DEMO_SEED_PASSWORD — env.ts chặn boot nếu bật seed ở production mà quên.
  */
 export const buildUserSeed = async (): Promise<readonly User[]> => {
-  const passwordHash = await hashPassword(DEMO_PASSWORD);
+  const passwordHash = await hashPassword(env.DEMO_SEED_PASSWORD ?? DEMO_PASSWORD);
   const seededAt = '2026-07-01T08:00:00.000Z';
   const consent = { version: '2026-08-mvp', acceptedAt: seededAt, source: 'seed' } as const;
 
