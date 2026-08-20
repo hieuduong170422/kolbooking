@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authRateLimiter } from '../../shared/middlewares/rate-limit.js';
 import { validate } from '../../shared/middlewares/validate.js';
 import type { Mailer } from '../../shared/email/mailer.js';
+import type { AuditRepository } from '../audit/audit.repository.js';
 import type { UserRepository } from '../users/user.repository.js';
 import { AuthController } from './auth.controller.js';
 import { requireAuth } from './auth.middleware.js';
@@ -22,6 +23,7 @@ export interface AuthRouterDeps {
   readonly sessions: SessionRepository;
   readonly verificationTokens: VerificationTokenRepository;
   readonly mailer: Mailer;
+  readonly audit: AuditRepository;
 }
 
 export const createAuthRouter = (deps: AuthRouterDeps): Router => {
@@ -32,7 +34,7 @@ export const createAuthRouter = (deps: AuthRouterDeps): Router => {
     deps.mailer,
   );
   const controller = new AuthController(
-    new AuthService(deps.users, deps.sessions, verification),
+    new AuthService(deps.users, deps.sessions, verification, deps.audit),
     verification,
   );
   const router = Router();

@@ -6,6 +6,7 @@ import { InMemoryNotificationRepository } from '../src/modules/notifications/not
 import { CREATOR_SEED } from '../src/modules/creators/creator.seed.js';
 import { DEMO_PASSWORD, buildUserSeed } from '../src/modules/users/user.seed.js';
 import { buildTestApp } from './helpers/build-test-app.js';
+import { futureDeadline } from './helpers/future-deadline.js';
 
 /**
  * T-P4b — Chat độc lập với booking (OD-09, CHAT-001..006).
@@ -213,7 +214,7 @@ describe('Cảnh báo trao đổi ngoài nền tảng (CHAT-004)', () => {
           mustHaveScenes: [],
           prohibited: [],
           references: [],
-          desiredDeadline: '2026-09-01T00:00:00.000Z',
+          desiredDeadline: futureDeadline(),
         },
       });
     const bookingId = created.body.data.booking.id as string;
@@ -257,7 +258,7 @@ describe('Luồng của booking là cùng một thread (liên tục lịch sử)
           mustHaveScenes: [],
           prohibited: [],
           references: [],
-          desiredDeadline: '2026-09-01T00:00:00.000Z',
+          desiredDeadline: futureDeadline(),
         },
       });
     const bookingId = created.body.data.booking.id as string;

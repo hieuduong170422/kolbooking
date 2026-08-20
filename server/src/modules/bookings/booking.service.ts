@@ -5,6 +5,12 @@ import type { CreatorRepository } from '../creators/creator.repository.js';
 import type { NotificationService } from '../notifications/notification.service.js';
 import type { PackageRepository } from '../packages/package.repository.js';
 import type { PackageAddOn, ServicePackage } from '../packages/package.types.js';
+import {
+  earliestDeadlineDay,
+  effectiveTurnaroundDays,
+  formatDayVi,
+  isDeadlineTooEarly,
+} from './booking.deadline.js';
 import { calculateTotals, generateBookingCode } from './booking.pricing.js';
 import type { BookingRepository } from './booking.repository.js';
 import {
@@ -89,6 +95,8 @@ export class BookingService {
     const now = new Date();
     const nowIso = now.toISOString();
 
+    this.assertDeadlineFeasible(input.brief.desiredDeadline, pkg, selectedAddOns, now);
+
     const created = await this.bookings.create({
       id: '', // repository sinh bkg_ + uuid
       code: generateBookingCode(now, randomBytes(4)),
@@ -133,11 +141,41 @@ export class BookingService {
       throw ApiError.conflict('Chỉ sửa được brief khi booking còn ở trạng thái nháp.');
     }
 
+    // Sửa brief cũng phải qua cùng một cửa kiểm deadline như lúc tạo —
+    // nếu không thì đây là đường vòng để đặt deadline quá khứ.
+    const pkg = await this.packages.findById(booking.packageId);
+    if (pkg) {
+      const selectedAddOns = this.resolveAddOns(pkg, booking.selectedAddOnIds);
+      this.assertDeadlineFeasible(brief.desiredDeadline, pkg, selectedAddOns, new Date());
+    }
+
     return this.persist({
       ...booking,
       brief: { ...brief, version: booking.brief.version + 1 },
       updatedAt: new Date().toISOString(),
     });
+  }
+
+  /**
+   * Deadline phải đủ chỗ cho thời gian sản xuất (BKG-002). Client đã chặn
+   * bằng `min` của input date, nhưng đó chỉ là gợi ý của trình duyệt — gọi
+   * thẳng API vẫn tạo được booking với deadline quá khứ nếu server không kiểm.
+   */
+  private assertDeadlineFeasible(
+    desiredDeadline: string,
+    pkg: ServicePackage,
+    selectedAddOns: readonly PackageAddOn[],
+    now: Date,
+  ): void {
+    const turnaround = effectiveTurnaroundDays(pkg.turnaroundDays, selectedAddOns);
+    if (!isDeadlineTooEarly(desiredDeadline, turnaround, now)) {
+      return;
+    }
+    const earliest = formatDayVi(earliestDeadlineDay(turnaround, now));
+    throw ApiError.badRequest(
+      `Deadline quá sớm: gói này cần ${turnaround} ngày sản xuất, sớm nhất là ${earliest}.`,
+      [{ field: 'brief.desiredDeadline', message: `Chọn từ ngày ${earliest} trở đi.` }],
+    );
   }
 
   /**
@@ -184,18 +222,19 @@ export class BookingService {
       updatedAt: nowIso,
     });
 
-    // Chỉ audit thao tác đụng tiền/quyết định của admin — timeline lo phần còn lại.
-    if (actor.role === 'admin') {
-      await this.audit.create({
-        actorId: actor.userId,
-        action: `booking.${action}`,
-        targetType: 'booking',
-        targetId: bookingId,
-        before: booking.status,
-        after: updated.status,
-        reason: normalizedReason,
-      });
-    }
+    // Audit MỌI chuyển trạng thái, không riêng thao tác của admin. Timeline
+    // nằm trong chính booking nên nó chỉ trả lời "booking này đã đi qua đâu";
+    // khi phân xử, admin cần tra chéo theo actor/thời điểm trên toàn hệ thống
+    // và cần một bản ghi append-only tách khỏi dữ liệu có thể bị sửa.
+    await this.audit.create({
+      actorId: actor.userId,
+      action: `booking.${action}`,
+      targetType: 'booking',
+      targetId: bookingId,
+      before: booking.status,
+      after: updated.status,
+      reason: normalizedReason,
+    });
 
     // Báo cho phía còn lại biết booking đổi trạng thái (NTF-001).
     await this.notifyStatusChange(updated, actor.userId);
@@ -280,7 +319,9 @@ export class BookingService {
       platforms: pkg.platforms,
       deliverables: pkg.deliverables,
       usageRights: pkg.usageRights,
-      turnaroundDays: pkg.turnaroundDays,
+      // Điều khoản chốt phải ghi thời gian đã mua, không phải thời gian niêm
+      // yết của gói — brand trả tiền add-on giao nhanh thì snapshot phải nói thế.
+      turnaroundDays: effectiveTurnaroundDays(pkg.turnaroundDays, selectedAddOns),
       revisionsIncluded: pkg.revisionsIncluded,
       selectedAddOns,
       // Tính lại tại thời điểm chốt — giá package có thể đã đổi từ lúc tạo nháp.

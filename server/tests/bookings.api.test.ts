@@ -10,6 +10,7 @@ import { InMemoryPackageRepository } from '../src/modules/packages/package.repos
 import { PACKAGE_SEED } from '../src/modules/packages/package.seed.js';
 import { DEMO_PASSWORD, buildUserSeed } from '../src/modules/users/user.seed.js';
 import { buildTestApp } from './helpers/build-test-app.js';
+import { futureDeadline } from './helpers/future-deadline.js';
 
 /**
  * T-P3 — Vòng đời booking (BKG-001..BKG-011, BR-003..BR-005).
@@ -51,7 +52,7 @@ const validBrief = (overrides: Record<string, unknown> = {}): Record<string, unk
   mustHaveScenes: ['Cảnh quay không gian quán', 'Cận cảnh ly cà phê'],
   prohibited: ['Không nhắc tên đối thủ'],
   references: ['https://www.tiktok.com/@lanchifoodie/video/123'],
-  desiredDeadline: '2026-09-01T00:00:00.000Z',
+  desiredDeadline: futureDeadline(),
   ...overrides,
 });
 
@@ -281,7 +282,7 @@ describe('Máy trạng thái (SRS §9.2, BKG-004..BKG-008)', () => {
     const updated = await request(app)
       .put(`/api/v1/bookings/${booking.id}/brief`)
       .set('Authorization', `Bearer ${brandToken}`)
-      .send({ brief: validBrief({ desiredDeadline: '2026-09-05T00:00:00.000Z' }) });
+      .send({ brief: validBrief({ desiredDeadline: futureDeadline(45) }) });
     expect(updated.status).toBe(200);
     expect(updated.body.data.booking.brief.version).toBe(2);
 
@@ -436,5 +437,105 @@ describe('Hết hạn tự động (BKG-005, BR-005)', () => {
       .get(`/api/v1/bookings/${booking.id}`)
       .set('Authorization', `Bearer ${brandToken}`);
     expect(after.body.data.booking.status).toBe('expired');
+  });
+});
+
+/**
+ * A3 + A4 của báo cáo kiểm thử 20/08/2026: client chặn deadline bằng `min`
+ * của input date, nhưng đó chỉ là gợi ý trình duyệt — API phải tự chặn.
+ */
+describe('Deadline: server kiểm, add-on giao nhanh rút ngắn thật', () => {
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const inDays = (days: number): string =>
+    `${new Date(Date.now() + days * DAY_MS).toISOString().slice(0, 10)}T00:00:00.000Z`;
+
+  const post = (token: string, body: Record<string, unknown>) =>
+    request(app).post('/api/v1/bookings').set('Authorization', `Bearer ${token}`).send({
+      creatorId: 'crt_0001',
+      packageId: 'pkg_0001',
+      selectedAddOnIds: [],
+      ...body,
+    });
+
+  it('deadline quá khứ → 400, không tạo được booking', async () => {
+    const token = await loginAs('brand@demo.vn');
+    const response = await post(token, {
+      brief: validBrief({ desiredDeadline: '2020-01-01T00:00:00.000Z' }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.message).toContain('quá sớm');
+    expect(response.body.error.details[0].field).toBe('brief.desiredDeadline');
+  });
+
+  it('deadline sớm hơn thời gian sản xuất (pkg_0001 = 5 ngày) → 400', async () => {
+    const token = await loginAs('brand@demo.vn');
+    const response = await post(token, { brief: validBrief({ desiredDeadline: inDays(4) }) });
+    expect(response.status).toBe(400);
+  });
+
+  it('đúng ngày sớm nhất → 201 (không lệch một ngày vì so theo giờ)', async () => {
+    const token = await loginAs('brand@demo.vn');
+    const response = await post(token, { brief: validBrief({ desiredDeadline: inDays(5) }) });
+    expect(response.status).toBe(201);
+  });
+
+  it('add-on giao nhanh → được chọn deadline 2 ngày thay vì 5', async () => {
+    const token = await loginAs('brand@demo.vn');
+
+    const withoutAddOn = await post(token, { brief: validBrief({ desiredDeadline: inDays(2) }) });
+    expect(withoutAddOn.status).toBe(400);
+
+    const withAddOn = await post(token, {
+      selectedAddOnIds: ['ado_0001'], // Giao nhanh 48h
+      brief: validBrief({ desiredDeadline: inDays(2) }),
+    });
+    expect(withAddOn.status).toBe(201);
+  });
+
+  it('sửa brief cũng không lách được deadline quá khứ', async () => {
+    const token = await loginAs('brand@demo.vn');
+    const booking = await createBooking(token);
+
+    const response = await request(app)
+      .put(`/api/v1/bookings/${booking.id}/brief`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ brief: validBrief({ desiredDeadline: '2020-01-01T00:00:00.000Z' }) });
+
+    expect(response.status).toBe(400);
+  });
+
+  it('điều khoản chốt ghi thời gian đã mua, không phải thời gian niêm yết', async () => {
+    const brandToken = await loginAs('brand@demo.vn');
+    // File này gán crt_0001 cho usr_demo_creator (xem creatorsWithOwner ở đầu file).
+    const creatorToken = await loginAs('creator@demo.vn');
+    const created = await post(brandToken, {
+      selectedAddOnIds: ['ado_0001'],
+      brief: validBrief({ desiredDeadline: inDays(2) }),
+    });
+    const bookingId = created.body.data.booking.id as string;
+
+    await transition(brandToken, bookingId, 'send');
+    const accepted = await transition(creatorToken, bookingId, 'accept');
+
+    expect(accepted.status).toBe(200);
+    expect(accepted.body.data.booking.snapshot.turnaroundDays).toBe(2);
+  });
+});
+
+describe('Audit vòng đời booking (A6 — bằng chứng khi phân xử)', () => {
+  it('mọi chuyển trạng thái đều để lại dấu vết, kể cả của brand/creator', async () => {
+    const brandToken = await loginAs('brand@demo.vn');
+    const creatorToken = await loginAs('creator@demo.vn');
+    const booking = await createBooking(brandToken);
+
+    await transition(brandToken, booking.id, 'send');
+    await transition(creatorToken, booking.id, 'accept');
+
+    const entries = await audit.listByTarget('booking', booking.id);
+    expect(entries.map((entry) => entry.action)).toEqual(['booking.send', 'booking.accept']);
+    expect(entries[0]?.actorId).toBe('usr_demo_brand');
+    expect(entries[1]?.before).toBe('pending_creator');
+    expect(entries[1]?.after).toBe('awaiting_payment');
   });
 });

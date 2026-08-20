@@ -1,6 +1,7 @@
 import { env } from '../../config/env.js';
 import { ApiError } from '../../shared/errors/api-error.js';
 import { logger } from '../../shared/logger/logger.js';
+import type { AuditRepository } from '../audit/audit.repository.js';
 import { toUserDto } from '../users/user.mapper.js';
 import type { UserRepository } from '../users/user.repository.js';
 import type { User, UserDto } from '../users/user.types.js';
@@ -31,15 +32,18 @@ export class AuthService {
   private readonly users: UserRepository;
   private readonly sessions: SessionRepository;
   private readonly verification: VerificationService;
+  private readonly audit: AuditRepository;
 
   constructor(
     users: UserRepository,
     sessions: SessionRepository,
     verification: VerificationService,
+    audit: AuditRepository,
   ) {
     this.users = users;
     this.sessions = sessions;
     this.verification = verification;
+    this.audit = audit;
   }
 
   async register(input: RegisterBody): Promise<AuthResult> {
@@ -49,17 +53,30 @@ export class AuthService {
     }
 
     const passwordHash = await hashPassword(input.password);
+    const consent = {
+      // AUTH-007: ghi version + timestamp + nguồn consent tại thời điểm chấp nhận.
+      version: env.TERMS_VERSION,
+      acceptedAt: new Date().toISOString(),
+      source: 'web_register',
+    };
     const user = await this.users.create({
       email: input.email,
       passwordHash,
       displayName: input.displayName,
       role: input.role,
-      // AUTH-007: ghi version + timestamp + nguồn consent tại thời điểm chấp nhận.
-      consent: {
-        version: env.TERMS_VERSION,
-        acceptedAt: new Date().toISOString(),
-        source: 'web_register',
-      },
+      consent,
+    });
+
+    // Đồng ý điều khoản là sự kiện pháp lý — phải có dấu vết độc lập với bản
+    // ghi user (user có thể đổi, audit thì append-only). KHÔNG ghi mật khẩu.
+    await this.audit.create({
+      actorId: user.id,
+      action: 'user.register',
+      targetType: 'user',
+      targetId: user.id,
+      before: null,
+      after: { role: user.role, termsVersion: consent.version },
+      reason: null,
     });
 
     // AUTH-002: gửi OTP xác minh ngay khi đăng ký. Lỗi gửi mail không làm hỏng

@@ -10,6 +10,7 @@ import { createAuditRouter } from '../modules/audit/audit.routes.js';
 import { createBookingRouter } from '../modules/bookings/booking.routes.js';
 import type { BookingRepository } from '../modules/bookings/booking.repository.js';
 import { createBrandRouter } from '../modules/brands/brand.routes.js';
+import { createConfigRouter } from '../modules/config/config.routes.js';
 import { createConversationRouter } from '../modules/conversations/conversation.routes.js';
 import type { ConversationRepository } from '../modules/conversations/conversation.repository.js';
 import { createSubmissionRouter } from '../modules/submissions/submission.routes.js';
@@ -68,6 +69,8 @@ export const createV1Router = (deps: AppDependencies): Router => {
   );
 
   router.use('/health', createHealthRouter());
+  // Cấu hình công khai (phí nền tảng, phiên bản điều khoản) — client ước tính theo đây.
+  router.use('/config', createConfigRouter());
   router.use(
     '/auth',
     createAuthRouter({
@@ -75,6 +78,7 @@ export const createV1Router = (deps: AppDependencies): Router => {
       sessions: deps.sessionRepository,
       verificationTokens: deps.verificationTokenRepository,
       mailer: deps.mailer,
+      audit: deps.auditRepository,
     }),
   );
   // Mount admin review TRƯỚC creators router: /reviews không được rơi vào /:id (route ordering).

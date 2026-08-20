@@ -90,3 +90,42 @@ describe('GET /api/v1/audit (ADM-009)', () => {
     expect(asGuest.status).toBe(401);
   });
 });
+
+/**
+ * A6 của báo cáo kiểm thử 20/08/2026: audit rỗng dù đã đăng ký tài khoản và
+ * chạy hết vòng booking. Trước đây chỉ thao tác của admin mới được ghi, nên
+ * đúng những sự kiện cần bằng chứng khi phân xử lại không có dấu vết.
+ */
+describe('Audit phủ được sự kiện ngoài thao tác của admin', () => {
+  it('đăng ký tài khoản ghi lại phiên bản điều khoản đã đồng ý', async () => {
+    const app = buildTestApp({ users: await buildUserSeed(), audit });
+
+    const registered = await request(app).post('/api/v1/auth/register').send({
+      email: 'nguoimoi@demo.vn',
+      password: 'Demo@1234',
+      displayName: 'Nguoi Moi',
+      role: 'brand',
+      termsAccepted: true,
+    });
+    expect(registered.status).toBe(201);
+
+    const entries = await audit.listAll();
+    const entry = entries.find((item) => item.action === 'user.register');
+    expect(entry).toBeDefined();
+    expect(entry?.targetType).toBe('user');
+    expect(entry?.after).toMatchObject({ role: 'brand', termsVersion: '2026-08-mvp' });
+  });
+
+  it('lọc audit theo targetType=booking không còn trả 400', async () => {
+    const app = buildTestApp({ users: await buildUserSeed(), audit });
+    const login = await request(app)
+      .post('/api/v1/auth/login')
+      .send({ email: 'admin@demo.vn', password: DEMO_PASSWORD });
+
+    const response = await request(app)
+      .get('/api/v1/audit?targetType=booking')
+      .set('Authorization', `Bearer ${login.body.data.accessToken}`);
+
+    expect(response.status).toBe(200);
+  });
+});

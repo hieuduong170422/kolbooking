@@ -4,6 +4,7 @@ import type { Express } from 'express';
 import { CREATOR_SEED } from '../src/modules/creators/creator.seed.js';
 import { DEMO_PASSWORD, buildUserSeed } from '../src/modules/users/user.seed.js';
 import { buildTestApp } from './helpers/build-test-app.js';
+import { futureDeadline } from './helpers/future-deadline.js';
 
 /** T-P5 — Nộp bài, revision có kiểm soát, nghiệm thu (DLV-001..DLV-006). */
 
@@ -51,7 +52,7 @@ const bookingInProgress = async (): Promise<{
         mustHaveScenes: [],
         prohibited: [],
         references: [],
-        desiredDeadline: '2026-09-01T00:00:00.000Z',
+        desiredDeadline: futureDeadline(),
       },
     });
   const bookingId = created.body.data.booking.id as string;

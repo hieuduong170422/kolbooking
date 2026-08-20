@@ -2,13 +2,13 @@ import { randomUUID } from 'node:crypto';
 import { queryPage } from '../../shared/db/paginate.js';
 import type { Db } from '../../shared/db/pool.js';
 import type { AuditListFilter, AuditListResult, AuditRepository } from './audit.repository.js';
-import type { AuditEntry, CreateAuditEntryInput } from './audit.types.js';
+import type { AuditEntry, AuditTargetType, CreateAuditEntryInput } from './audit.types.js';
 
 interface AuditRow {
   readonly id: string;
   readonly actor_id: string;
   readonly action: string;
-  readonly target_type: string;
+  readonly target_type: AuditTargetType;
   readonly target_id: string;
   readonly before: unknown;
   readonly after: unknown;
