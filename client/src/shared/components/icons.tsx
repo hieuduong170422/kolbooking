@@ -145,3 +145,18 @@ export const IconInbox = (props: SVGProps<SVGSVGElement>) => (
     <path d="M5.5 5 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6L18.5 5a2 2 0 0 0-1.8-1H7.3a2 2 0 0 0-1.8 1Z" />
   </svg>
 );
+
+export const IconMenu = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...base(props)}>
+    <path d="M4 7h16" />
+    <path d="M4 12h16" />
+    <path d="M4 17h16" />
+  </svg>
+);
+
+export const IconClose = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...base(props)}>
+    <path d="M6 6l12 12" />
+    <path d="M18 6 6 18" />
+  </svg>
+);

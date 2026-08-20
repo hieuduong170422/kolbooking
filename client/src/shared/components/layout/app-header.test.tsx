@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAuth } from '../../../features/auth/store/use-auth';
@@ -133,5 +133,122 @@ describe('AppHeader', () => {
     expect(screen.getByRole('link', { name: 'Đăng nhập' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Đăng ký' })).toBeInTheDocument();
     expect(screen.queryByText('User Demo')).not.toBeInTheDocument();
+  });
+});
+
+/**
+ * A1 của báo cáo kiểm thử 20/08/2026: màn hẹp không có nút menu, các tab bị
+ * đẩy ra ngoài rìa thanh trượt ngang có scrollbar bị ẩn nên không ai biết
+ * chúng còn ở đó.
+ */
+describe('AppHeader — ngăn kéo điều hướng cho màn hẹp', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseAuth.mockReturnValue({
+      status: 'authenticated',
+      user: makeUser('brand'),
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: vi.fn(),
+      updateUser: vi.fn(),
+    });
+  });
+
+  /**
+   * Mở ngăn kéo và trả về chính nó. Query theo id chứ không theo role: thanh
+   * ngang desktop và ngăn kéo cùng là <nav aria-label="Điều hướng chính"> nên
+   * getByRole sẽ khớp hai phần tử (ở trình duyệt thật chỉ một cái hiện).
+   */
+  const openDrawer = (): HTMLElement => {
+    fireEvent.click(screen.getByRole('button', { name: 'Mở menu' }));
+    return document.getElementById('app-header-drawer') as HTMLElement;
+  };
+
+  it('mặc định đóng: có nút mở menu, chưa có ngăn kéo', () => {
+    renderHeader();
+
+    const toggle = screen.getByRole('button', { name: 'Mở menu' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(document.getElementById('app-header-drawer')).toBeNull();
+  });
+
+  it('mở menu → mọi tab của vai trò đều bấm tới được', () => {
+    renderHeader();
+    const drawer = openDrawer();
+    expect(within(drawer).getByRole('link', { name: 'Khám phá creator' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('link', { name: 'Booking' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('link', { name: 'Tin nhắn' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('link', { name: 'Đã lưu' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('button', { name: 'Đăng xuất' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Đóng menu' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+  });
+
+  it('admin thấy tab Quản trị, không thấy tab của brand', () => {
+    mockUseAuth.mockReturnValue({
+      status: 'authenticated',
+      user: makeUser('admin'),
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: vi.fn(),
+      updateUser: vi.fn(),
+    });
+    renderHeader();
+    const drawer = openDrawer();
+    expect(within(drawer).getByRole('link', { name: 'Quản trị' })).toBeInTheDocument();
+    expect(within(drawer).queryByRole('link', { name: 'Đã lưu' })).not.toBeInTheDocument();
+  });
+
+  it('khách chưa đăng nhập thấy Đăng nhập/Đăng ký trong ngăn kéo', () => {
+    mockUseAuth.mockReturnValue({
+      status: 'guest',
+      user: null,
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: vi.fn(),
+      updateUser: vi.fn(),
+    });
+    renderHeader();
+    const drawer = openDrawer();
+    expect(within(drawer).getByRole('link', { name: 'Đăng nhập' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('link', { name: 'Đăng ký' })).toBeInTheDocument();
+  });
+
+  it('Escape đóng ngăn kéo', () => {
+    renderHeader();
+    openDrawer();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(document.getElementById('app-header-drawer')).toBeNull();
+  });
+
+  it('bấm ra ngoài header đóng ngăn kéo', () => {
+    renderHeader();
+    openDrawer();
+
+    fireEvent.mouseDown(document.body);
+
+    expect(document.getElementById('app-header-drawer')).toBeNull();
+  });
+
+  it('đăng xuất từ ngăn kéo → gọi logout rồi về /creators', async () => {
+    const mockLogout = vi.fn().mockResolvedValue(undefined);
+    mockUseAuth.mockReturnValue({
+      status: 'authenticated',
+      user: makeUser('brand'),
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: mockLogout,
+      updateUser: vi.fn(),
+    });
+    renderHeader();
+    const drawer = openDrawer();
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Đăng xuất' }));
+
+    expect(mockLogout).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/creators'));
   });
 });
