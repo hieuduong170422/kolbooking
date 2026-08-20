@@ -11,6 +11,7 @@ set -euo pipefail
 SERVER="${SERVER:-root@34.126.124.249}"
 APP_DIR=/var/www/kolbooking-src
 APP_PORT=8090
+REMOTE_ENV=$APP_DIR/server/.env
 
 log() { printf '\n=== %s\n' "$1"; }
 
@@ -22,6 +23,38 @@ Kiểm tra: VM đang bật? firewall GCP có mở cổng 22 cho IP hiện tại 
 EOF
   exit 1
 fi
+
+# Kiểm tra .env trên server TRƯỚC khi đụng vào bất cứ thứ gì.
+# env.ts chặn boot khi NODE_ENV=production + SEED_DEMO_DATA=true mà thiếu
+# DEMO_SEED_PASSWORD. Không kiểm ở đây thì lỗi chỉ lộ ra ở bước pm2 reload —
+# lúc đó mã nguồn mới đã ghi đè bản cũ và app nằm im.
+log "Kiểm tra cấu hình .env trên server"
+ssh "$SERVER" "bash -s" <<REMOTE_ENV_CHECK
+set -euo pipefail
+ENV="$REMOTE_ENV"
+if [ ! -f "\$ENV" ]; then
+  echo "LỖI: không thấy \$ENV — chạy deploy/setup-server.sh trước." >&2
+  exit 1
+fi
+node_env=\$(grep -E '^NODE_ENV=' "\$ENV" | cut -d= -f2- || true)
+seed_demo=\$(grep -E '^SEED_DEMO_DATA=' "\$ENV" | cut -d= -f2- || true)
+if [ "\$node_env" = "production" ] && [ "\$seed_demo" = "true" ] \
+   && ! grep -q '^DEMO_SEED_PASSWORD=.\+' "\$ENV"; then
+  cat >&2 <<MSG
+LỖI: \$ENV thiếu DEMO_SEED_PASSWORD.
+NODE_ENV=production + SEED_DEMO_DATA=true mà không đặt mật khẩu demo thì server
+từ chối khởi động (mật khẩu mặc định Demo@1234 nằm trong mã nguồn công khai).
+
+Sửa trên server (hai bước, tránh dán nhầm):
+  openssl rand -base64 18
+  echo "DEMO_SEED_PASSWORD=<dán chuỗi vừa sinh>" >> \$ENV
+
+Hoặc tắt hẳn dữ liệu demo: đổi SEED_DEMO_DATA=false.
+MSG
+  exit 1
+fi
+echo "OK"
+REMOTE_ENV_CHECK
 
 log "Đồng bộ mã nguồn"
 rsync -az --delete \

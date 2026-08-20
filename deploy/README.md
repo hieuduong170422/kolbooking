@@ -72,7 +72,7 @@ Mật khẩu chung lấy từ `DEMO_SEED_PASSWORD` trong `.env` (setup-server.sh
 ngẫu nhiên cho từng máy). Xem lại bằng:
 
 ```bash
-grep DEMO_SEED_PASSWORD /opt/kolbooking/.env
+grep DEMO_SEED_PASSWORD /var/www/kolbooking-src/server/.env
 ```
 
 Bỏ trống `DEMO_SEED_PASSWORD` thì rơi về `Demo@1234` — mật khẩu nằm trong mã

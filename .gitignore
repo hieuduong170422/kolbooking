@@ -10,6 +10,9 @@ coverage/
 .env
 .env.local
 .env.*.local
+# Bản sao lưu .env trước khi sửa tay — cùng chứa secret như .env, đừng để lọt
+# vào git chỉ vì khác đuôi file.
+.env.bak*
 
 # Logs
 *.log
