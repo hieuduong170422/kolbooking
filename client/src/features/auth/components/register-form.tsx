@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Link } from 'react-router';
 import { Button, Checkbox, Input, RadioGroup } from '../../../shared/components/ui';
 import {
   SELF_REGISTER_ROLES,
@@ -13,7 +14,7 @@ const ROLE_OPTIONS = SELF_REGISTER_ROLES.map((role) => ({
   label: ROLE_LABELS[role],
 }));
 
-interface RegisterFormProps {
+export interface RegisterFormProps {
   readonly onSubmit: (input: RegisterInput) => Promise<void>;
 }
 
@@ -81,8 +82,16 @@ export const RegisterForm = ({ onSubmit }: RegisterFormProps) => {
         onChange={(event) => setTermsAccepted(event.target.checked)}
         label={
           <>
-            Tôi đồng ý với <a href="/terms">Điều khoản sử dụng</a> và{' '}
-            <a href="/privacy">Chính sách quyền riêng tư</a>.
+            {/* Mở tab mới: đọc điều khoản không được làm mất form đang điền dở. */}
+            Tôi đồng ý với{' '}
+            <Link to="/terms" target="_blank" rel="noopener noreferrer">
+              Điều khoản sử dụng
+            </Link>{' '}
+            và{' '}
+            <Link to="/privacy" target="_blank" rel="noopener noreferrer">
+              Chính sách quyền riêng tư
+            </Link>
+            .
           </>
         }
       />

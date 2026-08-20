@@ -22,9 +22,11 @@ import { LoginPage } from '../pages/login-page';
 import { MessagesPage } from '../pages/messages-page';
 import { MyPackagesPage } from '../pages/my-packages-page';
 import { NotFoundPage } from '../pages/not-found-page';
+import { PrivacyPage } from '../pages/privacy-page';
 import { OnboardingPage } from '../pages/onboarding-page';
 import { RegisterPage } from '../pages/register-page';
 import { SavedCreatorsPage } from '../pages/saved-creators-page';
+import { TermsPage } from '../pages/terms-page';
 import { VerifyEmailPage } from '../pages/verify-email-page';
 
 export const AppRoutes = () => (
@@ -37,6 +39,9 @@ export const AppRoutes = () => (
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      {/* Bắt buộc phải tồn tại: form đăng ký ép đồng ý và trỏ tới hai trang này. */}
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
 
       {/* Cần đăng nhập */}
       <Route element={<RequireAuth />}>
